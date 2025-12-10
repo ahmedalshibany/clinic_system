@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="dashboard">Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <a href="dashboard.html" class="sidebar-brand">
+            <i class="fas fa-heartbeat"></i>
+        </a>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li><a href="dashboard.html" class="nav-link active"><i class="fas fa-home"></i> <span
+                        data-i18n="dashboard">Home</span></a></li>
+            <li><a href="patients.html" class="nav-link"><i class="fas fa-user-injured"></i> <span
+                        data-i18n="patients">Patients</span></a></li>
+            <li><a href="appointments.html" class="nav-link"><i class="fas fa-calendar-check"></i> <span
+                        data-i18n="appointments">Appts</span></a></li>
+            <li><a href="doctors.html" class="nav-link"><i class="fas fa-user-md"></i> <span
+                        data-i18n="doctors">Doctors</span></a></li>
+            <li><a href="settings.html" class="nav-link"><i class="fas fa-cog"></i> <span
+                        data-i18n="settings">Settings</span></a></li>
+            <li class="mt-auto"><a href="#" id="logoutBtn" class="nav-link"><i class="fas fa-sign-out-alt"></i> <span
+                        data-i18n="logout">Logout</span></a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="main-content">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="btn btn-primary d-lg-none" id="sidebarToggle"><i
+                                class="fas fa-bars"></i></button>
+                        <div class="input-group" style="max-width: 400px;">
+                            <span class="input-group-text bg-white border-0"><i
+                                    class="fas fa-search text-muted"></i></span>
+                            <input type="text" class="form-control search-bar border-0"
+                                data-i18n-placeholder="searchPlaceholder" placeholder="Search...">
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="btn btn-light rounded-circle p-2"><i class="fas fa-envelope"></i></button>
+                        <button class="btn btn-light rounded-circle p-2"><i class="fas fa-bell"></i></button>
+                        <div class="user-profile">
+                            <div class="user-avatar">
+                                <i class="fas fa-user text-primary"></i>
+                            </div>
+                            <div class="d-none d-md-block">
+                                <div class="fw-bold" style="font-size: 0.9rem;" data-i18n="welcomeDr">Dr. John Jacob
+                                </div>
+                                <small class="text-muted" data-i18n="role">Orthopedical</small>
+                            </div>
+                            <i class="fas fa-chevron-down ms-2 text-muted"></i>
+                        </div>
+                        <button class="lang-toggle position-static shadow-sm" id="langToggle">
+                            <i class="fas fa-globe"></i> <span id="langToggleText">العربية</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Section - Stats & Profile -->
+            <div class="row g-3 mb-4">
+                <!-- Left Side - Patient History Stats -->
+                <div class="col-lg-8">
+                    <div class="card slide-in">
+                        <div class="card-header">
+                            <h6 class="mb-0 fw-bold" data-i18n="incomingPatientHistory">Incoming Patient History</h6>
+                            <select class="form-select form-select-sm" style="width: auto;">
+                                <option data-i18n="weekly">Weekly</option>
+                                <option data-i18n="monthly">Monthly</option>
+                                <option data-i18n="yearly">Yearly</option>
+                            </select>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <div class="stat-card">
+                                        <h6 data-i18n="consultation">CONSULTATION</h6>
+                                        <h3>1215</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stat-card">
+                                        <h6 data-i18n="inProgress">IN PROGRESS</h6>
+                                        <h3>345</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stat-card">
+                                        <h6 data-i18n="inReview">IN REVIEW</h6>
+                                        <h3>93</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stat-card">
+                                        <h6 data-i18n="inPending">IN PENDING</h6>
+                                        <h3>71</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side - Profile Circle -->
+                <div class="col-lg-4">
+                    <div class="card slide-in text-center" style="animation-delay: 0.1s;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge badge-info" data-i18n="goodMorning">Good Morning!</span>
+                                <button class="btn btn-sm btn-light"><i class="fas fa-ellipsis-h"></i></button>
+                            </div>
+                            <div class="d-flex justify-content-center mb-3">
+                                <div class="progress-circle">
+                                    <svg width="120" height="120">
+                                        <circle class="progress-circle-bg" cx="60" cy="60" r="52"></circle>
+                                        <circle class="progress-circle-fill" cx="60" cy="60" r="52"
+                                            style="stroke-dasharray: 327; stroke-dashoffset: 81.75;"></circle>
+                                    </svg>
+                                    <div class="progress-circle-text">784</div>
+                                </div>
+                            </div>
+                            <h5 class="fw-bold mb-1" data-i18n="doctorName2">Dr. John Jacob</h5>
+                            <p class="text-muted mb-3" style="font-size: 0.85rem;" data-i18n="specialization">
+                                Orthopedical</p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <div class="text-center">
+                                    <i class="fas fa-circle text-success" style="font-size: 0.5rem;"></i>
+                                    <small class="d-block text-muted" data-i18n="male">Male</small>
+                                </div>
+                                <div class="text-center">
+                                    <i class="fas fa-circle text-danger" style="font-size: 0.5rem;"></i>
+                                    <small class="d-block text-muted" data-i18n="female">Female</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Section - Booking Rate & Today's Patients -->
+            <div class="row g-3 mb-4">
+                <!-- Booking Rate Chart -->
+                <div class="col-lg-5">
+                    <div class="card fade-in" style="animation-delay: 0.2s;">
+                        <div class="card-header">
+                            <h6 class="mb-0 fw-bold" data-i18n="bookingRate">Booking Rate</h6>
+                            <select class="form-select form-select-sm" style="width: auto;">
+                                <option data-i18n="weekly">Weekly</option>
+                                <option data-i18n="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <h2 class="fw-bold mb-0">58%</h2>
+                                <div class="ms-3">
+                                    <p class="mb-0 fw-bold" data-i18n="yourTotalPatient">Your Total Patient</p>
+                                    <small class="text-muted" data-i18n="onFriday">on Friday</small>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-success"><i class="fas fa-arrow-up"></i> 6% <span class="text-muted"
+                                        data-i18n="bookingHigher">Your booking is higher than yesterday</span></small>
+                            </div>
+                            <div class="chart-container">
+                                <div class="chart-bars">
+                                    <div class="chart-bar" style="height: 30%;">
+                                        <span class="chart-bar-label" data-i18n="sun">SUN</span>
+                                    </div>
+                                    <div class="chart-bar" style="height: 45%;">
+                                        <span class="chart-bar-label" data-i18n="mon">MON</span>
+                                    </div>
+                                    <div class="chart-bar" style="height: 40%;">
+                                        <span class="chart-bar-label" data-i18n="tue">TUE</span>
+                                    </div>
+                                    <div class="chart-bar" style="height: 50%;">
+                                        <span class="chart-bar-label" data-i18n="wed">WED</span>
+                                    </div>
+                                    <div class="chart-bar" style="height: 42%;">
+                                        <span class="chart-bar-label" data-i18n="thu">THU</span>
+                                    </div>
+                                    <div class="chart-bar" style="height: 100%;">
+                                        <span class="chart-bar-label" data-i18n="fri">FRI</span>
+                                    </div>
+                                    <div class="chart-bar" style="height: 25%;">
+                                        <span class="chart-bar-label" data-i18n="sat">SAT</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Your Patients Today -->
+                <div class="col-lg-7">
+                    <div class="card fade-in" style="animation-delay: 0.3s;">
+                        <div class="card-header">
+                            <h6 class="mb-0 fw-bold" data-i18n="yourPatientsToday">Your Patients Today</h6>
+                            <select class="form-select form-select-sm" style="width: auto;">
+                                <option data-i18n="weekly">Weekly</option>
+                                <option data-i18n="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                            <div class="patient-item">
+                                <div class="patient-info">
+                                    <div class="patient-time">08:00</div>
+                                    <div class="patient-avatar">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    <div class="patient-name">Sarah Hosten</div>
+                                </div>
+                                <button class="btn btn-sm btn-light"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                            <div class="patient-item">
+                                <div class="patient-info">
+                                    <div class="patient-time">09:00</div>
+                                    <div class="patient-avatar">
+                                        <i class="fas fa-user text-secondary"></i>
+                                    </div>
+                                    <div class="patient-name">Angello John</div>
+                                </div>
+                                <button class="btn btn-sm btn-light"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                            <div class="patient-item">
+                                <div class="patient-info">
+                                    <div class="patient-time">10:00</div>
+                                    <div class="patient-avatar">
+                                        <i class="fas fa-user text-success"></i>
+                                    </div>
+                                    <div class="patient-name">Meghan Matthew</div>
+                                </div>
+                                <button class="btn btn-sm btn-light"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                            <div class="patient-item">
+                                <div class="patient-info">
+                                    <div class="patient-time">11:00</div>
+                                    <div class="patient-avatar">
+                                        <i class="fas fa-user text-warning"></i>
+                                    </div>
+                                    <div class="patient-name">John Jacob Matthew</div>
+                                </div>
+                                <button class="btn btn-sm btn-light"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                            <div class="patient-item">
+                                <div class="patient-info">
+                                    <div class="patient-time">12:00</div>
+                                    <div class="patient-avatar">
+                                        <i class="fas fa-user text-info"></i>
+                                    </div>
+                                    <div class="patient-name">Sara Robson</div>
+                                </div>
+                                <button class="btn btn-sm btn-light"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                            <div class="patient-item">
+                                <div class="patient-info">
+                                    <div class="patient-time">14:00</div>
+                                    <div class="patient-avatar">
+                                        <i class="fas fa-user text-danger"></i>
+                                    </div>
+                                    <div class="patient-name">Trevor Tiffany</div>
+                                </div>
+                                <button class="btn btn-sm btn-light"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                            <div class="patient-item">
+                                <div class="patient-info">
+                                    <div class="patient-time">15:00</div>
+                                    <div class="patient-avatar">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    <div class="patient-name">Meghan Moore</div>
+                                </div>
+                                <button class="btn btn-sm btn-light"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                            <div class="patient-item">
+                                <div class="patient-info">
+                                    <div class="patient-time">17:00</div>
+                                    <div class="patient-avatar">
+                                        <i class="fas fa-user text-secondary"></i>
+                                    </div>
+                                    <div class="patient-name">Wallace Stone</div>
+                                </div>
+                                <button class="btn btn-sm btn-light"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                            <div class="patient-item">
+                                <div class="patient-info">
+                                    <div class="patient-time">18:00</div>
+                                    <div class="patient-avatar">
+                                        <i class="fas fa-user text-success"></i>
+                                    </div>
+                                    <div class="patient-name">Jane Andrews</div>
+                                </div>
+                                <button class="btn btn-sm btn-light"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Section -->
+            <div class="card fade-in" style="animation-delay: 0.4s;">
+                <div class="card-header">
+                    <h6 class="mb-0 fw-bold" data-i18n="mySchedule">My Schedule</h6>
+                    <select class="form-select form-select-sm" style="width: auto;">
+                        <option data-i18n="weekly">Weekly</option>
+                        <option data-i18n="monthly">Monthly</option>
+                    </select>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="schedule-day">
+                                <span class="day-number">12</span>
+                                <span class="day-name" data-i18n="sun">SUN</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="schedule-day">
+                                <span class="day-number">13</span>
+                                <span class="day-name" data-i18n="mon">MON</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="schedule-day">
+                                <span class="day-number">14</span>
+                                <span class="day-name" data-i18n="tue">TUE</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="schedule-day active">
+                                <span class="day-number">15</span>
+                                <span class="day-name" data-i18n="wed">WED</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="schedule-day">
+                                <span class="day-number">16</span>
+                                <span class="day-name" data-i18n="thu">THU</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="schedule-day">
+                                <span class="day-number">17</span>
+                                <span class="day-name" data-i18n="fri">FRI</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="schedule-day">
+                                <span class="day-number">18</span>
+                                <span class="day-name" data-i18n="sat">SAT</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div style="height: 4px; background: var(--sky-blue); border-radius: 2px; position: relative;">
+                            <div
+                                style="position: absolute; top: 0; left: 0; width: 80%; height: 100%; background: var(--secondary); border-radius: 2px;">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <small class="text-muted">20:00</small>
+                            <small class="text-muted">14:00</small>
+                            <small class="text-muted">12:00</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
