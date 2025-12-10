@@ -228,41 +228,54 @@ class App {
     }
 
     bindEvents() {
+        // Language Toggle - Fix duplicate listeners
         const langToggle = document.getElementById('langToggle');
         if (langToggle) {
-            langToggle.addEventListener('click', () => this.toggleLanguage());
+            if (this.langHandler) langToggle.removeEventListener('click', this.langHandler);
+            this.langHandler = () => this.toggleLanguage();
+            langToggle.addEventListener('click', this.langHandler);
         }
 
+        // Theme Toggle - Fix duplicate listeners
         const themeToggle = document.getElementById('themeToggle');
         if (themeToggle) {
-            themeToggle.removeEventListener('click', this.handleThemeClick); // Prevent duplicates
-            this.handleThemeClick = () => this.toggleTheme();
-            themeToggle.addEventListener('click', this.handleThemeClick);
+            if (this.themeHandler) themeToggle.removeEventListener('click', this.themeHandler);
+            this.themeHandler = () => this.toggleTheme();
+            themeToggle.addEventListener('click', this.themeHandler);
         }
 
+        // Login Form (only on login page, not static)
         const loginForm = document.getElementById('loginForm');
         if (loginForm) {
             loginForm.addEventListener('submit', (e) => this.handleLogin(e));
         }
 
+        // Dynamic Forms (re-bind safely? these usually strictly inside content so replaced on nav)
         const forms = document.querySelectorAll('form:not(#loginForm)');
         forms.forEach(form => {
+            // Forms inside main-content are replaced, so strictly simple addEventListener is fine
             form.addEventListener('submit', (e) => this.handleFormSubmit(e));
         });
 
+        // Logout Button (Static in Sidebar)
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
-            logoutBtn.addEventListener('click', (e) => {
+            if (this.logoutHandler) logoutBtn.removeEventListener('click', this.logoutHandler);
+            this.logoutHandler = (e) => {
                 e.preventDefault();
                 this.logout();
-            });
+            };
+            logoutBtn.addEventListener('click', this.logoutHandler);
         }
 
+        // Sidebar Toggle (Static in Header)
         const sidebarToggle = document.getElementById('sidebarToggle');
         if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
+            if (this.sidebarHandler) sidebarToggle.removeEventListener('click', this.sidebarHandler);
+            this.sidebarHandler = () => {
                 document.querySelector('.sidebar').classList.toggle('active');
-            });
+            };
+            sidebarToggle.addEventListener('click', this.sidebarHandler);
         }
     }
 
@@ -297,11 +310,17 @@ class App {
         const elements = document.querySelectorAll('[data-i18n]');
         elements.forEach(el => {
             const key = el.getAttribute('data-i18n');
-            if (translations[lang][key]) {
+            // Safe check for translation existence
+            if (translations[lang] && translations[lang][key]) {
                 if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
                     el.placeholder = translations[lang][key];
                 } else {
-                    el.textContent = translations[lang][key];
+                    // Prevent wiping icons if present (simple check)
+                    if (el.children.length > 0 && el.lastChild.nodeType === 3) {
+                        el.lastChild.textContent = translations[lang][key];
+                    } else {
+                        el.textContent = translations[lang][key];
+                    }
                 }
             }
         });

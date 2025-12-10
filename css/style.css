@@ -17,6 +17,7 @@
     --font-en: 'Inter', sans-serif;
     --font-ar: 'Tajawal', sans-serif;
     --body-bg: linear-gradient(135deg, var(--sky-blue) 0%, var(--beige) 100%);
+    --input-bg: #f8f9fa;
 }
 
 [data-theme="dark"] {
@@ -28,6 +29,7 @@
     --dark: #2F4156;
     --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.4);
     --body-bg: #0f172a;
+    --input-bg: rgba(0, 0, 0, 0.2);
 }
 
 * {
@@ -93,6 +95,60 @@ h6 {
 
 .card-body {
     padding: 20px 24px 24px;
+}
+
+/* Login Page */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 32px;
+    /* Extra padding for login look */
+}
+
+/* Language Toggle (Login Page) */
+.lang-toggle {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: var(--white);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 8px 16px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary);
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+    z-index: 1000;
+}
+
+.lang-toggle:hover {
+    background: var(--white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+    color: var(--secondary);
+}
+
+.lang-toggle i {
+    font-size: 1rem;
+    color: var(--secondary);
+}
+
+/* RTL Position */
+[dir="rtl"] .lang-toggle {
+    right: auto;
+    left: 24px;
 }
 
 /* Buttons */
@@ -300,4 +356,86 @@ h6 {
 .badge-info {
     background: rgba(86, 124, 141, 0.1);
     color: var(--secondary);
+}
+
+/* Modern Forms */
+.form-label {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--secondary);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.form-control,
+.form-select {
+    background-color: var(--input-bg);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    color: var(--dark);
+    transition: all 0.3s ease;
+    box-shadow: none;
+}
+
+.form-select {
+    padding-right: 36px;
+    /* Ensure space for arrow */
+    background-position: right 12px center;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--dark);
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--white);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(47, 65, 86, 0.1);
+    transform: translateY(-2px);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    box-shadow: 0 0 0 4px rgba(186, 230, 253, 0.1);
+}
+
+.form-control::placeholder {
+    color: #a0aec0;
+    font-size: 0.9rem;
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Input Group Alignment (Login Page) */
+.input-group-text {
+    background-color: var(--input-bg) !important;
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--secondary);
+    padding: 12px 16px;
+    border-radius: 0;
+    /* Reset */
+    border-start-start-radius: 12px;
+    border-end-start-radius: 12px;
+}
+
+.input-group .form-control {
+    border-radius: 0;
+    /* Reset */
+    border-start-end-radius: 12px;
+    border-end-end-radius: 12px;
+    padding-inline-start: 10px;
+}
+
+[data-theme="dark"] .input-group-text {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--light-text);
 }
