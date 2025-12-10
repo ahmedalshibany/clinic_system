@@ -7,12 +7,12 @@ const Layout = {
     init: async function () {
         if (document.querySelector('.login-container')) return; // Don't run on login page
 
-        // Load CSS first
-        this.loadCSS('css/layout.css');
+        // Load CSS first - Force no-cache
+        this.loadCSS(`css/layout.css?v=${Date.now() + 1}`);
 
         try {
-            // Fetch the layout HTML file
-            const response = await fetch('layout.html');
+            // Fetch the layout HTML file - Force no-cache
+            const response = await fetch(`layout.html?v=${new Date().getTime()}`);
             if (!response.ok) throw new Error('Failed to load layout.html');
             const text = await response.text();
 

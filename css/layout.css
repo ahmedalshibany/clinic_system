@@ -69,15 +69,62 @@
     height: 60px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    /* Consistent alignment */
+    padding-left: 12px;
+    /* Match nav-link padding */
     margin-bottom: 40px;
     text-decoration: none;
+    overflow: hidden;
+    white-space: nowrap;
 }
+
+[dir="rtl"] .sidebar-brand {
+    padding-left: 0;
+    padding-right: 12px;
+}
+
+
 
 .sidebar-brand i {
     font-size: 2rem;
     color: var(--secondary);
     filter: drop-shadow(0 0 10px rgba(86, 124, 141, 0.4));
+    flex-shrink: 0;
+    /* Prevent icon shrinking */
+    transition: all 0.3s ease;
+}
+
+.brand-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-left: 0;
+    opacity: 0;
+    width: 0;
+    /* critical fix */
+    overflow: hidden;
+    white-space: nowrap;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+}
+
+[dir="rtl"] .brand-text {
+    margin-right: 0;
+    margin-left: 0;
+    transform: translateX(10px);
+}
+
+.sidebar:hover .brand-text {
+    opacity: 1;
+    width: auto;
+    margin-left: 12px;
+    transform: translateX(0);
+}
+
+[dir="rtl"] .sidebar:hover .brand-text {
+    margin-right: 12px;
+    margin-left: 0;
 }
 
 .pulse-anim {

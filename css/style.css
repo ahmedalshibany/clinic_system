@@ -21,15 +21,16 @@
 }
 
 [data-theme="dark"] {
-    /* Same as Light Theme, but Dark Background */
-    --primary: #2F4156;
+    /* Adjusted for Dark Background */
+    --primary: #f1f5f8;
     --secondary: #567C8D;
-    --beige: #ffffff;
-    --white: #f1f5f8;
-    --dark: #2F4156;
+    --beige: #1e293b;
+    --white: #1e293b;
+    --dark: #cadae5;
     --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.4);
     --body-bg: #0f172a;
-    --input-bg: rgba(0, 0, 0, 0.2);
+    --input-bg: rgba(255, 255, 255, 0.05);
+    /* Slightly more visible input bg */
 }
 
 * {
