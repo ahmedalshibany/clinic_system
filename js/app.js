@@ -158,19 +158,86 @@ const translations = {
 class App {
     constructor() {
         this.lang = localStorage.getItem('clinic_lang') || 'en';
+        this.theme = localStorage.getItem('clinic_theme') || 'light';
         this.init();
     }
 
     init() {
         this.applyLanguage(this.lang);
+        this.applyTheme(this.theme); // Apply saved theme
         this.bindEvents();
+        this.initCharts(); // Initialize charts
         this.checkAuth();
+
+        // Re-bind events when layout is injected dynamically
+        document.addEventListener('layout-loaded', () => {
+            this.bindEvents();
+            this.applyLanguage(this.lang);
+            this.applyTheme(this.theme); // Re-apply theme to new button
+        });
+    }
+
+    initCharts() {
+        const ctx = document.getElementById('bookingChart');
+        if (ctx && typeof Chart !== 'undefined') {
+            // Basic config, can be enhanced
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
+                    datasets: [{
+                        label: 'Patients',
+                        data: [30, 45, 40, 50, 42, 85, 25],
+                        backgroundColor: '#2dd4bf', /* Neon teal matching theme */
+                        borderRadius: 50,
+                        barThickness: 12,
+                        hoverBackgroundColor: '#00f2fe'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(47, 65, 86, 0.9)',
+                            padding: 12,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        y: {
+                            display: false,
+                            grid: { display: false }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { family: "'Inter', sans-serif" }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
     }
 
     bindEvents() {
         const langToggle = document.getElementById('langToggle');
         if (langToggle) {
             langToggle.addEventListener('click', () => this.toggleLanguage());
+        }
+
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.removeEventListener('click', this.handleThemeClick); // Prevent duplicates
+            this.handleThemeClick = () => this.toggleTheme();
+            themeToggle.addEventListener('click', this.handleThemeClick);
         }
 
         const loginForm = document.getElementById('loginForm');
@@ -207,6 +274,20 @@ class App {
         this.lang = this.lang === 'en' ? 'ar' : 'en';
         localStorage.setItem('clinic_lang', this.lang);
         this.applyLanguage(this.lang);
+    }
+
+    toggleTheme() {
+        this.theme = this.theme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('clinic_theme', this.theme);
+        this.applyTheme(this.theme);
+    }
+
+    applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const btn = document.getElementById('themeToggle');
+        if (btn) {
+            btn.innerHTML = theme === 'dark' ? '<i class="fas fa-sun text-warning"></i>' : '<i class="fas fa-moon"></i>';
+        }
     }
 
     applyLanguage(lang) {
