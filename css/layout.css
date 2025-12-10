@@ -206,10 +206,14 @@
 }
 
 .header-title {
-    color: #000000;
+    color: var(--primary);
     font-size: 1.6rem;
     font-weight: 800;
     letter-spacing: -0.5px;
+}
+
+[data-theme="dark"] .header-title {
+    color: var(--white);
 }
 
 /* Search Container */
