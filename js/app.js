@@ -74,7 +74,25 @@ const translations = {
         fri: "FRI",
         sat: "SAT",
         role: "Orthopedical",
-        addDoctor: "Add Doctor"
+        addDoctor: "Add Doctor",
+        doctorUpdated: "Doctor updated successfully!",
+        doctorAdded: "New doctor added successfully!",
+        doctorDeleted: "Doctor deleted successfully!",
+        editDoctor: "Edit Doctor",
+        spec_cardiology: "Cardiology",
+        spec_dermatology: "Dermatology",
+        spec_pediatrics: "Pediatrics",
+        spec_orthopedics: "Orthopedics",
+        spec_neurology: "Neurology",
+        spec_general: "General Practice",
+        areYouSure: "Are you sure?",
+        deleteConfirmation: "Do you really want to delete this doctor? This process cannot be undone.",
+        cancel: "Cancel",
+        delete: "Delete",
+        editPatient: "Edit Patient",
+        patientAdded: "New patient added successfully!",
+        patientUpdated: "Patient updated successfully!",
+        patientDeleted: "Patient deleted successfully!"
     },
     ar: {
         appTitle: "نظام العيادة",
@@ -82,7 +100,7 @@ const translations = {
         loginSubtitle: "سجل الدخول للوصول إلى لوحة التحكم",
         emailLabel: "البريد الإلكتروني",
         passwordLabel: "كلمة المرور",
-        loginBtn: "تحديث الدخول",
+        loginBtn: "تسجيل الدخول",
         dashboard: "لوحة التحكم",
         patients: "المرضى",
         appointments: "المواعيد",
@@ -151,7 +169,25 @@ const translations = {
         fri: "الجمعة",
         sat: "السبت",
         role: "جراحة العظام",
-        addDoctor: "إضافة طبيب"
+        addDoctor: "إضافة طبيب",
+        doctorUpdated: "تم تحديث بيانات الطبيب بنجاح!",
+        doctorAdded: "تم إضافة طبيب جديد بنجاح!",
+        doctorDeleted: "تم حذف الطبيب بنجاح!",
+        editDoctor: "تعديل بيانات الطبيب",
+        spec_cardiology: "طب القلب",
+        spec_dermatology: "الأمراض الجلدية",
+        spec_pediatrics: "طب الأطفال",
+        spec_orthopedics: "جراحة العظام",
+        spec_neurology: "طب الأعصاب",
+        spec_general: "طب عام",
+        areYouSure: "هل أنت متأكد؟",
+        deleteConfirmation: "هل تريد حقاً حذف هذا الطبيب؟ لا يمكن التراجع عن هذا الإجراء.",
+        cancel: "إلغاء",
+        delete: "حذف",
+        editPatient: "تعديل بيانات المريض",
+        patientAdded: "تم إضافة مريض جديد بنجاح!",
+        patientUpdated: "تم تحديث بيانات المريض بنجاح!",
+        patientDeleted: "تم حذف المريض بنجاح!"
     }
 };
 
@@ -159,36 +195,33 @@ class App {
     constructor() {
         this.lang = localStorage.getItem('clinic_lang') || 'en';
         this.theme = localStorage.getItem('clinic_theme') || 'light';
-        this.init();
+        // Note: init() is called via document.ready at the bottom
     }
 
     init() {
         this.applyLanguage(this.lang);
-        this.applyTheme(this.theme); // Apply saved theme
+        this.applyTheme(this.theme);
         this.bindEvents();
-        this.initCharts(); // Initialize charts
-        this.checkAuth();
+        this.initCharts();
 
-        // Re-bind events when layout is injected dynamically
-        document.addEventListener('layout-loaded', () => {
-            this.bindEvents();
+        // Re-apply settings when layout is loaded
+        $(document).on('layout-loaded', () => {
             this.applyLanguage(this.lang);
-            this.applyTheme(this.theme); // Re-apply theme to new button
+            this.applyTheme(this.theme);
         });
     }
 
     initCharts() {
-        const ctx = document.getElementById('bookingChart');
-        if (ctx && typeof Chart !== 'undefined') {
-            // Basic config, can be enhanced
-            new Chart(ctx, {
+        const $ctx = $('#bookingChart');
+        if ($ctx.length && typeof Chart !== 'undefined') {
+            new Chart($ctx[0], {
                 type: 'bar',
                 data: {
                     labels: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
                     datasets: [{
                         label: 'Patients',
                         data: [30, 45, 40, 50, 42, 85, 25],
-                        backgroundColor: '#2dd4bf', /* Neon teal matching theme */
+                        backgroundColor: '#2dd4bf',
                         borderRadius: 50,
                         barThickness: 12,
                         hoverBackgroundColor: '#00f2fe'
@@ -199,88 +232,47 @@ class App {
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(47, 65, 86, 0.9)',
-                            padding: 12,
-                            cornerRadius: 8
-                        }
+                        tooltip: { backgroundColor: 'rgba(47, 65, 86, 0.9)', padding: 12, cornerRadius: 8 }
                     },
                     scales: {
-                        y: {
-                            display: false,
-                            grid: { display: false }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                color: '#94a3b8',
-                                font: { family: "'Inter', sans-serif" }
-                            }
-                        }
+                        y: { display: false, grid: { display: false } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { family: "'Inter', sans-serif" } } }
                     },
-                    animation: {
-                        duration: 2000,
-                        easing: 'easeOutQuart'
-                    }
+                    animation: { duration: 2000, easing: 'easeOutQuart' }
                 }
             });
         }
     }
 
     bindEvents() {
-        // Language Toggle - Fix duplicate listeners
-        const langToggle = document.getElementById('langToggle');
-        if (langToggle) {
-            if (this.langHandler) langToggle.removeEventListener('click', this.langHandler);
-            this.langHandler = () => this.toggleLanguage();
-            langToggle.addEventListener('click', this.langHandler);
-        }
+        // Use delegated events for elements that might be re-injected (Header/Sidebar)
 
-        // Theme Toggle - Fix duplicate listeners
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-            if (this.themeHandler) themeToggle.removeEventListener('click', this.themeHandler);
-            this.themeHandler = () => this.toggleTheme();
-            themeToggle.addEventListener('click', this.themeHandler);
-        }
-
-        // Login Form (only on login page, not static)
-        const loginForm = document.getElementById('loginForm');
-        if (loginForm) {
-            loginForm.addEventListener('submit', (e) => this.handleLogin(e));
-        }
-
-        // Dynamic Forms (re-bind safely? these usually strictly inside content so replaced on nav)
-        const forms = document.querySelectorAll('form:not(#loginForm)');
-        forms.forEach(form => {
-            // Forms inside main-content are replaced, so strictly simple addEventListener is fine
-            form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+        // Language Toggle
+        $(document).on('click', '#langToggle', (e) => {
+            this.toggleLanguage();
         });
 
-        // Logout Button (Static in Sidebar)
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            if (this.logoutHandler) logoutBtn.removeEventListener('click', this.logoutHandler);
-            this.logoutHandler = (e) => {
-                e.preventDefault();
-                this.logout();
-            };
-            logoutBtn.addEventListener('click', this.logoutHandler);
-        }
+        // Theme Toggle
+        $(document).on('click', '#themeToggle', (e) => {
+            this.toggleTheme();
+        });
 
-        // Sidebar Toggle (Static in Header)
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        if (sidebarToggle) {
-            if (this.sidebarHandler) sidebarToggle.removeEventListener('click', this.sidebarHandler);
-            this.sidebarHandler = () => {
-                document.querySelector('.sidebar').classList.toggle('active');
-            };
-            sidebarToggle.addEventListener('click', this.sidebarHandler);
-        }
-    }
+        // Logout
+        $(document).on('click', '#logoutBtn', (e) => {
+            e.preventDefault();
+            this.logout();
+        });
 
-    checkAuth() {
+        // Sidebar Toggle
+        $(document).on('click', '#sidebarToggle', (e) => {
+            $('.sidebar').toggleClass('active');
+        });
 
+        // Login Form
+        $(document).on('submit', '#loginForm', (e) => this.handleLogin(e));
+
+        // Generic Forms (excluding login and doctor form which has its own handler)
+        $(document).on('submit', 'form:not(#loginForm):not(#doctorForm)', (e) => this.handleFormSubmit(e));
     }
 
     toggleLanguage() {
@@ -296,59 +288,106 @@ class App {
     }
 
     applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        const btn = document.getElementById('themeToggle');
-        if (btn) {
-            btn.innerHTML = theme === 'dark' ? '<i class="fas fa-sun text-warning"></i>' : '<i class="fas fa-moon"></i>';
+        $('html').attr('data-theme', theme);
+        const $btn = $('#themeToggle');
+        if ($btn.length) {
+            $btn.html(theme === 'dark' ? '<i class="fas fa-sun text-warning"></i>' : '<i class="fas fa-moon"></i>');
         }
     }
 
     applyLanguage(lang) {
-        document.documentElement.lang = lang;
-        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        $('html').attr('lang', lang);
+        $('html').attr('dir', lang === 'ar' ? 'rtl' : 'ltr');
 
-        const elements = document.querySelectorAll('[data-i18n]');
-        elements.forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            // Safe check for translation existence
-            if (translations[lang] && translations[lang][key]) {
-                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                    el.placeholder = translations[lang][key];
+        $('[data-i18n]').each(function () {
+            const $el = $(this);
+            const key = $el.data('i18n'); // Use .data() or .attr()
+            // To be safe regarding dynamic updates, .attr() is better if data() caches
+            const attrKey = $el.attr('data-i18n');
+
+            if (translations[lang] && translations[lang][attrKey]) {
+                const text = translations[lang][attrKey];
+
+                if ($el.is('input') || $el.is('textarea')) {
+                    $el.attr('placeholder', text);
                 } else {
-                    // Prevent wiping icons if present (simple check)
-                    if (el.children.length > 0 && el.lastChild.nodeType === 3) {
-                        el.lastChild.textContent = translations[lang][key];
+                    // Check if element has children (like icons)
+                    // If it has children and text nodes, replace text nodes?
+                    // Original code: if children > 0 logic.
+                    // jQuery approach:
+                    if ($el.children().length > 0) {
+                        // Find text node?
+                        // Simple approach: clone children, set text, append children? No, order matters.
+                        // Or just set text content of the last text node?
+                        // Let's replicate original logic safely.
+                        // "if (el.children.length > 0 && el.lastChild.nodeType === 3)"
+
+                        // In jQuery:
+                        const contents = $el.contents();
+                        const lastNode = contents.last()[0];
+                        if (lastNode && lastNode.nodeType === 3) {
+                            lastNode.textContent = text;
+                        } else {
+                            // Maybe just overwrite if structure is simple
+                            // For buttons with icons: <i ></i> Text
+                            // The text is a text node.
+                            // Let's assume text is the last child or simply append if needed.
+                            // Safest: Remove text nodes, keep elements?
+                            // Let's trust the original logic's intent: replace the visible text part.
+
+                            // Harder to do generically in jQuery one-liner.
+                            // Let's use vanilla inside the loop for this specific DOM node manipulation
+                            // since jQuery `.text()` wipes children.
+                            const el = this;
+                            if (el.children.length > 0) {
+                                // Iterate nodes to find text?
+                                // Or just use the original specific logic
+                                let hasText = false;
+                                for (let i = 0; i < el.childNodes.length; i++) {
+                                    if (el.childNodes[i].nodeType === 3 && el.childNodes[i].nodeValue.trim().length > 0) {
+                                        el.childNodes[i].nodeValue = " " + text; // Add space
+                                        hasText = true;
+                                        break;
+                                    }
+                                }
+                                if (!hasText) {
+                                    // If no text node found, maybe append?
+                                    // For now, let's fall back to original logic check
+                                    if (el.lastChild && el.lastChild.nodeType === 3) {
+                                        el.lastChild.textContent = text;
+                                    }
+                                }
+                            } else {
+                                $el.text(text);
+                            }
+                        }
                     } else {
-                        el.textContent = translations[lang][key];
+                        $el.text(text);
                     }
                 }
             }
         });
 
-        const placeholders = document.querySelectorAll('[data-i18n-placeholder]');
-        placeholders.forEach(el => {
-            const key = el.getAttribute('data-i18n-placeholder');
+        $('[data-i18n-placeholder]').each(function () {
+            const $el = $(this);
+            const key = $el.attr('data-i18n-placeholder');
             if (translations[lang][key]) {
-                el.placeholder = translations[lang][key];
+                $el.attr('placeholder', translations[lang][key]);
             }
         });
 
-        const langBtn = document.getElementById('langToggleText');
-        if (langBtn) {
-            langBtn.textContent = translations[lang].langBtn;
-        }
+        $('#langToggleText').text(translations[lang].langBtn);
     }
 
     handleLogin(e) {
         e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+        const email = $('#email').val();
+        const password = $('#password').val();
 
         if (email && password) {
-            const btn = e.target.querySelector('button');
-            const originalText = btn.textContent;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
-            btn.disabled = true;
+            const $btn = $(e.target).find('button');
+            const originalText = $btn.text();
+            $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...').prop('disabled', true);
 
             setTimeout(() => {
                 this.showAlert(translations[this.lang].loginSuccess, 'success');
@@ -363,29 +402,29 @@ class App {
 
     handleFormSubmit(e) {
         e.preventDefault();
-        const inputs = e.target.querySelectorAll('input, select, textarea');
+        const $form = $(e.target);
+        const $inputs = $form.find('input, select, textarea');
         let isValid = true;
 
-        inputs.forEach(input => {
-            if (input.hasAttribute('required') && !input.value) {
+        $inputs.each(function () {
+            const $input = $(this);
+            if ($input.prop('required') && !$input.val()) {
                 isValid = false;
-                input.classList.add('is-invalid');
+                $input.addClass('is-invalid');
             } else {
-                input.classList.remove('is-invalid');
+                $input.removeClass('is-invalid');
             }
         });
 
         if (isValid) {
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.textContent;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-            btn.disabled = true;
+            const $btn = $form.find('button[type="submit"]');
+            const originalText = $btn.text();
+            $btn.html('<span class="spinner-border spinner-border-sm"></span>').prop('disabled', true);
 
             setTimeout(() => {
                 this.showAlert(translations[this.lang].genericSuccess, 'success');
-                e.target.reset();
-                btn.textContent = originalText;
-                btn.disabled = false;
+                $form[0].reset();
+                $btn.text(originalText).prop('disabled', false);
             }, 1000);
         } else {
             this.showAlert(translations[this.lang].validationError, 'danger');
@@ -397,18 +436,20 @@ class App {
     }
 
     showAlert(message, type) {
-        const alertEl = document.createElement('div');
-        alertEl.className = `alert alert-${type} custom-alert show`;
-        alertEl.textContent = message;
-        document.body.appendChild(alertEl);
-
-        alertEl.style.display = 'block';
+        const $alert = $('<div>')
+            .addClass(`alert alert-${type} custom-alert show`)
+            .text(message)
+            .appendTo('body')
+            .show();
 
         setTimeout(() => {
-            alertEl.remove();
+            $alert.fadeOut(300, function () { $(this).remove(); });
         }, 3000);
     }
 }
 
 // Initialize App
 const app = new App();
+$(document).ready(() => {
+    app.init();
+});
