@@ -1,19 +1,27 @@
-/**
- * Doctors Manager (jQuery Version)
- * Handles doctor grid rendering, add/edit/delete logic, and modal interactions.
- */
-
 if (typeof DoctorsManager === 'undefined') {
     class DoctorsManager {
         constructor() {
             this.storageKey = 'clinic_doctors';
-            this.doctors = this.loadFromStorage() || [
-                { id: 1, name: "Dr. Sarah Smith", specialty: "Cardiology", phone: "+1 234 567 890", avatar: "https://ui-avatars.com/api/?name=Sarah+Smith&background=0D8ABC&color=fff", rating: 4.8 },
-                { id: 2, name: "Dr. John Doe", specialty: "Dermatology", phone: "+1 987 654 321", avatar: "https://ui-avatars.com/api/?name=John+Doe&background=567C8D&color=fff", rating: 4.5 },
-                { id: 3, name: "Dr. Emily Blunt", specialty: "Pediatrics", phone: "+1 123 456 789", avatar: "https://ui-avatars.com/api/?name=Emily+Blunt&background=2F4156&color=fff", rating: 4.9 },
-                { id: 4, name: "Dr. Michael Scott", specialty: "Neurology", phone: "+1 555 123 456", avatar: "https://ui-avatars.com/api/?name=Michael+Scott&background=4aa87e&color=fff", rating: 4.7 }
-            ];
+            const stored = this.loadFromStorage();
+
+            if (stored && stored.length > 0) {
+                this.doctors = stored;
+            } else {
+                this.doctors = [
+                    { id: 1, name: "Dr. Sarah Smith", specialty: "Cardiology", phone: "+1 234 567 890", avatar: "https://ui-avatars.com/api/?name=Sarah+Smith&background=0D8ABC&color=fff", rating: 4.8 },
+                    { id: 2, name: "Dr. John Doe", specialty: "Dermatology", phone: "+1 987 654 321", avatar: "https://ui-avatars.com/api/?name=John+Doe&background=567C8D&color=fff", rating: 4.5 },
+                    { id: 3, name: "Dr. Emily Blunt", specialty: "Pediatrics", phone: "+1 123 456 789", avatar: "https://ui-avatars.com/api/?name=Emily+Blunt&background=2F4156&color=fff", rating: 4.9 },
+                    { id: 4, name: "Dr. Michael Scott", specialty: "Neurology", phone: "+1 555 123 456", avatar: "https://ui-avatars.com/api/?name=Michael+Scott&background=4aa87e&color=fff", rating: 4.7 }
+                ];
+                this.saveToStorage();
+            }
+
             this.currentDeleteId = null;
+            this.currentPage = 1;
+            this.itemsPerPage = 8;
+            this.searchTerm = '';
+            this.sortColumn = null;
+            this.sortOrder = 'asc';
         }
 
         loadFromStorage() {
@@ -35,38 +43,42 @@ if (typeof DoctorsManager === 'undefined') {
         }
 
         init() {
-            // Initial render
             this.render();
-            // Bind delegated events only once (using namespace or check)
             this.bindEvents();
         }
 
         bindEvents() {
-            // Unbind first to avoid duplicates if re-initialized
-            $(document).off('submit.doctors click.doctors');
+            $(document).off('submit.doctors click.doctors input.doctors');
 
-            // Form Submit (Delegated)
             $(document).on('submit.doctors', '#doctorForm', (e) => {
                 e.preventDefault();
                 this.save();
             });
 
-            // Edit Doctor Button
             $(document).on('click.doctors', '[data-action="edit-doctor"]', (e) => {
                 const id = parseInt($(e.currentTarget).data('doctor-id'));
                 this.edit(id);
             });
 
-            // Delete Doctor Button
             $(document).on('click.doctors', '[data-action="delete-doctor"]', (e) => {
                 const id = parseInt($(e.currentTarget).data('doctor-id'));
                 this.deleteRequest(id);
             });
 
-            // Delete Confirm (Delegated)
             $(document).on('click.doctors', '#confirmDeleteBtn', () => this.confirmDelete());
 
-            // Re-render on layout load if we are on doctors page
+            $(document).on('input.doctors', '#doctorSearch', Utils.debounce((e) => {
+                this.searchTerm = $(e.target).val().toLowerCase();
+                this.currentPage = 1;
+                this.render();
+            }));
+
+            $(document).on('click.doctors', '[data-action="prev-page"]', () => this.prevPage());
+            $(document).on('click.doctors', '[data-action="next-page"]', () => this.nextPage());
+
+            $(document).on('click.doctors', '[data-action="export-csv"]', () => this.exportCSV());
+            $(document).on('click.doctors', '[data-action="export-json"]', () => this.exportJSON());
+
             $(document).on('layout-loaded', () => {
                 if ($('#doctorsGrid').length) {
                     this.render();
@@ -74,11 +86,85 @@ if (typeof DoctorsManager === 'undefined') {
             });
         }
 
+        getFilteredDoctors() {
+            let filtered = this.doctors;
+
+            if (this.searchTerm) {
+                filtered = filtered.filter(d =>
+                    d.name.toLowerCase().includes(this.searchTerm) ||
+                    d.specialty.toLowerCase().includes(this.searchTerm) ||
+                    d.phone.includes(this.searchTerm)
+                );
+            }
+
+            if (this.sortColumn) {
+                filtered = [...filtered].sort((a, b) => {
+                    let valA = a[this.sortColumn];
+                    let valB = b[this.sortColumn];
+
+                    if (typeof valA === 'string') valA = valA.toLowerCase();
+                    if (typeof valB === 'string') valB = valB.toLowerCase();
+
+                    if (valA < valB) return this.sortOrder === 'asc' ? -1 : 1;
+                    if (valA > valB) return this.sortOrder === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            return filtered;
+        }
+
+        getPaginatedDoctors() {
+            const filtered = this.getFilteredDoctors();
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return {
+                data: filtered.slice(start, end),
+                total: filtered.length,
+                totalPages: Math.ceil(filtered.length / this.itemsPerPage)
+            };
+        }
+
+        prevPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+                this.render();
+            }
+        }
+
+        nextPage() {
+            const { totalPages } = this.getPaginatedDoctors();
+            if (this.currentPage < totalPages) {
+                this.currentPage++;
+                this.render();
+            }
+        }
+
         render() {
             const $grid = $('#doctorsGrid');
             if ($grid.length === 0) return;
 
-            const html = this.doctors.map(doctor => `
+            const { data, total, totalPages } = this.getPaginatedDoctors();
+
+            if (data.length === 0) {
+                const emptyMessage = this.searchTerm
+                    ? `<div class="empty-state col-12">
+                        <i class="fas fa-search"></i>
+                        <h5>No results found</h5>
+                        <p>Try adjusting your search term</p>
+                       </div>`
+                    : `<div class="empty-state col-12">
+                        <i class="fas fa-user-md"></i>
+                        <h5 data-i18n="noDoctors">No doctors yet</h5>
+                        <p>Click "Add Doctor" to get started!</p>
+                       </div>`;
+
+                $grid.html(emptyMessage);
+                this.updatePagination(total, totalPages);
+                return;
+            }
+
+            const html = data.map(doctor => `
                 <div class="col-md-6 col-lg-4 col-xl-3">
                     <div class="card doctor-card h-100">
                         <div class="card-body text-center p-4">
@@ -105,6 +191,26 @@ if (typeof DoctorsManager === 'undefined') {
             `).join('');
 
             $grid.html(html);
+            this.updatePagination(total, totalPages);
+
+            if (window.app && window.app.applyLanguage) {
+                window.app.applyLanguage(window.app.lang);
+            }
+        }
+
+        updatePagination(total, totalPages) {
+            const $pagination = $('.pagination-controls');
+            if (!$pagination.length) return;
+
+            const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+            const end = Math.min(this.currentPage * this.itemsPerPage, total);
+
+            $pagination.find('.pagination-info').html(`
+                Showing <strong>${start}-${end}</strong> of <strong>${total}</strong> doctors
+            `);
+
+            $pagination.find('[data-action="prev-page"]').prop('disabled', this.currentPage === 1);
+            $pagination.find('[data-action="next-page"]').prop('disabled', this.currentPage === totalPages || totalPages === 0);
         }
 
         add() {
@@ -120,36 +226,47 @@ if (typeof DoctorsManager === 'undefined') {
 
         openModal(doctor = null) {
             if (doctor) {
-                // Edit Mode
                 $('#doctorId').val(doctor.id);
                 $('#doctorName').val(doctor.name);
                 $('#doctorSpecialty').val(doctor.specialty);
                 $('#doctorPhone').val(doctor.phone);
-                $('#doctorModalTitle').attr('data-i18n', 'editDoctor').text(translations[app.lang].editDoctor);
+                $('#doctorModalTitle').attr('data-i18n', 'editDoctor').text(translations[app.lang]?.editDoctor || 'Edit Doctor');
             } else {
-                // Add Mode
                 $('#doctorForm')[0].reset();
                 $('#doctorId').val('');
-                $('#doctorModalTitle').attr('data-i18n', 'addDoctor').text(translations[app.lang].addDoctor);
+                $('#doctorModalTitle').attr('data-i18n', 'addDoctor').text(translations[app.lang]?.addDoctor || 'Add Doctor');
             }
             $('#doctorModal').modal('show');
         }
 
         save() {
             const id = $('#doctorId').val();
-            const name = $('#doctorName').val();
+            const name = $('#doctorName').val().trim();
             const specialty = $('#doctorSpecialty').val();
-            const phone = $('#doctorPhone').val();
+            const phone = $('#doctorPhone').val().trim();
+
+            if (!name || !specialty || !phone) {
+                toast.error('Please fill in all required fields');
+                return;
+            }
+
+            if (!Utils.validatePhone(phone)) {
+                toast.error('Please enter a valid phone number');
+                return;
+            }
+
+            if (!id && this.doctors.some(d => d.phone === phone)) {
+                toast.error('A doctor with this phone number already exists');
+                return;
+            }
 
             if (id) {
-                // Update
                 const index = this.doctors.findIndex(d => d.id == id);
                 if (index !== -1) {
                     this.doctors[index] = { ...this.doctors[index], name, specialty, phone };
-                    app.showAlert(translations[app.lang].doctorUpdated, 'success');
+                    toast.success(translations[app.lang].doctorUpdated);
                 }
             } else {
-                // Add
                 const newId = this.doctors.length > 0 ? Math.max(...this.doctors.map(d => d.id)) + 1 : 1;
                 const avatarColor = ['0D8ABC', '567C8D', '2F4156', '4aa87e'][Math.floor(Math.random() * 4)];
                 const newDoctor = {
@@ -161,7 +278,7 @@ if (typeof DoctorsManager === 'undefined') {
                     avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${avatarColor}&color=fff`
                 };
                 this.doctors.push(newDoctor);
-                app.showAlert(translations[app.lang].doctorAdded, 'success');
+                toast.success(translations[app.lang].doctorAdded);
             }
 
             this.saveToStorage();
@@ -179,26 +296,61 @@ if (typeof DoctorsManager === 'undefined') {
                 this.doctors = this.doctors.filter(d => d.id !== this.currentDeleteId);
                 this.currentDeleteId = null;
                 this.saveToStorage();
-                app.showAlert(translations[app.lang].doctorDeleted, 'danger');
+                toast.success(translations[app.lang].doctorDeleted);
 
                 $('#deleteModal').modal('hide');
+
+                const { totalPages } = this.getPaginatedDoctors();
+                if (this.currentPage > totalPages && totalPages > 0) {
+                    this.currentPage = totalPages;
+                }
+
                 this.render();
             }
         }
+
+        exportCSV() {
+            const data = this.doctors.map(d => ({
+                ID: d.id,
+                Name: d.name,
+                Specialty: d.specialty,
+                Phone: d.phone,
+                Rating: d.rating
+            }));
+            Utils.exportToCSV(data, 'doctors.csv');
+        }
+
+        exportJSON() {
+            Utils.exportToJSON(this.doctors, 'doctors.json');
+        }
     }
 
-    // Initialize logic
-    // Assign to window to ensure global access for onclick attributes
     window.doctorsManager = new DoctorsManager();
     $(document).ready(() => {
-        window.doctorsManager.init();
+        if (typeof Utils !== 'undefined') {
+            window.doctorsManager.init();
+        } else {
+            const checkUtils = setInterval(() => {
+                if (typeof Utils !== 'undefined') {
+                    clearInterval(checkUtils);
+                    window.doctorsManager.init();
+                }
+            }, 100);
+        }
     });
 } else {
-    // If re-loaded, just re-initialze
     if (window.doctorsManager) {
-        // If loaded via Ajax, document is likely ready, but safety first
         $(document).ready(() => {
-            window.doctorsManager.init();
+            if (typeof Utils !== 'undefined') {
+                window.doctorsManager.init();
+            } else {
+                const checkUtils = setInterval(() => {
+                    if (typeof Utils !== 'undefined') {
+                        clearInterval(checkUtils);
+                        window.doctorsManager.init();
+                    }
+                }, 100);
+            }
         });
     }
 }

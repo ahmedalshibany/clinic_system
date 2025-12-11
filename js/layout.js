@@ -1,33 +1,23 @@
-/**
- * Layout Manager (jQuery Version)
- * Fetches layout.html and injects separate Sidebar and Header into pages
- */
-
 const Layout = {
     init: function () {
-        if ($('.login-container').length > 0) return; // Don't run on login page
+        if ($('.login-container').length > 0) return;
 
-        // Load CSS first - Force no-cache
         this.loadCSS(`css/layout.css?v=${Date.now() + 2}`);
 
         const _this = this;
 
-        // Fetch the layout HTML file - Force no-cache
         $.ajax({
             url: `layout.html?v=${new Date().getTime()}`,
             method: 'GET',
             dataType: 'html',
             success: function (data) {
-                // Parse the response
                 const $doc = $('<div>').html(data);
 
-                // Inject Sidebar
                 const sidebarHtml = $doc.find('#sidebar-template').html();
                 if (sidebarHtml) {
                     $('body').prepend(sidebarHtml);
                 }
 
-                // Inject Header
                 const headerHtml = $doc.find('#header-template').html();
                 if (headerHtml) {
                     _this.renderHeader(headerHtml);
@@ -35,9 +25,8 @@ const Layout = {
 
                 _this.highlightActiveLink();
                 _this.initMobileToggle();
-                _this.initNavigation(); // Initialize navigation handler (SPA support ready)
+                _this.initNavigation();
 
-                // Dispatch event so App knows layout is ready
                 $(document).trigger('layout-loaded');
             },
             error: function (err) {
@@ -69,7 +58,6 @@ const Layout = {
 
         const $titleContainer = $('#page-title-container');
         if ($titleContainer.length > 0) {
-            // ALWAYS Use document title
             const docTitle = document.title || 'Clinic System';
             const $docTitleEl = $('title');
             const i18nKey = $docTitleEl.length ? $docTitleEl.attr('data-i18n') : 'appTitle';
@@ -119,10 +107,8 @@ const Layout = {
             const $link = $(this);
             const url = $link.attr('href');
 
-            // Only handle internal HTML pages, ignore # and js calls
             if (!url || url === '#' || url.startsWith('javascript:') || !url.endsWith('.html')) return;
 
-            // If logout or login, let it behave normally (full reload)
             if (url === 'index.html' || $link.attr('id') === 'logoutBtn') return;
 
             e.preventDefault();
@@ -131,7 +117,6 @@ const Layout = {
             window.history.pushState({}, '', url);
         });
 
-        // Handle browser back/forward
         $(window).on('popstate', function () {
             Layout.loadPage(window.location.pathname.split('/').pop());
         });
@@ -158,7 +143,6 @@ const Layout = {
                         if ($newTitle.length) {
                             document.title = $newTitle.text();
                             const $headerTitle = $('.header-title');
-                            // Always use document title for header logic now
                             if ($headerTitle.length) {
                                 $headerTitle.text($newTitle.text());
                                 const i18nKey = $newTitle.attr('data-i18n');
@@ -170,14 +154,59 @@ const Layout = {
 
                         Layout.highlightActiveLink();
                         $(document).trigger('layout-loaded');
+
+                        Layout.handlePageScripts($doc);
                     }
                 }, 200);
             },
             error: function (err) {
                 console.error('Navigation failed', err);
-                window.location.href = url; // Fallback
+                window.location.href = url;
             }
         });
+    },
+
+    handlePageScripts: function ($doc) {
+        const ignoredScripts = [
+            'jquery',
+            'bootstrap',
+            'app.js',
+            'layout.js',
+            'utils.js',
+            'font-awesome'
+        ];
+
+        const scriptsToLoad = [];
+
+        $doc.find('script').each(function () {
+            const src = $(this).attr('src');
+            if (src) {
+                const fileName = src.split('/').pop().toLowerCase();
+                let shouldIgnore = false;
+
+                if (fileName === 'toast.js') shouldIgnore = true;
+
+                if (ignoredScripts.includes(fileName)) shouldIgnore = true;
+                if (src.includes('jquery') || src.includes('bootstrap')) shouldIgnore = true;
+
+                if (!shouldIgnore) {
+                    scriptsToLoad.push(src);
+                }
+            }
+        });
+
+        const loadScript = (index) => {
+            if (index >= scriptsToLoad.length) return;
+
+            const src = scriptsToLoad[index];
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = () => loadScript(index + 1);
+            script.onerror = () => loadScript(index + 1);
+            document.body.appendChild(script);
+        };
+
+        loadScript(0);
     }
 };
 

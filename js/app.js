@@ -87,12 +87,19 @@ const translations = {
         spec_general: "General Practice",
         areYouSure: "Are you sure?",
         deleteConfirmation: "Do you really want to delete this doctor? This process cannot be undone.",
+        deletePatientConfirmation: "Do you really want to delete this patient? This process cannot be undone.",
         cancel: "Cancel",
         delete: "Delete",
         editPatient: "Edit Patient",
         patientAdded: "New patient added successfully!",
         patientUpdated: "Patient updated successfully!",
-        patientDeleted: "Patient deleted successfully!"
+        patientDeleted: "Patient deleted successfully!",
+        searchPatients: "Search patients...",
+        previous: "Previous",
+        next: "Next",
+        noPatients: "No patients yet",
+        searchDoctors: "Search doctors...",
+        noDoctors: "No doctors yet"
     },
     ar: {
         appTitle: "نظام العيادة",
@@ -182,12 +189,19 @@ const translations = {
         spec_general: "طب عام",
         areYouSure: "هل أنت متأكد؟",
         deleteConfirmation: "هل تريد حقاً حذف هذا الطبيب؟ لا يمكن التراجع عن هذا الإجراء.",
+        deletePatientConfirmation: "هل تريد حقاً حذف هذا المريض؟ لا يمكن التراجع عن هذا الإجراء.",
         cancel: "إلغاء",
         delete: "حذف",
         editPatient: "تعديل بيانات المريض",
         patientAdded: "تم إضافة مريض جديد بنجاح!",
         patientUpdated: "تم تحديث بيانات المريض بنجاح!",
-        patientDeleted: "تم حذف المريض بنجاح!"
+        patientDeleted: "تم حذف المريض بنجاح!",
+        searchPatients: "البحث عن المرضى...",
+        previous: "السابق",
+        next: "التالي",
+        noPatients: "لا يوجد مرضى بعد",
+        searchDoctors: "البحث عن الأطباء...",
+        noDoctors: "لا يوجد أطباء بعد"
     }
 };
 
@@ -195,7 +209,6 @@ class App {
     constructor() {
         this.lang = localStorage.getItem('clinic_lang') || 'en';
         this.theme = localStorage.getItem('clinic_theme') || 'light';
-        // Note: init() is called via document.ready at the bottom
     }
 
     init() {
@@ -205,7 +218,6 @@ class App {
         this.initCharts();
         this.setupGlobalErrorHandlers();
 
-        // Re-apply settings when layout is loaded
         $(document).on('layout-loaded', () => {
             this.applyLanguage(this.lang);
             this.applyTheme(this.theme);
@@ -259,33 +271,25 @@ class App {
     }
 
     bindEvents() {
-        // Use delegated events for elements that might be re-injected (Header/Sidebar)
-
-        // Language Toggle
         $(document).on('click', '#langToggle', (e) => {
             this.toggleLanguage();
         });
 
-        // Theme Toggle
         $(document).on('click', '#themeToggle', (e) => {
             this.toggleTheme();
         });
 
-        // Logout
         $(document).on('click', '#logoutBtn', (e) => {
             e.preventDefault();
             this.logout();
         });
 
-        // Sidebar Toggle
         $(document).on('click', '#sidebarToggle', (e) => {
             $('.sidebar').toggleClass('active');
         });
 
-        // Login Form
         $(document).on('submit', '#loginForm', (e) => this.handleLogin(e));
 
-        // Generic Forms (excluding login and doctor form which has its own handler)
         $(document).on('submit', 'form:not(#loginForm):not(#doctorForm)', (e) => this.handleFormSubmit(e));
     }
 
@@ -315,8 +319,7 @@ class App {
 
         $('[data-i18n]').each(function () {
             const $el = $(this);
-            const key = $el.data('i18n'); // Use .data() or .attr()
-            // To be safe regarding dynamic updates, .attr() is better if data() caches
+            const key = $el.data('i18n');
             const attrKey = $el.attr('data-i18n');
 
             if (translations[lang] && translations[lang][attrKey]) {
@@ -325,48 +328,23 @@ class App {
                 if ($el.is('input') || $el.is('textarea')) {
                     $el.attr('placeholder', text);
                 } else {
-                    // Check if element has children (like icons)
-                    // If it has children and text nodes, replace text nodes?
-                    // Original code: if children > 0 logic.
-                    // jQuery approach:
                     if ($el.children().length > 0) {
-                        // Find text node?
-                        // Simple approach: clone children, set text, append children? No, order matters.
-                        // Or just set text content of the last text node?
-                        // Let's replicate original logic safely.
-                        // "if (el.children.length > 0 && el.lastChild.nodeType === 3)"
-
-                        // In jQuery:
                         const contents = $el.contents();
                         const lastNode = contents.last()[0];
                         if (lastNode && lastNode.nodeType === 3) {
                             lastNode.textContent = text;
                         } else {
-                            // Maybe just overwrite if structure is simple
-                            // For buttons with icons: <i ></i> Text
-                            // The text is a text node.
-                            // Let's assume text is the last child or simply append if needed.
-                            // Safest: Remove text nodes, keep elements?
-                            // Let's trust the original logic's intent: replace the visible text part.
-
-                            // Harder to do generically in jQuery one-liner.
-                            // Let's use vanilla inside the loop for this specific DOM node manipulation
-                            // since jQuery `.text()` wipes children.
                             const el = this;
                             if (el.children.length > 0) {
-                                // Iterate nodes to find text?
-                                // Or just use the original specific logic
                                 let hasText = false;
                                 for (let i = 0; i < el.childNodes.length; i++) {
                                     if (el.childNodes[i].nodeType === 3 && el.childNodes[i].nodeValue.trim().length > 0) {
-                                        el.childNodes[i].nodeValue = " " + text; // Add space
+                                        el.childNodes[i].nodeValue = " " + text;
                                         hasText = true;
                                         break;
                                     }
                                 }
                                 if (!hasText) {
-                                    // If no text node found, maybe append?
-                                    // For now, let's fall back to original logic check
                                     if (el.lastChild && el.lastChild.nodeType === 3) {
                                         el.lastChild.textContent = text;
                                     }
@@ -450,20 +428,101 @@ class App {
     }
 
     showAlert(message, type) {
-        const $alert = $('<div>')
-            .addClass(`alert alert-${type} custom-alert show`)
-            .text(message)
-            .appendTo('body')
-            .show();
+        if (typeof toast !== 'undefined') {
+            toast.show(message, type);
+        } else {
+            const $alert = $('<div>')
+                .addClass(`alert alert-${type} custom-alert show`)
+                .text(message)
+                .appendTo('body')
+                .show();
 
-        setTimeout(() => {
-            $alert.fadeOut(300, function () { $(this).remove(); });
-        }, 3000);
+            setTimeout(() => {
+                $alert.fadeOut(300, function () { $(this).remove(); });
+            }, 3000);
+        }
     }
 }
 
-// Initialize App
 const app = new App();
 $(document).ready(() => {
     app.init();
 });
+
+class ToastSystem {
+    constructor() {
+        this.container = null;
+        this.init();
+    }
+
+    init() {
+        if (!document.querySelector('.toast-container')) {
+            this.container = document.createElement('div');
+            this.container.className = 'toast-container';
+            document.body.appendChild(this.container);
+        } else {
+            this.container = document.querySelector('.toast-container');
+        }
+    }
+
+    show(message, type = 'info', title = null) {
+        if (!this.container) this.init();
+
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+
+        const titles = {
+            success: 'Success',
+            error: 'Error',
+            warning: 'Warning',
+            info: 'Information'
+        };
+
+        if (typeof translations !== 'undefined' && app && app.lang) {
+        }
+
+        const icon = icons[type] || icons.info;
+        const displayTitle = title || titles[type] || 'Notification';
+
+        const toast = document.createElement('div');
+        toast.className = `toast-notification ${type}`;
+
+        toast.innerHTML = `
+            <div class="toast-icon">
+                <i class="fas ${icon}"></i>
+            </div>
+            <div class="toast-content">
+                <div class="toast-title">${displayTitle}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <div class="toast-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="toast-progress">
+                <div class="toast-progress-bar"></div>
+            </div>
+        `;
+
+        this.container.appendChild(toast);
+
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.classList.add('closing');
+                toast.addEventListener('animationend', () => {
+                    if (toast.parentElement) toast.remove();
+                });
+            }
+        }, 4000);
+    }
+
+    success(message) { this.show(message, 'success'); }
+    error(message) { this.show(message, 'error'); }
+    warning(message) { this.show(message, 'warning'); }
+    info(message) { this.show(message, 'info'); }
+}
+
+window.toast = new ToastSystem();
