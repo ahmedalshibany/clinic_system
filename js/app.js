@@ -203,11 +203,25 @@ class App {
         this.applyTheme(this.theme);
         this.bindEvents();
         this.initCharts();
+        this.setupGlobalErrorHandlers();
 
         // Re-apply settings when layout is loaded
         $(document).on('layout-loaded', () => {
             this.applyLanguage(this.lang);
             this.applyTheme(this.theme);
+        });
+    }
+
+    setupGlobalErrorHandlers() {
+        window.addEventListener('error', (e) => {
+            console.error('Global error:', e.error);
+            this.showAlert('An unexpected error occurred. Please try again.', 'danger');
+        });
+
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('Unhandled promise rejection:', e.reason);
+            this.showAlert('An operation failed. Please try again.', 'danger');
+            e.preventDefault();
         });
     }
 

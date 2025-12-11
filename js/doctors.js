@@ -6,14 +6,32 @@
 if (typeof DoctorsManager === 'undefined') {
     class DoctorsManager {
         constructor() {
-            this.doctors = [
+            this.storageKey = 'clinic_doctors';
+            this.doctors = this.loadFromStorage() || [
                 { id: 1, name: "Dr. Sarah Smith", specialty: "Cardiology", phone: "+1 234 567 890", avatar: "https://ui-avatars.com/api/?name=Sarah+Smith&background=0D8ABC&color=fff", rating: 4.8 },
                 { id: 2, name: "Dr. John Doe", specialty: "Dermatology", phone: "+1 987 654 321", avatar: "https://ui-avatars.com/api/?name=John+Doe&background=567C8D&color=fff", rating: 4.5 },
                 { id: 3, name: "Dr. Emily Blunt", specialty: "Pediatrics", phone: "+1 123 456 789", avatar: "https://ui-avatars.com/api/?name=Emily+Blunt&background=2F4156&color=fff", rating: 4.9 },
                 { id: 4, name: "Dr. Michael Scott", specialty: "Neurology", phone: "+1 555 123 456", avatar: "https://ui-avatars.com/api/?name=Michael+Scott&background=4aa87e&color=fff", rating: 4.7 }
             ];
             this.currentDeleteId = null;
-            // logic moved to init() called via document.ready
+        }
+
+        loadFromStorage() {
+            try {
+                const data = localStorage.getItem(this.storageKey);
+                return data ? JSON.parse(data) : null;
+            } catch (error) {
+                console.error('Error loading doctors from storage:', error);
+                return null;
+            }
+        }
+
+        saveToStorage() {
+            try {
+                localStorage.setItem(this.storageKey, JSON.stringify(this.doctors));
+            } catch (error) {
+                console.error('Error saving doctors to storage:', error);
+            }
         }
 
         init() {
@@ -31,6 +49,18 @@ if (typeof DoctorsManager === 'undefined') {
             $(document).on('submit.doctors', '#doctorForm', (e) => {
                 e.preventDefault();
                 this.save();
+            });
+
+            // Edit Doctor Button
+            $(document).on('click.doctors', '[data-action="edit-doctor"]', (e) => {
+                const id = parseInt($(e.currentTarget).data('doctor-id'));
+                this.edit(id);
+            });
+
+            // Delete Doctor Button
+            $(document).on('click.doctors', '[data-action="delete-doctor"]', (e) => {
+                const id = parseInt($(e.currentTarget).data('doctor-id'));
+                this.deleteRequest(id);
             });
 
             // Delete Confirm (Delegated)
@@ -62,10 +92,10 @@ if (typeof DoctorsManager === 'undefined') {
                             </p>
 
                             <div class="action-buttons d-flex justify-content-center gap-3">
-                                <button class="btn btn-soft-primary btn-sm" onclick="doctorsManager.edit(${doctor.id})">
+                                <button class="btn btn-soft-primary btn-sm" data-action="edit-doctor" data-doctor-id="${doctor.id}">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-soft-danger btn-sm" onclick="doctorsManager.deleteRequest(${doctor.id})">
+                                <button class="btn btn-soft-danger btn-sm" data-action="delete-doctor" data-doctor-id="${doctor.id}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -134,6 +164,7 @@ if (typeof DoctorsManager === 'undefined') {
                 app.showAlert(translations[app.lang].doctorAdded, 'success');
             }
 
+            this.saveToStorage();
             $('#doctorModal').modal('hide');
             this.render();
         }
@@ -147,6 +178,7 @@ if (typeof DoctorsManager === 'undefined') {
             if (this.currentDeleteId) {
                 this.doctors = this.doctors.filter(d => d.id !== this.currentDeleteId);
                 this.currentDeleteId = null;
+                this.saveToStorage();
                 app.showAlert(translations[app.lang].doctorDeleted, 'danger');
 
                 $('#deleteModal').modal('hide');
