@@ -18,55 +18,190 @@
     <div class="main-wrapper">
         <main class="main-content">
 
+            <!-- Action Toolbar -->
+            <div class="action-toolbar mb-4 fade-in">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="appointmentSearch" class="form-control" placeholder="Search appointments..."
+                        data-i18n-placeholder="searchPlaceholder">
+                </div>
 
+                <select class="form-select" id="statusFilter" style="width: 150px; border-radius: 12px;">
+                    <option value="all" selected data-i18n="all">All Status</option>
+                    <option value="pending" data-i18n="pending">Pending</option>
+                    <option value="confirmed" data-i18n="confirmed">Confirmed</option>
+                    <option value="completed" data-i18n="completed">Completed</option>
+                    <option value="cancelled" data-i18n="cancelled">Cancelled</option>
+                </select>
+
+                <button class="btn btn-light btn-sm" data-action="export-csv">
+                    <i class="fas fa-file-csv"></i> CSV
+                </button>
+
+                <button class="btn btn-light btn-sm" data-action="export-json">
+                    <i class="fas fa-file-code"></i> JSON
+                </button>
+
+                <button class="btn btn-primary d-flex align-items-center gap-2" data-action="add-appointment">
+                    <i class="fas fa-plus"></i>
+                    <span data-i18n="bookAppt">Book Appointment</span>
+                </button>
+            </div>
+
+            <!-- Appointments Table -->
             <div class="card fade-in">
-                <div class="card-body">
-                    <h5 class="mb-4 fw-bold" data-i18n="bookAppt">Book Appointment</h5>
-                    <form>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label" data-i18n="patientName">Patient Name</label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" data-i18n="doctorName">Doctor Name</label>
-                                <select class="form-select" required>
-                                    <option value="" selected disabled>Choose...</option>
-                                    <option>Dr. Sarah Smith</option>
-                                    <option>Dr. Ahmed Ali</option>
-                                    <option>Dr. John Doe</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label" data-i18n="date">Date</label>
-                                <input type="date" class="form-control" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label" data-i18n="time">Time</label>
-                                <input type="time" class="form-control" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label" data-i18n="status">Status</label>
-                                <select class="form-select" required>
-                                    <option value="pending" data-i18n="pending">Pending</option>
-                                    <option value="confirmed" data-i18n="confirmed">Confirmed</option>
-                                    <option value="completed" data-i18n="completed">Completed</option>
-                                </select>
-                            </div>
-                            <div class="col-12 mt-4">
-                                <button type="submit" class="btn btn-primary px-5" data-i18n="submit">Submit</button>
-                            </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 py-3 sortable-header" data-sort="id" style="width: 50px;">
+                                        # <i class="fas fa-sort"></i>
+                                    </th>
+                                    <th class="py-3 sortable-header" data-sort="patientName">
+                                        <span data-i18n="patientName">Patient Name</span> <i class="fas fa-sort"></i>
+                                    </th>
+                                    <th class="py-3 sortable-header" data-sort="doctorName">
+                                        <span data-i18n="doctorName">Doctor Name</span> <i class="fas fa-sort"></i>
+                                    </th>
+                                    <th class="py-3 sortable-header" data-sort="date">
+                                        <span data-i18n="date">Date</span> <i class="fas fa-sort"></i>
+                                    </th>
+                                    <th class="py-3" data-i18n="time">Time</th>
+                                    <th class="py-3 sortable-header" data-sort="status">
+                                        <span data-i18n="status">Status</span> <i class="fas fa-sort"></i>
+                                    </th>
+                                    <th class="pe-4 py-3 text-center" data-i18n="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-controls">
+                        <div class="pagination-info">
+                            Showing <strong>0-0</strong> of <strong>0</strong> appointments
                         </div>
-                    </form>
+                        <div class="pagination-buttons">
+                            <button data-action="prev-page" disabled>
+                                <i class="fas fa-chevron-left"></i> <span data-i18n="previous">Previous</span>
+                            </button>
+                            <button data-action="next-page" disabled>
+                                <span data-i18n="next">Next</span> <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Add/Edit Appointment Modal -->
+            <div class="modal fade" id="appointmentModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content modal-glass border-0">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title fw-bold" id="appointmentModalTitle" data-i18n="bookAppt">Book
+                                Appointment</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <form id="appointmentForm">
+                                <input type="hidden" id="appointmentId">
+                                <input type="hidden" id="appointmentPatientId" required>
+                                <input type="hidden" id="appointmentDoctorId" required>
+
+                                <div class="mb-3 position-relative">
+                                    <label class="form-label" data-i18n="patientName">Patient Name</label>
+                                    <input type="text" class="form-control" id="patientSearchInput"
+                                        data-i18n-placeholder="searchPatientPlaceholder"
+                                        placeholder="Type to search patient..." autocomplete="off">
+                                    <div id="patientSearchResults" class="autocomplete-results"></div>
+                                </div>
+
+                                <div class="mb-3 position-relative">
+                                    <label class="form-label" data-i18n="doctorName">Doctor Name</label>
+                                    <input type="text" class="form-control" id="doctorSearchInput"
+                                        data-i18n-placeholder="searchDoctorPlaceholder"
+                                        placeholder="Type to search doctor..." autocomplete="off">
+                                    <div id="doctorSearchResults" class="autocomplete-results"></div>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label" data-i18n="date">Date</label>
+                                        <input type="date" class="form-control" id="appointmentDate" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" data-i18n="time">Time</label>
+                                        <input type="time" class="form-control" id="appointmentTime" required>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label" data-i18n="type">Type</label>
+                                        <select class="form-select" id="appointmentType" required>
+                                            <option value="Consultation" data-i18n="typeConsultation">Consultation
+                                            </option>
+                                            <option value="Checkup" data-i18n="typeCheckup">Checkup</option>
+                                            <option value="Follow-up" data-i18n="typeFollowUp">Follow-up</option>
+                                            <option value="Emergency" data-i18n="typeEmergency">Emergency</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" data-i18n="status">Status</label>
+                                        <select class="form-select" id="appointmentStatus" required>
+                                            <option value="pending" data-i18n="pending">Pending</option>
+                                            <option value="confirmed" data-i18n="confirmed">Confirmed</option>
+                                            <option value="completed" data-i18n="completed">Completed</option>
+                                            <option value="cancelled" data-i18n="cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary" data-i18n="save">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content modal-glass border-0">
+                        <div class="modal-body text-center p-5">
+                            <div class="mb-4">
+                                <i class="fas fa-exclamation-circle text-danger display-1 pulse-anim"></i>
+                            </div>
+                            <h4 class="fw-bold mb-2" data-i18n="areYouSure">Are you sure?</h4>
+                            <p class="text-muted mb-4" data-i18n="deleteAppointmentConfirmation">Do you really want to
+                                cancel this appointment?</p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal"
+                                    data-i18n="cancel">Cancel</button>
+                                <button type="button" class="btn btn-danger px-4" id="confirmDeleteBtn"
+                                    data-i18n="delete">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/utils.js"></script>
     <script src="js/app.js"></script>
     <script src="js/layout.js"></script>
+
+    <!-- Dynamically loaded by layout.js, but included here for direct access if needed, though layout.js usually handles it -->
+    <script src="js/appointments.js"></script>
 </body>
 
 </html>

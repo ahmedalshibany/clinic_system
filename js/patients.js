@@ -52,6 +52,7 @@ if (typeof PatientsManager === 'undefined') {
 
             $(document).on('submit.patients', '#patientForm', (e) => {
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 this.save();
             });
 
@@ -63,6 +64,11 @@ if (typeof PatientsManager === 'undefined') {
             $(document).on('click.patients', '[data-action="delete-patient"]', (e) => {
                 const id = parseInt($(e.currentTarget).data('patient-id'));
                 this.deleteRequest(id);
+            });
+
+            $(document).on('click.patients', '[data-action="history-patient"]', (e) => {
+                const id = parseInt($(e.currentTarget).data('patient-id'));
+                this.showHistory(id);
             });
 
             $(document).on('click.patients', '#confirmDeleteBtn', () => this.confirmDelete());
@@ -191,6 +197,9 @@ if (typeof PatientsManager === 'undefined') {
                     <td>${patient.address}</td>
                     <td class="pe-4">
                         <div class="d-flex justify-content-center gap-2">
+                            <button class="btn btn-soft-secondary btn-sm" data-action="history-patient" data-patient-id="${patient.id}" title="History">
+                                <i class="fas fa-history"></i>
+                            </button>
                             <button class="btn btn-soft-primary btn-sm" data-action="edit-patient" data-patient-id="${patient.id}">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -357,6 +366,114 @@ if (typeof PatientsManager === 'undefined') {
 
         exportJSON() {
             Utils.exportToJSON(this.patients, 'patients.json');
+        }
+
+        showHistory(patientId) {
+            const patient = this.patients.find(p => p.id === patientId);
+            if (!patient) return;
+
+            // Get appointments from localStorage
+            const appointments = JSON.parse(localStorage.getItem('clinic_appointments')) || [];
+            const doctors = JSON.parse(localStorage.getItem('clinic_doctors')) || [];
+
+            // Filter appointments for this patient
+            const patientAppts = appointments.filter(a => a.patientId === patientId);
+
+            // Sort by date (newest first)
+            patientAppts.sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
+
+            // Update modal title with patient name
+            $('#historyPatientName').text(`- ${patient.name}`);
+
+            // Get translations
+            const lang = (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
+            const t = (key) => {
+                if (typeof translations !== 'undefined' && translations[lang] && translations[lang][key]) {
+                    return translations[lang][key];
+                }
+                return key;
+            };
+
+            // Build history content
+            let html = '';
+
+            if (patientAppts.length === 0) {
+                html = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3 text-muted" data-i18n="noAppointments">${t('noAppointments')}</h5>
+                        <p class="text-muted">${t('noAppointmentsForPatient') || 'No appointment history for this patient'}</p>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div class="history-summary mb-4">
+                        <div class="d-flex gap-3 flex-wrap">
+                            <div class="badge bg-secondary-subtle text-secondary px-3 py-2">
+                                <i class="fas fa-calendar-check me-1"></i>
+                                ${t('total')}: <strong>${patientAppts.length}</strong>
+                            </div>
+                            <div class="badge bg-success-subtle text-success px-3 py-2">
+                                <i class="fas fa-check-circle me-1"></i>
+                                ${t('completed')}: <strong>${patientAppts.filter(a => a.status === 'completed').length}</strong>
+                            </div>
+                            <div class="badge bg-warning-subtle text-warning px-3 py-2">
+                                <i class="fas fa-clock me-1"></i>
+                                ${t('pending')}: <strong>${patientAppts.filter(a => a.status === 'pending').length}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="history-timeline">
+                `;
+
+                const statusColors = {
+                    pending: 'warning',
+                    confirmed: 'info',
+                    completed: 'success',
+                    cancelled: 'danger'
+                };
+
+                patientAppts.forEach(appt => {
+                    const doctor = doctors.find(d => d.id === appt.doctorId);
+                    const doctorName = doctor ? doctor.name : t('unknownDoctor');
+                    const statusColor = statusColors[appt.status] || 'secondary';
+
+                    html += `
+                        <div class="history-item card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <i class="fas fa-calendar me-2 text-primary"></i>
+                                            <span dir="ltr">${appt.date}</span>
+                                            <span class="text-muted ms-2" dir="ltr">${appt.time}</span>
+                                        </h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-user-md me-1"></i>${doctorName}
+                                            ${appt.type ? `<span class="ms-2"><i class="fas fa-tag me-1"></i>${t('type' + appt.type.charAt(0).toUpperCase() + appt.type.slice(1)) || appt.type}</span>` : ''}
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-${statusColor}-subtle text-${statusColor}" data-i18n="${appt.status}">${t(appt.status)}</span>
+                                </div>
+                                ${appt.notes ? `<p class="mb-0 small text-muted"><i class="fas fa-sticky-note me-1"></i>${appt.notes}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+            }
+
+            $('#historyContent').html(html);
+
+            // Apply language if needed
+            if (window.app && window.app.applyLanguage) {
+                window.app.applyLanguage(window.app.lang);
+            }
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('historyModal'));
+            modal.show();
         }
     }
 

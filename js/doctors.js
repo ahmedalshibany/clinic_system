@@ -52,6 +52,7 @@ if (typeof DoctorsManager === 'undefined') {
 
             $(document).on('submit.doctors', '#doctorForm', (e) => {
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 this.save();
             });
 

@@ -3,7 +3,8 @@ const translations = {
         appTitle: "Clinic System",
         loginTitle: "Welcome Back",
         loginSubtitle: "Sign in to access your dashboard",
-        emailLabel: "Email Address",
+        usernameLabel: "Username",
+        usernamePlaceholder: "Enter your username",
         passwordLabel: "Password",
         loginBtn: "Login",
         dashboard: "Dashboard",
@@ -99,13 +100,60 @@ const translations = {
         next: "Next",
         noPatients: "No patients yet",
         searchDoctors: "Search doctors...",
-        noDoctors: "No doctors yet"
+        noDoctors: "No doctors yet",
+        all: "All Status",
+        cancelled: "Cancelled",
+        type: "Type",
+        noData: "No appointments found",
+        edit: "Edit",
+        searchAppointments: "Search appointments...",
+        showing: "Showing",
+        of: "of",
+        appointmentsLabel: "appointments",
+        appointmentBooked: "Appointment booked successfully!",
+        appointmentUpdated: "Appointment updated successfully!",
+        appointmentCancelled: "Appointment cancelled successfully!",
+        selectPatientDoctor: "Please select a valid patient and doctor from the list.",
+        deleteAppointmentConfirmation: "Do you really want to cancel this appointment?",
+        editAppointment: "Edit Appointment",
+        noAppointments: "No appointments yet",
+        unknownPatient: "Unknown Patient",
+        unknownDoctor: "Unknown Doctor",
+        typeConsultation: "Consultation",
+        typeCheckup: "Checkup",
+        typeFollowUp: "Follow-up",
+        typeEmergency: "Emergency",
+        searchPatientPlaceholder: "Type to search patient...",
+        searchDoctorPlaceholder: "Type to search doctor...",
+        noMatchesFound: "No matches found",
+        // Dashboard translations
+        welcomeBack: "Welcome Back,",
+        doctor: "Doctor",
+        dashboardSubtitle: "Here's what's happening with your clinic today",
+        statusOverview: "Status Overview",
+        appointmentDistribution: "Appointment distribution",
+        total: "Total",
+        weeklyTrend: "Weekly Trend",
+        last7days: "Last 7 days performance",
+        live: "Live",
+        recentActivity: "Recent Activity",
+        latestAppointments: "Latest appointments in your clinic",
+        viewAll: "View All",
+        // Time filter translations
+        filterBy: "Filter by:",
+        allTime: "All Time",
+        thisWeek: "This Week",
+        today: "Today",
+        // Patient history translations
+        patientHistory: "Patient History",
+        noAppointmentsForPatient: "No appointment history for this patient"
     },
     ar: {
         appTitle: "نظام العيادة",
         loginTitle: "مرحباً بعودتك",
         loginSubtitle: "سجل الدخول للوصول إلى لوحة التحكم",
-        emailLabel: "البريد الإلكتروني",
+        usernameLabel: "اسم المستخدم",
+        usernamePlaceholder: "أدخل اسم المستخدم",
         passwordLabel: "كلمة المرور",
         loginBtn: "تسجيل الدخول",
         dashboard: "لوحة التحكم",
@@ -201,7 +249,53 @@ const translations = {
         next: "التالي",
         noPatients: "لا يوجد مرضى بعد",
         searchDoctors: "البحث عن الأطباء...",
-        noDoctors: "لا يوجد أطباء بعد"
+        noDoctors: "لا يوجد أطباء بعد",
+        all: "جميع الحالات",
+        cancelled: "ملغي",
+        type: "النوع",
+        noData: "لا توجد مواعيد",
+        edit: "تعديل",
+        searchAppointments: "البحث عن المواعيد...",
+        showing: "عرض",
+        of: "من",
+        appointmentsLabel: "مواعيد",
+        appointmentBooked: "تم حجز الموعد بنجاح!",
+        appointmentUpdated: "تم تحديث الموعد بنجاح!",
+        appointmentCancelled: "تم إلغاء الموعد بنجاح!",
+        selectPatientDoctor: "يرجى اختيار مريض وطبيب صالحين من القائمة.",
+        deleteAppointmentConfirmation: "هل تريد حقاً إلغاء هذا الموعد؟",
+        editAppointment: "تعديل الموعد",
+        noAppointments: "لا توجد مواعيد بعد",
+        unknownPatient: "مريض غير معروف",
+        unknownDoctor: "طبيب غير معروف",
+        typeConsultation: "استشارة",
+        typeCheckup: "فحص",
+        typeFollowUp: "متابعة",
+        typeEmergency: "طوارئ",
+        searchPatientPlaceholder: "اكتب للبحث عن مريض...",
+        searchDoctorPlaceholder: "اكتب للبحث عن طبيب...",
+        noMatchesFound: "لم يتم العثور على نتائج",
+        // Dashboard translations
+        welcomeBack: "مرحباً بعودتك،",
+        doctor: "دكتور",
+        dashboardSubtitle: "إليك ما يحدث في عيادتك اليوم",
+        statusOverview: "نظرة عامة على الحالة",
+        appointmentDistribution: "توزيع المواعيد",
+        total: "الإجمالي",
+        weeklyTrend: "الاتجاه الأسبوعي",
+        last7days: "أداء آخر 7 أيام",
+        live: "مباشر",
+        recentActivity: "النشاط الأخير",
+        latestAppointments: "أحدث المواعيد في عيادتك",
+        viewAll: "عرض الكل",
+        // Time filter translations
+        filterBy: "تصفية حسب:",
+        allTime: "كل الوقت",
+        thisWeek: "هذا الأسبوع",
+        today: "اليوم",
+        // Patient history translations
+        patientHistory: "سجل المريض",
+        noAppointmentsForPatient: "لا يوجد سجل مواعيد لهذا المريض"
     }
 };
 
@@ -290,7 +384,7 @@ class App {
 
         $(document).on('submit', '#loginForm', (e) => this.handleLogin(e));
 
-        $(document).on('submit', 'form:not(#loginForm):not(#doctorForm)', (e) => this.handleFormSubmit(e));
+        $(document).on('submit', 'form:not(#loginForm):not(#doctorForm):not(#patientForm)', (e) => this.handleFormSubmit(e));
     }
 
     toggleLanguage() {
@@ -373,10 +467,10 @@ class App {
 
     handleLogin(e) {
         e.preventDefault();
-        const email = $('#email').val();
+        const username = $('#username').val();
         const password = $('#password').val();
 
-        if (email && password) {
+        if (username && password) {
             const $btn = $(e.target).find('button');
             const originalText = $btn.text();
             $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...').prop('disabled', true);
