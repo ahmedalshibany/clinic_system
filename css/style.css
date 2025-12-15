@@ -832,13 +832,8 @@ textarea.form-control {
 }
 
 .action-toolbar {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.action-toolbar .btn-primary {
-    margin-inline-start: auto;
+    /* Flex layout now handled by Bootstrap utilities (d-flex, gap-3, flex-wrap) */
+    /* Keep this class for any custom overrides */
 }
 
 .btn-sm {

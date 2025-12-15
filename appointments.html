@@ -19,14 +19,14 @@
         <main class="main-content">
 
             <!-- Action Toolbar -->
-            <div class="action-toolbar mb-4 fade-in">
+            <div class="action-toolbar d-flex gap-3 flex-wrap align-items-center mb-4 fade-in">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" id="appointmentSearch" class="form-control" placeholder="Search appointments..."
                         data-i18n-placeholder="searchPlaceholder">
                 </div>
 
-                <select class="form-select" id="statusFilter" style="width: 150px; border-radius: 12px;">
+                <select class="form-select rounded-3" id="statusFilter" style="width: 150px;">
                     <option value="all" selected data-i18n="all">All Status</option>
                     <option value="pending" data-i18n="pending">Pending</option>
                     <option value="confirmed" data-i18n="confirmed">Confirmed</option>
@@ -34,15 +34,15 @@
                     <option value="cancelled" data-i18n="cancelled">Cancelled</option>
                 </select>
 
-                <button class="btn btn-light btn-sm" data-action="export-csv">
+                <button class="btn btn-light btn-sm d-inline-flex align-items-center gap-2" data-action="export-csv">
                     <i class="fas fa-file-csv"></i> CSV
                 </button>
 
-                <button class="btn btn-light btn-sm" data-action="export-json">
+                <button class="btn btn-light btn-sm d-inline-flex align-items-center gap-2" data-action="export-json">
                     <i class="fas fa-file-code"></i> JSON
                 </button>
 
-                <button class="btn btn-primary d-flex align-items-center gap-2" data-action="add-appointment">
+                <button class="btn btn-primary d-flex align-items-center gap-2 ms-auto" data-action="add-appointment">
                     <i class="fas fa-plus"></i>
                     <span data-i18n="bookAppt">Book Appointment</span>
                 </button>

@@ -22,22 +22,22 @@
         <main class="main-content">
 
             <!-- Action Toolbar -->
-            <div class="action-toolbar mb-4 fade-in">
+            <div class="action-toolbar d-flex gap-3 flex-wrap align-items-center mb-4 fade-in">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" id="patientSearch" class="form-control" placeholder="Search patients..."
                         data-i18n-placeholder="searchPatients">
                 </div>
 
-                <button class="btn btn-light btn-sm" data-action="export-csv">
+                <button class="btn btn-light btn-sm d-inline-flex align-items-center gap-2" data-action="export-csv">
                     <i class="fas fa-file-csv"></i> CSV
                 </button>
 
-                <button class="btn btn-light btn-sm" data-action="export-json">
+                <button class="btn btn-light btn-sm d-inline-flex align-items-center gap-2" data-action="export-json">
                     <i class="fas fa-file-code"></i> JSON
                 </button>
 
-                <button class="btn btn-primary d-flex align-items-center gap-2" onclick="patientsManager.add()">
+                <button class="btn btn-primary d-flex align-items-center gap-2 ms-auto" onclick="patientsManager.add()">
                     <i class="fas fa-plus"></i>
                     <span data-i18n="addPatient">Add Patient</span>
                 </button>
