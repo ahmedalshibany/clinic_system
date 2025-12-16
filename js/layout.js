@@ -103,22 +103,44 @@ const Layout = {
     },
 
     initNavigation: function () {
-        $(document).on('click', 'a', function (e) {
+        // Only handle navigation for sidebar links and internal page links
+        $(document).on('click', '.sidebar .nav-link, .panel-action, a[href$=".html"]', function (e) {
             const $link = $(this);
             const url = $link.attr('href');
 
-            if (!url || url === '#' || url.startsWith('javascript:') || !url.endsWith('.html')) return;
+            // Skip if no url, is a hash, or javascript link
+            if (!url || url === '#' || url.startsWith('javascript:')) return;
 
+            // Skip if not an HTML page link
+            if (!url.endsWith('.html')) return;
+
+            // Skip login page and logout button - let them navigate normally
             if (url === 'index.html' || $link.attr('id') === 'logoutBtn') return;
 
+            // Skip external links
+            if (url.startsWith('http://') || url.startsWith('https://')) return;
+
+            // Check if main content exists before attempting SPA navigation
+            const $mainContent = $('.main-content');
+            if (!$mainContent.length) {
+                // No main content wrapper, use normal navigation
+                return;
+            }
+
             e.preventDefault();
+
+            // Close mobile sidebar if open
+            $('.sidebar').removeClass('active');
 
             Layout.loadPage(url);
             window.history.pushState({}, '', url);
         });
 
         $(window).on('popstate', function () {
-            Layout.loadPage(window.location.pathname.split('/').pop());
+            const page = window.location.pathname.split('/').pop() || 'dashboard.html';
+            if (page && page !== 'index.html') {
+                Layout.loadPage(page);
+            }
         });
     },
 
