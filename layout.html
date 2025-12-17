@@ -1,0 +1,97 @@
+<!-- Template for Sidebar -->
+<template id="sidebar-template">
+    <nav class="sidebar glass-effect">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="sidebar-brand">
+                <i class="fas fa-heartbeat pulse-anim"></i>
+                <span class="brand-text" data-i18n="appTitle">Clinic System</span>
+            </a>
+        </div>
+
+        <ul class="nav flex-column mb-auto">
+            <li class="nav-item">
+                <a href="dashboard.html" class="nav-link" data-page="dashboard.html">
+                    <div class="icon-box"><i class="fas fa-home"></i></div>
+                    <span data-i18n="dashboard">Home</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="patients.html" class="nav-link" data-page="patients.html">
+                    <div class="icon-box"><i class="fas fa-user-injured"></i></div>
+                    <span data-i18n="patients">Patients</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="appointments.html" class="nav-link" data-page="appointments.html">
+                    <div class="icon-box"><i class="fas fa-calendar-check"></i></div>
+                    <span data-i18n="appointments">Appts</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="doctors.html" class="nav-link" data-page="doctors.html">
+                    <div class="icon-box"><i class="fas fa-user-md"></i></div>
+                    <span data-i18n="doctors">Doctors</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html" class="nav-link" data-page="settings.html">
+                    <div class="icon-box"><i class="fas fa-cog"></i></div>
+                    <span data-i18n="settings">Settings</span>
+                </a>
+            </li>
+        </ul>
+
+        <ul class="nav flex-column mt-auto sidebar-footer">
+            <li class="nav-item">
+                <a href="#" id="logoutBtn" class="nav-link logout-link">
+                    <div class="icon-box"><i class="fas fa-sign-out-alt"></i></div>
+                    <span data-i18n="logout">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</template>
+
+<!-- Template for Header -->
+<template id="header-template">
+    <div class="header-content glass-effect">
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-primary d-lg-none menu-toggle" id="sidebarToggle"><i
+                    class="fas fa-bars"></i></button>
+            <div id="page-title-container">
+                <!-- Page Title will be moved here -->
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-4">
+            <div class="search-container d-none d-md-flex">
+                <i class="fas fa-search"></i>
+                <input type="text" class="glass-input" data-i18n-placeholder="searchPlaceholder"
+                    placeholder="Search...">
+            </div>
+
+            <div class="header-actions">
+                <button class="btn-icon-glass notification-btn">
+                    <i class="far fa-bell"></i>
+                    <span class="badge-dot"></span>
+                </button>
+
+                <button class="btn-icon-glass theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+
+                <button class="lang-toggle-glass" id="langToggle">
+                    <span id="langToggleText">Ar</span>
+                </button>
+
+                <div class="user-profile-glass">
+                    <img src="https://ui-avatars.com/api/?name=Dr+John&background=random" alt="User" class="avatar-img">
+                    <div class="user-info d-none d-lg-block">
+                        <span class="user-name" data-i18n="welcomeDr">Dr. John</span>
+                        <span class="user-role">Ortho</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
