@@ -1,0 +1,129 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Appointment extends Model
+{
+    use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     */
+    protected $fillable = [
+        'patient_id',
+        'doctor_id',
+        'date',
+        'time',
+        'type',
+        'status',
+        'notes',
+        'diagnosis',
+        'prescription',
+        'fee',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     */
+    protected $casts = [
+        'date' => 'date',
+        'time' => 'datetime:H:i',
+        'fee' => 'decimal:2',
+    ];
+
+    /**
+     * Get the patient that owns the appointment.
+     */
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    /**
+     * Get the doctor that owns the appointment.
+     */
+    public function doctor(): BelongsTo
+    {
+        return $this->belongsTo(Doctor::class);
+    }
+
+    /**
+     * Scope to get pending appointments.
+     */
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    /**
+     * Scope to get confirmed appointments.
+     */
+    public function scopeConfirmed($query)
+    {
+        return $query->where('status', 'confirmed');
+    }
+
+    /**
+     * Scope to get completed appointments.
+     */
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'completed');
+    }
+
+    /**
+     * Scope to get cancelled appointments.
+     */
+    public function scopeCancelled($query)
+    {
+        return $query->where('status', 'cancelled');
+    }
+
+    /**
+     * Scope to get today's appointments.
+     */
+    public function scopeToday($query)
+    {
+        return $query->where('date', now()->toDateString());
+    }
+
+    /**
+     * Scope to get upcoming appointments.
+     */
+    public function scopeUpcoming($query)
+    {
+        return $query->where('date', '>=', now()->toDateString())
+            ->where('status', '!=', 'cancelled');
+    }
+
+    /**
+     * Scope to get appointments for this week.
+     */
+    public function scopeThisWeek($query)
+    {
+        return $query->whereBetween('date', [
+            now()->startOfWeek()->toDateString(),
+            now()->endOfWeek()->toDateString()
+        ]);
+    }
+
+    /**
+     * Check if the appointment is in the past.
+     */
+    public function getIsPastAttribute(): bool
+    {
+        return $this->date->isPast();
+    }
+
+    /**
+     * Get formatted date and time.
+     */
+    public function getFormattedDateTimeAttribute(): string
+    {
+        return $this->date->format('M d, Y') . ' at ' . $this->time->format('h:i A');
+    }
+}

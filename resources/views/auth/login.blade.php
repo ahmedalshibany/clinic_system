@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title data-i18n="appTitle">Clinic System</title>
+    <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/fontawesome-local.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+</head>
+
+<body class="bg-light">
+
+    <button class="lang-toggle" id="langToggle">
+        <i class="fas fa-globe"></i>
+        <span id="langToggleText">العربية</span>
+    </button>
+
+    <div class="login-container">
+        <div class="card login-card fade-in">
+            <div class="text-center mb-4">
+                <i class="fas fa-heartbeat fa-3x" style="color: var(--secondary);"></i>
+                <h2 class="mt-3" data-i18n="loginTitle">Welcome Back</h2>
+                <p class="text-muted" data-i18n="loginSubtitle">Sign in to access your dashboard</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="username" class="form-label" data-i18n="usernameLabel">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i
+                                class="fas fa-user text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0" id="username" required
+                            data-i18n-placeholder="usernamePlaceholder" placeholder="Enter your username">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label" data-i18n="passwordLabel">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i
+                                class="fas fa-lock text-muted"></i></span>
+                        <input type="password" class="form-control border-start-0" id="password" required
+                            placeholder="********">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2" data-i18n="loginBtn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+    <script src="{{ asset('js/utils.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
+</body>
+
+</html>

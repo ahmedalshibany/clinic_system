@@ -1,0 +1,211 @@
+@extends('layouts.dashboard')
+
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
+
+@section('styles')
+<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+@endsection
+
+@section('content')
+<!-- Welcome Banner -->
+<div class="welcome-banner">
+    <div class="welcome-content">
+        <div class="welcome-text">
+            <span class="welcome-badge">
+                <i class="fas fa-sun"></i>
+                <span data-i18n="goodMorning">Good Morning</span>
+            </span>
+            <h1 data-i18n="welcomeBack">Welcome Back, <span class="gradient-text" data-i18n="doctor">Doctor</span></h1>
+            <p data-i18n="dashboardSubtitle">Here's what's happening with your clinic today</p>
+        </div>
+        <div class="welcome-illustration">
+            <div class="floating-card card-1">
+                <i class="fas fa-heartbeat"></i>
+            </div>
+            <div class="floating-card card-2">
+                <i class="fas fa-stethoscope"></i>
+            </div>
+            <div class="floating-card card-3">
+                <i class="fas fa-pills"></i>
+            </div>
+        </div>
+    </div>
+    <div class="welcome-wave"></div>
+</div>
+
+<!-- Time Range Filter -->
+<div class="time-filter-bar">
+    <div class="filter-label">
+        <i class="fas fa-filter"></i>
+        <span data-i18n="filterBy">Filter by:</span>
+    </div>
+    <div class="filter-buttons">
+        <button class="filter-btn active" data-filter="all">
+            <i class="fas fa-infinity"></i>
+            <span data-i18n="allTime">All Time</span>
+        </button>
+        <button class="filter-btn" data-filter="week">
+            <i class="fas fa-calendar-week"></i>
+            <span data-i18n="thisWeek">This Week</span>
+        </button>
+        <button class="filter-btn" data-filter="today">
+            <i class="fas fa-calendar-day"></i>
+            <span data-i18n="today">Today</span>
+        </button>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card-premium patients-card">
+        <div class="stat-background"></div>
+        <div class="stat-icon-wrapper">
+            <div class="stat-icon-bg"></div>
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-data">
+            <span class="stat-number" id="totalPatients">0</span>
+            <span class="stat-label" data-i18n="totalPatients">Total Patients</span>
+        </div>
+        <div class="stat-decoration"></div>
+    </div>
+
+    <div class="stat-card-premium doctors-card">
+        <div class="stat-background"></div>
+        <div class="stat-icon-wrapper">
+            <div class="stat-icon-bg"></div>
+            <i class="fas fa-user-md"></i>
+        </div>
+        <div class="stat-data">
+            <span class="stat-number" id="totalDoctors">0</span>
+            <span class="stat-label" data-i18n="totalDoctors">Total Doctors</span>
+        </div>
+        <div class="stat-decoration"></div>
+    </div>
+
+    <div class="stat-card-premium appointments-card">
+        <div class="stat-background"></div>
+        <div class="stat-icon-wrapper">
+            <div class="stat-icon-bg"></div>
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="stat-data">
+            <span class="stat-number" id="totalAppointments">0</span>
+            <span class="stat-label" data-i18n="appointments">Appointments</span>
+        </div>
+        <div class="stat-decoration"></div>
+    </div>
+
+    <div class="stat-card-premium today-card">
+        <div class="stat-background"></div>
+        <div class="stat-icon-wrapper">
+            <div class="stat-icon-bg"></div>
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-data">
+            <span class="stat-number" id="todayAppointments">0</span>
+            <span class="stat-label" data-i18n="todayAppts">Today</span>
+        </div>
+        <div class="stat-decoration"></div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="charts-section">
+    <!-- Status Overview -->
+    <div class="chart-panel status-panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                <div class="title-icon"><i class="fas fa-chart-pie"></i></div>
+                <div>
+                    <h3 data-i18n="statusOverview">Status Overview</h3>
+                    <p data-i18n="appointmentDistribution">Appointment distribution</p>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="donut-wrapper">
+                <canvas id="statusChart"></canvas>
+                <div class="donut-center">
+                    <span class="donut-total" id="totalAppointments2">0</span>
+                    <span class="donut-label" data-i18n="total">Total</span>
+                </div>
+            </div>
+            <div class="status-grid">
+                <div class="status-item pending">
+                    <div class="status-indicator"></div>
+                    <span class="status-name" data-i18n="pending">Pending</span>
+                    <span class="status-count" id="pendingCount">0</span>
+                </div>
+                <div class="status-item confirmed">
+                    <div class="status-indicator"></div>
+                    <span class="status-name" data-i18n="confirmed">Confirmed</span>
+                    <span class="status-count" id="confirmedCount">0</span>
+                </div>
+                <div class="status-item completed">
+                    <div class="status-indicator"></div>
+                    <span class="status-name" data-i18n="completed">Completed</span>
+                    <span class="status-count" id="completedCount">0</span>
+                </div>
+                <div class="status-item cancelled">
+                    <div class="status-indicator"></div>
+                    <span class="status-name" data-i18n="cancelled">Cancelled</span>
+                    <span class="status-count" id="cancelledCount">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Trend -->
+    <div class="chart-panel trend-panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                <div class="title-icon"><i class="fas fa-chart-line"></i></div>
+                <div>
+                    <h3 data-i18n="weeklyTrend">Weekly Trend</h3>
+                    <p data-i18n="last7days">Last 7 days performance</p>
+                </div>
+            </div>
+            <div class="panel-badge">
+                <i class="fas fa-arrow-trend-up"></i>
+                <span data-i18n="live">Live</span>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="trend-chart-wrapper">
+                <canvas id="weeklyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="activity-section">
+    <div class="chart-panel activity-panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                <div class="title-icon pulse"><i class="fas fa-bolt"></i></div>
+                <div>
+                    <h3 data-i18n="recentActivity">Recent Activity</h3>
+                    <p data-i18n="latestAppointments">Latest appointments in your clinic</p>
+                </div>
+            </div>
+            <a href="{{ route('appointments.index') }}" class="panel-action">
+                <span data-i18n="viewAll">View All</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="panel-body">
+            <div id="recentAppointments" class="activity-list">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script src="{{ asset('vendor/chartjs/chart.min.js') }}"></script>
+<script src="{{ asset('js/dashboard.js') }}"></script>
+@endsection
