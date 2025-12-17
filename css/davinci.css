@@ -3,7 +3,7 @@
    Based on Golden Ratio (φ = 1.618), Classical Proportions & Natural Harmony
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&family=Tajawal:wght@400;500;700&display=swap');
+/* Google Fonts removed for offline use - using system fonts */
 
 :root {
     /* ═══════════════════════════════════════════════════════════════
@@ -135,13 +135,11 @@
     --radius-2xl: 32px;
     --radius-full: 9999px;
 
-    /* ═══════════════════════════════════════════════════════════════
-       TYPOGRAPHY
-       ═══════════════════════════════════════════════════════════════ */
-    --font-display: 'Cormorant Garamond', serif;
-    --font-body: 'Source Sans 3', sans-serif;
-    --font-en: 'Source Sans 3', sans-serif;
-    --font-ar: 'Tajawal', sans-serif;
+    /* Typography - System Fonts for Offline Use */
+    --font-display: Georgia, 'Times New Roman', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --font-en: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --font-ar: 'Segoe UI', Tahoma, 'Arial', sans-serif;
 
     /* ═══════════════════════════════════════════════════════════════
        BACKGROUNDS
@@ -665,15 +663,16 @@ p {
 }
 
 [data-theme="dark"] .btn-soft-secondary {
-    background: rgba(168, 85, 247, 0.12);
-    color: #a855f7;
-    border: 1px solid rgba(168, 85, 247, 0.2);
+    background: rgba(255, 215, 0, 0.12);
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.2);
 }
 
 [data-theme="dark"] .btn-soft-secondary:hover {
-    background: rgba(168, 85, 247, 0.2);
-    border-color: rgba(168, 85, 247, 0.4);
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+    background: rgba(255, 215, 0, 0.25);
+    color: #1a1a2e !important;
+    border-color: rgba(255, 215, 0, 0.5);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.25);
 }
 
 [data-theme="dark"] .btn-soft-danger {

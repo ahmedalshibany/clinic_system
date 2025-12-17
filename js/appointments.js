@@ -314,7 +314,7 @@ if (typeof AppointmentsManager === 'undefined') {
                                 </div>
                             </td>
                             <td>${appt.date}</td>
-                            <td><span class="badge bg-light text-dark border"><i class="far fa-clock me-1"></i>${appt.time}</span></td>
+                            <td>${appt.time}</td>
                             <td><span class="badge bg-${badgeColor} bg-opacity-10 text-${badgeColor} px-3 py-2 rounded-pill">${this.t(appt.status)}</span></td>
                             <td class="pe-4">
                                 <div class="d-flex justify-content-center gap-2">
