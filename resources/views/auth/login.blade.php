@@ -28,13 +28,15 @@
                 <p class="text-muted" data-i18n="loginSubtitle">Sign in to access your dashboard</p>
             </div>
 
+            <div id="loginAlert" class="alert d-none mb-3" role="alert"></div>
+
             <form id="loginForm">
                 <div class="mb-3">
                     <label for="username" class="form-label" data-i18n="usernameLabel">Username</label>
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0"><i
                                 class="fas fa-user text-muted"></i></span>
-                        <input type="text" class="form-control border-start-0" id="username" required
+                        <input type="text" class="form-control border-start-0" id="username" name="username" required
                             data-i18n-placeholder="usernamePlaceholder" placeholder="Enter your username">
                     </div>
                 </div>
@@ -44,20 +46,76 @@
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0"><i
                                 class="fas fa-lock text-muted"></i></span>
-                        <input type="password" class="form-control border-start-0" id="password" required
+                        <input type="password" class="form-control border-start-0" id="password" name="password" required
                             placeholder="********">
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 py-2" data-i18n="loginBtn">Login</button>
+                <button type="submit" class="btn btn-primary w-100 py-2" id="loginBtn" data-i18n="loginBtn">
+                    <span class="btn-text">Login</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
             </form>
+
+            <div class="text-center mt-3 text-muted small">
+                <p class="mb-0">Demo credentials: <strong>admin</strong> / <strong>admin123</strong></p>
+            </div>
         </div>
     </div>
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-
+    <script src="{{ asset('js/api.js') }}"></script>
     <script src="{{ asset('js/utils.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Handle login form submission
+            $('#loginForm').on('submit', async function(e) {
+                e.preventDefault();
+                
+                const $btn = $('#loginBtn');
+                const $btnText = $btn.find('.btn-text');
+                const $spinner = $btn.find('.spinner-border');
+                const $alert = $('#loginAlert');
+                
+                // Show loading state
+                $btn.prop('disabled', true);
+                $btnText.text('Logging in...');
+                $spinner.removeClass('d-none');
+                $alert.addClass('d-none');
+                
+                const username = $('#username').val().trim();
+                const password = $('#password').val();
+                
+                try {
+                    const response = await API.auth.login(username, password);
+                    
+                    if (response.success) {
+                        // Store user info if needed
+                        localStorage.setItem('clinic_user', JSON.stringify(response.user));
+                        
+                        // Redirect to dashboard using the server-provided redirect URL
+                        window.location.href = response.redirect || '/dashboard';
+                    } else {
+                        throw new Error(response.message || 'Login failed');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    
+                    // Show error message
+                    $alert.removeClass('d-none alert-success')
+                          .addClass('alert-danger')
+                          .text(error.message || 'Invalid username or password');
+                    
+                    // Reset button state
+                    $btn.prop('disabled', false);
+                    $btnText.text('Login');
+                    $spinner.addClass('d-none');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

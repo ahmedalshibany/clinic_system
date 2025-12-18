@@ -1,49 +1,23 @@
+/**
+ * Doctors Manager - Using API Backend
+ */
 if (typeof DoctorsManager === 'undefined') {
     class DoctorsManager {
         constructor() {
-            this.storageKey = 'clinic_doctors';
-            const stored = this.loadFromStorage();
-
-            if (stored && stored.length > 0) {
-                this.doctors = stored;
-            } else {
-                this.doctors = [
-                    { id: 1, name: "Dr. Sarah Smith", specialty: "Cardiology", phone: "+1 234 567 890", avatar: "https://ui-avatars.com/api/?name=Sarah+Smith&background=0D8ABC&color=fff", rating: 4.8 },
-                    { id: 2, name: "Dr. John Doe", specialty: "Dermatology", phone: "+1 987 654 321", avatar: "https://ui-avatars.com/api/?name=John+Doe&background=567C8D&color=fff", rating: 4.5 },
-                    { id: 3, name: "Dr. Emily Blunt", specialty: "Pediatrics", phone: "+1 123 456 789", avatar: "https://ui-avatars.com/api/?name=Emily+Blunt&background=2F4156&color=fff", rating: 4.9 },
-                    { id: 4, name: "Dr. Michael Scott", specialty: "Neurology", phone: "+1 555 123 456", avatar: "https://ui-avatars.com/api/?name=Michael+Scott&background=4aa87e&color=fff", rating: 4.7 }
-                ];
-                this.saveToStorage();
-            }
-
+            this.doctors = [];
             this.currentDeleteId = null;
             this.currentPage = 1;
             this.itemsPerPage = 8;
+            this.totalItems = 0;
+            this.totalPages = 0;
             this.searchTerm = '';
-            this.sortColumn = null;
-            this.sortOrder = 'asc';
+            this.sortColumn = 'id';
+            this.sortOrder = 'desc';
+            this.isLoading = false;
         }
 
-        loadFromStorage() {
-            try {
-                const data = localStorage.getItem(this.storageKey);
-                return data ? JSON.parse(data) : null;
-            } catch (error) {
-                console.error('Error loading doctors from storage:', error);
-                return null;
-            }
-        }
-
-        saveToStorage() {
-            try {
-                localStorage.setItem(this.storageKey, JSON.stringify(this.doctors));
-            } catch (error) {
-                console.error('Error saving doctors to storage:', error);
-            }
-        }
-
-        init() {
-            this.render();
+        async init() {
+            await this.loadDoctors();
             this.bindEvents();
         }
 
@@ -69,75 +43,56 @@ if (typeof DoctorsManager === 'undefined') {
             $(document).on('click.doctors', '#confirmDeleteBtn', () => this.confirmDelete());
 
             $(document).on('input.doctors', '#doctorSearch', Utils.debounce((e) => {
-                this.searchTerm = $(e.target).val().toLowerCase();
+                this.searchTerm = $(e.target).val();
                 this.currentPage = 1;
-                this.render();
-            }));
+                this.loadDoctors();
+            }, 300));
 
             $(document).on('click.doctors', '[data-action="prev-page"]', () => this.prevPage());
             $(document).on('click.doctors', '[data-action="next-page"]', () => this.nextPage());
 
             $(document).on('click.doctors', '[data-action="export-csv"]', () => this.exportCSV());
             $(document).on('click.doctors', '[data-action="export-json"]', () => this.exportJSON());
-
-            $(document).on('layout-loaded', () => {
-                if ($('#doctorsGrid').length) {
-                    this.render();
-                }
-            });
         }
 
-        getFilteredDoctors() {
-            let filtered = this.doctors;
+        async loadDoctors() {
+            if (this.isLoading) return;
+            this.isLoading = true;
 
-            if (this.searchTerm) {
-                filtered = filtered.filter(d =>
-                    d.name.toLowerCase().includes(this.searchTerm) ||
-                    d.specialty.toLowerCase().includes(this.searchTerm) ||
-                    d.phone.includes(this.searchTerm)
-                );
-            }
-
-            if (this.sortColumn) {
-                filtered = [...filtered].sort((a, b) => {
-                    let valA = a[this.sortColumn];
-                    let valB = b[this.sortColumn];
-
-                    if (typeof valA === 'string') valA = valA.toLowerCase();
-                    if (typeof valB === 'string') valB = valB.toLowerCase();
-
-                    if (valA < valB) return this.sortOrder === 'asc' ? -1 : 1;
-                    if (valA > valB) return this.sortOrder === 'asc' ? 1 : -1;
-                    return 0;
+            try {
+                const response = await API.doctors.getAll({
+                    page: this.currentPage,
+                    per_page: this.itemsPerPage,
+                    search: this.searchTerm,
+                    sort: this.sortColumn,
+                    direction: this.sortOrder
                 });
+
+                this.doctors = response.data;
+                this.totalItems = response.total;
+                this.totalPages = response.last_page;
+                this.currentPage = response.current_page;
+
+                this.render();
+            } catch (error) {
+                console.error('Error loading doctors:', error);
+                this.showError('Failed to load doctors');
+            } finally {
+                this.isLoading = false;
             }
-
-            return filtered;
-        }
-
-        getPaginatedDoctors() {
-            const filtered = this.getFilteredDoctors();
-            const start = (this.currentPage - 1) * this.itemsPerPage;
-            const end = start + this.itemsPerPage;
-            return {
-                data: filtered.slice(start, end),
-                total: filtered.length,
-                totalPages: Math.ceil(filtered.length / this.itemsPerPage)
-            };
         }
 
         prevPage() {
             if (this.currentPage > 1) {
                 this.currentPage--;
-                this.render();
+                this.loadDoctors();
             }
         }
 
         nextPage() {
-            const { totalPages } = this.getPaginatedDoctors();
-            if (this.currentPage < totalPages) {
+            if (this.currentPage < this.totalPages) {
                 this.currentPage++;
-                this.render();
+                this.loadDoctors();
             }
         }
 
@@ -145,9 +100,7 @@ if (typeof DoctorsManager === 'undefined') {
             const $grid = $('#doctorsGrid');
             if ($grid.length === 0) return;
 
-            const { data, total, totalPages } = this.getPaginatedDoctors();
-
-            if (data.length === 0) {
+            if (this.doctors.length === 0) {
                 const emptyMessage = this.searchTerm
                     ? `<div class="empty-state col-12">
                         <i class="fas fa-search"></i>
@@ -161,130 +114,130 @@ if (typeof DoctorsManager === 'undefined') {
                        </div>`;
 
                 $grid.html(emptyMessage);
-                this.updatePagination(total, totalPages);
+                this.updatePagination();
                 return;
             }
 
-            const html = data.map(doctor => `
-                <div class="col-md-6 col-lg-4 col-xl-3">
-                    <div class="card doctor-card h-100">
-                        <div class="card-body text-center p-4">
-                            <div class="doctor-avatar mb-3">
-                                <img src="${doctor.avatar}" alt="${doctor.name}">
-                                <div class="status-indicator"></div>
-                            </div>
-                            <h5 class="fw-bold text-primary mb-1">${doctor.name}</h5>
-                            <p class="text-secondary small mb-3">
-                                ${translations[app.lang]['spec_' + (doctor.specialty === 'General Practice' ? 'general' : doctor.specialty.toLowerCase())] || doctor.specialty}
-                            </p>
+            const lang = (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
+            const getSpecialtyKey = (specialty) => {
+                const key = 'spec_' + (specialty === 'General Practice' ? 'general' : specialty.toLowerCase());
+                return translations[lang]?.[key] || specialty;
+            };
 
-                            <div class="action-buttons d-flex justify-content-center gap-3">
-                                <button class="btn btn-soft-primary btn-sm" data-action="edit-doctor" data-doctor-id="${doctor.id}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-soft-danger btn-sm" data-action="delete-doctor" data-doctor-id="${doctor.id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+            const html = this.doctors.map(doctor => {
+                const avatarUrl = doctor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.name)}&background=0D8ABC&color=fff`;
+
+                return `
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="card doctor-card h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="doctor-avatar mb-3">
+                                    <img src="${avatarUrl}" alt="${doctor.name}">
+                                    <div class="status-indicator ${doctor.is_active ? '' : 'bg-secondary'}"></div>
+                                </div>
+                                <h5 class="fw-bold text-primary mb-1">${doctor.name}</h5>
+                                <p class="text-secondary small mb-3">${getSpecialtyKey(doctor.specialty)}</p>
+
+                                <div class="action-buttons d-flex justify-content-center gap-3">
+                                    <button class="btn btn-soft-primary btn-sm" data-action="edit-doctor" data-doctor-id="${doctor.id}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-soft-danger btn-sm" data-action="delete-doctor" data-doctor-id="${doctor.id}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             $grid.html(html);
-            this.updatePagination(total, totalPages);
+            this.updatePagination();
 
             if (window.app && window.app.applyLanguage) {
                 window.app.applyLanguage(window.app.lang);
             }
         }
 
-        updatePagination(total, totalPages) {
+        updatePagination() {
             const $pagination = $('.pagination-controls');
             if (!$pagination.length) return;
 
-            const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-            const end = Math.min(this.currentPage * this.itemsPerPage, total);
+            const start = this.totalItems > 0 ? (this.currentPage - 1) * this.itemsPerPage + 1 : 0;
+            const end = Math.min(this.currentPage * this.itemsPerPage, this.totalItems);
 
             $pagination.find('.pagination-info').html(`
-                Showing <strong>${start}-${end}</strong> of <strong>${total}</strong> doctors
+                Showing <strong>${start}-${end}</strong> of <strong>${this.totalItems}</strong> doctors
             `);
 
             $pagination.find('[data-action="prev-page"]').prop('disabled', this.currentPage === 1);
-            $pagination.find('[data-action="next-page"]').prop('disabled', this.currentPage === totalPages || totalPages === 0);
+            $pagination.find('[data-action="next-page"]').prop('disabled', this.currentPage >= this.totalPages);
         }
 
         add() {
             this.openModal();
         }
 
-        edit(id) {
-            const doctor = this.doctors.find(d => d.id === id);
-            if (doctor) {
-                this.openModal(doctor);
+        async edit(id) {
+            try {
+                const response = await API.doctors.get(id);
+                if (response.success && response.data) {
+                    this.openModal(response.data);
+                }
+            } catch (error) {
+                console.error('Error loading doctor:', error);
+                this.showError('Failed to load doctor data');
             }
         }
 
         openModal(doctor = null) {
+            const lang = (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
+
             if (doctor) {
                 $('#doctorId').val(doctor.id);
                 $('#doctorName').val(doctor.name);
                 $('#doctorSpecialty').val(doctor.specialty);
                 $('#doctorPhone').val(doctor.phone);
-                $('#doctorModalTitle').attr('data-i18n', 'editDoctor').text(translations[app.lang]?.editDoctor || 'Edit Doctor');
+                $('#doctorModalTitle').attr('data-i18n', 'editDoctor').text(translations[lang]?.editDoctor || 'Edit Doctor');
             } else {
                 $('#doctorForm')[0].reset();
                 $('#doctorId').val('');
-                $('#doctorModalTitle').attr('data-i18n', 'addDoctor').text(translations[app.lang]?.addDoctor || 'Add Doctor');
+                $('#doctorModalTitle').attr('data-i18n', 'addDoctor').text(translations[lang]?.addDoctor || 'Add Doctor');
             }
             $('#doctorModal').modal('show');
         }
 
-        save() {
+        async save() {
             const id = $('#doctorId').val();
-            const name = $('#doctorName').val().trim();
-            const specialty = $('#doctorSpecialty').val();
-            const phone = $('#doctorPhone').val().trim();
+            const data = {
+                name: $('#doctorName').val().trim(),
+                specialty: $('#doctorSpecialty').val(),
+                phone: $('#doctorPhone').val().trim()
+            };
 
-            if (!name || !specialty || !phone) {
-                toast.error('Please fill in all required fields');
+            if (!data.name || !data.specialty || !data.phone) {
+                this.showError('Please fill in all required fields');
                 return;
             }
 
-            if (!Utils.validatePhone(phone)) {
-                toast.error('Please enter a valid phone number');
-                return;
-            }
+            const lang = (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
 
-            if (!id && this.doctors.some(d => d.phone === phone)) {
-                toast.error('A doctor with this phone number already exists');
-                return;
-            }
-
-            if (id) {
-                const index = this.doctors.findIndex(d => d.id == id);
-                if (index !== -1) {
-                    this.doctors[index] = { ...this.doctors[index], name, specialty, phone };
-                    toast.success(translations[app.lang].doctorUpdated);
+            try {
+                if (id) {
+                    await API.doctors.update(id, data);
+                    this.showSuccess(translations[lang]?.doctorUpdated || 'Doctor updated successfully!');
+                } else {
+                    await API.doctors.create(data);
+                    this.showSuccess(translations[lang]?.doctorAdded || 'Doctor added successfully!');
                 }
-            } else {
-                const newId = this.doctors.length > 0 ? Math.max(...this.doctors.map(d => d.id)) + 1 : 1;
-                const avatarColor = ['0D8ABC', '567C8D', '2F4156', '4aa87e'][Math.floor(Math.random() * 4)];
-                const newDoctor = {
-                    id: newId,
-                    name,
-                    specialty,
-                    phone,
-                    rating: 5.0,
-                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${avatarColor}&color=fff`
-                };
-                this.doctors.push(newDoctor);
-                toast.success(translations[app.lang].doctorAdded);
-            }
 
-            this.saveToStorage();
-            $('#doctorModal').modal('hide');
-            this.render();
+                $('#doctorModal').modal('hide');
+                await this.loadDoctors();
+            } catch (error) {
+                console.error('Error saving doctor:', error);
+                this.showError(error.message || 'Failed to save doctor');
+            }
         }
 
         deleteRequest(id) {
@@ -292,66 +245,76 @@ if (typeof DoctorsManager === 'undefined') {
             $('#deleteModal').modal('show');
         }
 
-        confirmDelete() {
+        async confirmDelete() {
             if (this.currentDeleteId) {
-                this.doctors = this.doctors.filter(d => d.id !== this.currentDeleteId);
-                this.currentDeleteId = null;
-                this.saveToStorage();
-                toast.success(translations[app.lang].doctorDeleted);
+                const lang = (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
 
-                $('#deleteModal').modal('hide');
-
-                const { totalPages } = this.getPaginatedDoctors();
-                if (this.currentPage > totalPages && totalPages > 0) {
-                    this.currentPage = totalPages;
+                try {
+                    await API.doctors.delete(this.currentDeleteId);
+                    this.showSuccess(translations[lang]?.doctorDeleted || 'Doctor deleted successfully!');
+                    this.currentDeleteId = null;
+                    $('#deleteModal').modal('hide');
+                    await this.loadDoctors();
+                } catch (error) {
+                    console.error('Error deleting doctor:', error);
+                    this.showError('Failed to delete doctor');
                 }
-
-                this.render();
             }
         }
 
-        exportCSV() {
-            const data = this.doctors.map(d => ({
-                ID: d.id,
-                Name: d.name,
-                Specialty: d.specialty,
-                Phone: d.phone,
-                Rating: d.rating
-            }));
-            Utils.exportToCSV(data, 'doctors.csv');
+        async exportCSV() {
+            try {
+                const response = await API.doctors.getAll({ per_page: 1000 });
+                const data = response.data.map(d => ({
+                    ID: d.id,
+                    Name: d.name,
+                    Specialty: d.specialty,
+                    Phone: d.phone,
+                    Active: d.is_active ? 'Yes' : 'No'
+                }));
+                Utils.exportToCSV(data, 'doctors.csv');
+            } catch (error) {
+                this.showError('Failed to export data');
+            }
         }
 
-        exportJSON() {
-            Utils.exportToJSON(this.doctors, 'doctors.json');
+        async exportJSON() {
+            try {
+                const response = await API.doctors.getAll({ per_page: 1000 });
+                Utils.exportToJSON(response.data, 'doctors.json');
+            } catch (error) {
+                this.showError('Failed to export data');
+            }
+        }
+
+        showSuccess(message) {
+            if (window.app && window.app.showAlert) {
+                window.app.showAlert(message, 'success');
+            } else {
+                alert(message);
+            }
+        }
+
+        showError(message) {
+            if (window.app && window.app.showAlert) {
+                window.app.showAlert(message, 'danger');
+            } else {
+                alert(message);
+            }
         }
     }
 
     window.doctorsManager = new DoctorsManager();
     $(document).ready(() => {
-        if (typeof Utils !== 'undefined') {
+        if (typeof API !== 'undefined') {
             window.doctorsManager.init();
         } else {
-            const checkUtils = setInterval(() => {
-                if (typeof Utils !== 'undefined') {
-                    clearInterval(checkUtils);
+            const checkAPI = setInterval(() => {
+                if (typeof API !== 'undefined') {
+                    clearInterval(checkAPI);
                     window.doctorsManager.init();
                 }
             }, 100);
         }
     });
-} else {
-    if (window.doctorsManager) {
-        $(document).ready(() => {
-            if (typeof Utils !== 'undefined') {
-                window.doctorsManager.init();
-            } else {
-                const checkUtils = setInterval(() => {
-                    if (typeof Utils !== 'undefined') {
-                        clearInterval(checkUtils);
-                        window.doctorsManager.init();
-                    }
-                }, 100);
-            }
-        });
-    }
 }

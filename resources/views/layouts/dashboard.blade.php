@@ -130,6 +130,7 @@
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     
     <!-- Custom JS -->
+    <script src="{{ asset('js/api.js') }}"></script>
     <script src="{{ asset('js/utils.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/layout.js') }}"></script>

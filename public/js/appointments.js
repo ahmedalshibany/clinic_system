@@ -1,244 +1,208 @@
+/**
+ * Appointments Manager - Using API Backend
+ */
 if (typeof AppointmentsManager === 'undefined') {
     class AppointmentsManager {
         constructor() {
-            this.appointments = JSON.parse(localStorage.getItem('clinic_appointments')) || [];
-            this.patients = JSON.parse(localStorage.getItem('clinic_patients')) || [];
-            this.doctors = JSON.parse(localStorage.getItem('clinic_doctors')) || [];
+            this.appointments = [];
+            this.patients = [];
+            this.doctors = [];
             this.searchTerm = '';
             this.statusFilter = 'all';
             this.currentPage = 1;
             this.itemsPerPage = 10;
-            this.sortColumn = null;
-            this.sortOrder = 'asc';
-
-            // One-time fix: Renumber appointments to start from 1
-            this.renumberAppointments();
+            this.totalItems = 0;
+            this.totalPages = 0;
+            this.sortColumn = 'date';
+            this.sortOrder = 'desc';
+            this.deleteId = null;
+            this.isLoading = false;
         }
 
-        renumberAppointments() {
-            if (this.appointments.length > 0) {
-                // Check if any ID is larger than the array length (old Date.now() IDs)
-                const needsRenumber = this.appointments.some(a => a.id > this.appointments.length);
-                if (needsRenumber) {
-                    // Sort by date first, then renumber from 1
-                    this.appointments.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
-                    this.appointments = this.appointments.map((appt, index) => ({
-                        ...appt,
-                        id: index + 1
-                    }));
-                    localStorage.setItem('clinic_appointments', JSON.stringify(this.appointments));
-                }
-            }
-        }
-
-        // Safe language getter
         getLang() {
             return (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
         }
 
-        // Safe translation getter
         t(key) {
             const lang = this.getLang();
             if (typeof translations !== 'undefined' && translations[lang] && translations[lang][key]) {
                 return translations[lang][key];
             }
-            return key; // Fallback to key name
+            return key;
         }
 
-        init() {
+        async init() {
+            await this.loadAppointments();
             this.bindEvents();
-            this.render();
         }
 
         bindEvents() {
             $(document).off('submit.appointments click.appointments input.appointments change.appointments');
 
-            // Form Submission
             $(document).on('submit.appointments', '#appointmentForm', (e) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
                 this.save();
             });
 
-            // Add Button
             $(document).on('click.appointments', '[data-action="add-appointment"]', () => {
                 this.resetForm();
                 $('#appointmentModalTitle').text(this.t('bookAppt'));
                 $('#appointmentModal').modal('show');
             });
 
-            // Edit Button
             $(document).on('click.appointments', '[data-action="edit-appointment"]', (e) => {
                 const id = parseInt($(e.currentTarget).data('id'));
                 this.edit(id);
             });
 
-            // Delete Button
             $(document).on('click.appointments', '[data-action="delete-appointment"]', (e) => {
                 const id = parseInt($(e.currentTarget).data('id'));
                 this.deleteRequest(id);
             });
 
-            // Confirm Delete
             $(document).on('click.appointments', '#confirmDeleteBtn', () => this.confirmDelete());
 
-            // Search Appointment (Global Search)
             $(document).on('input.appointments', '#appointmentSearch', Utils.debounce((e) => {
-                this.searchTerm = $(e.target).val().toLowerCase();
+                this.searchTerm = $(e.target).val();
                 this.currentPage = 1;
-                this.render();
-            }));
+                this.loadAppointments();
+            }, 300));
 
-            // Filter by Status
             $(document).on('change.appointments', '#statusFilter', (e) => {
                 this.statusFilter = $(e.target).val();
                 this.currentPage = 1;
-                this.render();
+                this.loadAppointments();
             });
 
-            // Pagination
             $(document).on('click.appointments', '[data-action="prev-page"]', () => this.prevPage());
             $(document).on('click.appointments', '[data-action="next-page"]', () => this.nextPage());
 
-            // Sorting
             $(document).on('click.appointments', '.sortable-header', (e) => {
                 const column = $(e.currentTarget).data('sort');
                 this.sortBy(column);
             });
 
-            // Export
             $(document).on('click.appointments', '[data-action="export-csv"]', () => this.exportCSV());
             $(document).on('click.appointments', '[data-action="export-json"]', () => this.exportJSON());
 
-            // Autocomplete Setup
-            this.setupAutocomplete('#patientSearchInput', '#patientSearchResults', '#appointmentPatientId', this.patients, 'name');
-            this.setupAutocomplete('#doctorSearchInput', '#doctorSearchResults', '#appointmentDoctorId', this.doctors, 'name');
-
-            // Initial Render check
-            $(document).on('layout-loaded.appointments', () => {
-                if ($('#appointmentsTableBody').length) {
-                    this.render();
-                }
-            });
+            // Setup autocomplete for patient and doctor search
+            this.setupPatientAutocomplete();
+            this.setupDoctorAutocomplete();
         }
 
-        setupAutocomplete(inputSelector, resultsSelector, hiddenInputSelector, dataSource, displayKey) {
-            const $input = $(inputSelector);
-            const $results = $(resultsSelector);
-            const $hidden = $(hiddenInputSelector);
+        setupPatientAutocomplete() {
+            const $input = $('#patientSearchInput');
+            const $results = $('#patientSearchResults');
+            const $hidden = $('#appointmentPatientId');
             const self = this;
 
-            // Input Event
-            $input.off('input').on('input', function (e) {
-                const val = $(e.target).val().toLowerCase();
-                $hidden.val(''); // Clear ID if typing changes
+            $input.off('input').on('input', Utils.debounce(async function () {
+                const val = $(this).val();
+                $hidden.val('');
                 $results.empty().hide();
 
-                if (val.length > 0) {
-                    const filtered = dataSource.filter(item =>
-                        item[displayKey].toLowerCase().includes(val) ||
-                        (item.phone && item.phone.includes(val))
-                    );
-
-                    if (filtered.length > 0) {
-                        filtered.slice(0, 5).forEach(item => {
-                            const $div = $('<div>')
-                                .addClass('autocomplete-item')
-                                .html(`<strong>${item[displayKey]}</strong><br><small class="text-muted">${item.phone || ''}</small>`)
-                                .on('click', () => {
-                                    $input.val(item[displayKey]);
-                                    $hidden.val(item.id);
-                                    $results.empty().hide();
-                                });
-                            $results.append($div);
-                        });
-                        $results.show();
-                    } else {
-                        $results.append(`<div class="autocomplete-item text-muted">${self.t('noMatchesFound')}</div>`).show();
+                if (val.length > 1) {
+                    try {
+                        const patients = await API.patients.search(val);
+                        if (patients.length > 0) {
+                            patients.forEach(patient => {
+                                const $div = $('<div>')
+                                    .addClass('autocomplete-item')
+                                    .html(`<strong>${patient.name}</strong><br><small class="text-muted">${patient.phone || ''}</small>`)
+                                    .on('click', () => {
+                                        $input.val(patient.name);
+                                        $hidden.val(patient.id);
+                                        $results.empty().hide();
+                                    });
+                                $results.append($div);
+                            });
+                            $results.show();
+                        } else {
+                            $results.append(`<div class="autocomplete-item text-muted">${self.t('noMatchesFound')}</div>`).show();
+                        }
+                    } catch (error) {
+                        console.error('Error searching patients:', error);
                     }
                 }
-            });
+            }, 300));
 
-            // Hide on outside click
             $(document).on('click', (e) => {
-                if (!$(e.target).closest(inputSelector).length && !$(e.target).closest(resultsSelector).length) {
+                if (!$(e.target).closest('#patientSearchInput').length && !$(e.target).closest('#patientSearchResults').length) {
                     $results.hide();
                 }
             });
         }
 
-        getFilteredAppointments() {
-            let filtered = this.appointments.map(appt => {
-                const patient = this.patients.find(p => p.id === appt.patientId);
-                const doctor = this.doctors.find(d => d.id === appt.doctorId);
-                return {
-                    ...appt,
-                    patientName: patient ? patient.name : '',
-                    doctorName: doctor ? doctor.name : ''
-                };
-            });
+        setupDoctorAutocomplete() {
+            const $input = $('#doctorSearchInput');
+            const $results = $('#doctorSearchResults');
+            const $hidden = $('#appointmentDoctorId');
+            const self = this;
 
-            // Search Term (Patient Name, Doctor Name, or Appointment ID)
-            if (this.searchTerm) {
-                filtered = filtered.filter(appt => {
-                    const patientName = appt.patientName.toLowerCase();
-                    const doctorName = appt.doctorName.toLowerCase();
+            $input.off('input').on('input', Utils.debounce(async function () {
+                const val = $(this).val();
+                $hidden.val('');
+                $results.empty().hide();
 
-                    return patientName.includes(this.searchTerm) ||
-                        doctorName.includes(this.searchTerm) ||
-                        appt.id.toString().includes(this.searchTerm);
-                });
-            }
-
-            // Status Filter
-            if (this.statusFilter !== 'all') {
-                filtered = filtered.filter(appt => appt.status === this.statusFilter);
-            }
-
-            // Sorting
-            if (this.sortColumn) {
-                filtered = [...filtered].sort((a, b) => {
-                    let valA, valB;
-
-                    switch (this.sortColumn) {
-                        case 'id':
-                            valA = a.id;
-                            valB = b.id;
-                            break;
-                        case 'patientName':
-                            valA = a.patientName.toLowerCase();
-                            valB = b.patientName.toLowerCase();
-                            break;
-                        case 'doctorName':
-                            valA = a.doctorName.toLowerCase();
-                            valB = b.doctorName.toLowerCase();
-                            break;
-                        case 'date':
-                            valA = new Date(a.date);
-                            valB = new Date(b.date);
-                            break;
-                        case 'time':
-                            valA = a.time;
-                            valB = b.time;
-                            break;
-                        case 'status':
-                            valA = a.status;
-                            valB = b.status;
-                            break;
-                        default:
-                            return 0;
+                if (val.length > 1) {
+                    try {
+                        const doctors = await API.doctors.search(val);
+                        if (doctors.length > 0) {
+                            doctors.forEach(doctor => {
+                                const $div = $('<div>')
+                                    .addClass('autocomplete-item')
+                                    .html(`<strong>${doctor.name}</strong><br><small class="text-muted">${doctor.specialty}</small>`)
+                                    .on('click', () => {
+                                        $input.val(doctor.name);
+                                        $hidden.val(doctor.id);
+                                        $results.empty().hide();
+                                    });
+                                $results.append($div);
+                            });
+                            $results.show();
+                        } else {
+                            $results.append(`<div class="autocomplete-item text-muted">${self.t('noMatchesFound')}</div>`).show();
+                        }
+                    } catch (error) {
+                        console.error('Error searching doctors:', error);
                     }
+                }
+            }, 300));
 
-                    if (valA < valB) return this.sortOrder === 'asc' ? -1 : 1;
-                    if (valA > valB) return this.sortOrder === 'asc' ? 1 : -1;
-                    return 0;
+            $(document).on('click', (e) => {
+                if (!$(e.target).closest('#doctorSearchInput').length && !$(e.target).closest('#doctorSearchResults').length) {
+                    $results.hide();
+                }
+            });
+        }
+
+        async loadAppointments() {
+            if (this.isLoading) return;
+            this.isLoading = true;
+
+            try {
+                const response = await API.appointments.getAll({
+                    page: this.currentPage,
+                    per_page: this.itemsPerPage,
+                    search: this.searchTerm,
+                    status: this.statusFilter,
+                    sort: this.sortColumn,
+                    direction: this.sortOrder
                 });
-            } else {
-                // Default sort: Date Descending (Newest First)
-                filtered = filtered.sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
-            }
 
-            return filtered;
+                this.appointments = response.data;
+                this.totalItems = response.total;
+                this.totalPages = response.last_page;
+                this.currentPage = response.current_page;
+
+                this.render();
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                this.showError('Failed to load appointments');
+            } finally {
+                this.isLoading = false;
+            }
         }
 
         sortBy(column) {
@@ -248,7 +212,7 @@ if (typeof AppointmentsManager === 'undefined') {
                 this.sortColumn = column;
                 this.sortOrder = 'asc';
             }
-            this.render();
+            this.loadAppointments();
         }
 
         updateSortIcons() {
@@ -263,34 +227,24 @@ if (typeof AppointmentsManager === 'undefined') {
         }
 
         render() {
-            // Refresh data references
-            this.appointments = JSON.parse(localStorage.getItem('clinic_appointments')) || [];
-            this.patients = JSON.parse(localStorage.getItem('clinic_patients')) || [];
-            this.doctors = JSON.parse(localStorage.getItem('clinic_doctors')) || [];
-
-            const filtered = this.getFilteredAppointments();
-            const start = (this.currentPage - 1) * this.itemsPerPage;
-            const end = start + this.itemsPerPage;
-            const paginated = filtered.slice(start, end);
-
             const $tbody = $('#appointmentsTableBody');
             if ($tbody.length === 0) return;
 
             $tbody.empty();
 
-            if (paginated.length === 0) {
+            if (this.appointments.length === 0) {
                 $tbody.html(`
                     <tr>
                         <td colspan="7" class="text-center py-5 text-muted">
                             <i class="fas fa-calendar-times mb-3" style="font-size: 2rem;"></i>
-                            <p>${this.t('noData')}</p>
+                            <p>${this.t('noAppointments')}</p>
                         </td>
                     </tr>
                 `);
             } else {
-                paginated.forEach((appt, index) => {
-                    const patient = this.patients.find(p => p.id === appt.patientId) || { name: this.t('unknownPatient') };
-                    const doctor = this.doctors.find(d => d.id === appt.doctorId) || { name: this.t('unknownDoctor') };
+                this.appointments.forEach(appt => {
+                    const patientName = appt.patient?.name || this.t('unknownPatient');
+                    const doctorName = appt.doctor?.name || this.t('unknownDoctor');
 
                     const statusColors = {
                         pending: 'warning',
@@ -300,21 +254,35 @@ if (typeof AppointmentsManager === 'undefined') {
                     };
                     const badgeColor = statusColors[appt.status] || 'secondary';
 
+                    // Format date
+                    let displayDate = appt.date;
+                    if (appt.date && typeof appt.date === 'object' && appt.date.formatted) {
+                        displayDate = appt.date.formatted;
+                    } else if (typeof appt.date === 'string') {
+                        displayDate = appt.date.split('T')[0];
+                    }
+
+                    // Format time
+                    let displayTime = appt.time || '';
+                    if (typeof displayTime === 'string' && displayTime.includes(':')) {
+                        displayTime = displayTime.substring(0, 5);
+                    }
+
                     const row = `
                         <tr>
                             <td class="ps-4 fw-bold text-secondary"><span dir="ltr">${appt.id}</span></td>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <span class="fw-medium">${patient.name}</span>
+                                    <span class="fw-medium">${patientName}</span>
                                 </div>
                             </td>
                             <td>
                                 <div class="d-flex align-items-center"> 
-                                    <span>${doctor.name}</span>
+                                    <span>${doctorName}</span>
                                 </div>
                             </td>
-                            <td>${appt.date}</td>
-                            <td>${appt.time}</td>
+                            <td>${displayDate}</td>
+                            <td>${displayTime}</td>
                             <td><span class="badge bg-${badgeColor} bg-opacity-10 text-${badgeColor} px-3 py-2 rounded-pill">${this.t(appt.status)}</span></td>
                             <td class="pe-4">
                                 <div class="d-flex justify-content-center gap-2">
@@ -332,91 +300,95 @@ if (typeof AppointmentsManager === 'undefined') {
                 });
             }
 
-            // Update Pagination Info
-            const total = filtered.length;
-            const showingStart = total === 0 ? 0 : start + 1;
-            const showingEnd = Math.min(end, total);
-            const showingText = this.t('showing');
-            const ofText = this.t('of');
-            const appointmentsText = this.t('appointmentsLabel');
-            $('.pagination-info').html(`${showingText} <strong>${showingStart}-${showingEnd}</strong> ${ofText} <strong>${total}</strong> ${appointmentsText}`);
-
-            $('[data-action="prev-page"]').prop('disabled', this.currentPage === 1);
-            $('[data-action="next-page"]').prop('disabled', end >= total);
+            this.updatePagination();
             this.updateSortIcons();
         }
 
-        save() {
+        updatePagination() {
+            const start = this.totalItems > 0 ? (this.currentPage - 1) * this.itemsPerPage + 1 : 0;
+            const end = Math.min(this.currentPage * this.itemsPerPage, this.totalItems);
+
+            $('.pagination-info').html(`
+                Showing <strong>${start}-${end}</strong> of <strong>${this.totalItems}</strong> appointments
+            `);
+
+            $('[data-action="prev-page"]').prop('disabled', this.currentPage === 1);
+            $('[data-action="next-page"]').prop('disabled', this.currentPage >= this.totalPages);
+        }
+
+        async save() {
             const id = $('#appointmentId').val();
             const patientId = $('#appointmentPatientId').val();
             const doctorId = $('#appointmentDoctorId').val();
 
-            // Validation
             if (!patientId || !doctorId) {
-                if (typeof app !== 'undefined') {
-                    app.showAlert(this.t('selectPatientDoctor'), 'error');
-                }
+                this.showError(this.t('selectPatientDoctor'));
                 return;
             }
 
-            // Generate new ID starting from 1
-            let newId;
-            if (id) {
-                newId = parseInt(id);
-            } else {
-                newId = this.appointments.length > 0 ? Math.max(...this.appointments.map(a => a.id)) + 1 : 1;
-            }
-
-            const apptData = {
-                id: newId,
-                patientId: parseInt(patientId),
-                doctorId: parseInt(doctorId),
+            const data = {
+                patient_id: parseInt(patientId),
+                doctor_id: parseInt(doctorId),
                 date: $('#appointmentDate').val(),
                 time: $('#appointmentTime').val(),
                 type: $('#appointmentType').val(),
                 status: $('#appointmentStatus').val()
             };
 
-            if (id) {
-                const index = this.appointments.findIndex(a => a.id === parseInt(id));
-                if (index !== -1) {
-                    this.appointments[index] = apptData;
-                    if (typeof app !== 'undefined') app.showAlert(this.t('appointmentUpdated'), 'success');
+            try {
+                if (id) {
+                    await API.appointments.update(id, data);
+                    this.showSuccess(this.t('appointmentUpdated'));
+                } else {
+                    await API.appointments.create(data);
+                    this.showSuccess(this.t('appointmentBooked'));
                 }
-            } else {
-                this.appointments.unshift(apptData);
-                if (typeof app !== 'undefined') app.showAlert(this.t('appointmentBooked'), 'success');
-            }
 
-            this.saveToStorage();
-            $('#appointmentModal').modal('hide');
-            this.render();
+                $('#appointmentModal').modal('hide');
+                await this.loadAppointments();
+            } catch (error) {
+                console.error('Error saving appointment:', error);
+                this.showError(error.message || 'Failed to save appointment');
+            }
         }
 
-        edit(id) {
-            const appt = this.appointments.find(a => a.id === id);
-            if (appt) {
-                this.resetForm();
-                $('#appointmentId').val(appt.id);
+        async edit(id) {
+            try {
+                const response = await API.appointments.get(id);
+                if (response.success && response.data) {
+                    const appt = response.data;
+                    this.resetForm();
 
-                // Set Hidden IDs
-                $('#appointmentPatientId').val(appt.patientId);
-                $('#appointmentDoctorId').val(appt.doctorId);
+                    $('#appointmentId').val(appt.id);
+                    $('#appointmentPatientId').val(appt.patient_id);
+                    $('#appointmentDoctorId').val(appt.doctor_id);
 
-                // Find Names for Inputs
-                const patient = this.patients.find(p => p.id === appt.patientId);
-                const doctor = this.doctors.find(d => d.id === appt.doctorId);
+                    $('#patientSearchInput').val(appt.patient?.name || '');
+                    $('#doctorSearchInput').val(appt.doctor?.name || '');
 
-                $('#patientSearchInput').val(patient ? patient.name : '');
-                $('#doctorSearchInput').val(doctor ? doctor.name : '');
+                    // Format date for input
+                    let dateVal = appt.date;
+                    if (typeof dateVal === 'string' && dateVal.includes('T')) {
+                        dateVal = dateVal.split('T')[0];
+                    }
+                    $('#appointmentDate').val(dateVal);
 
-                $('#appointmentDate').val(appt.date);
-                $('#appointmentTime').val(appt.time);
-                $('#appointmentType').val(appt.type);
-                $('#appointmentStatus').val(appt.status);
+                    // Format time for input
+                    let timeVal = appt.time || '';
+                    if (typeof timeVal === 'string' && timeVal.includes(':')) {
+                        timeVal = timeVal.substring(0, 5);
+                    }
+                    $('#appointmentTime').val(timeVal);
 
-                $('#appointmentModalTitle').text(this.t('editAppointment'));
-                $('#appointmentModal').modal('show');
+                    $('#appointmentType').val(appt.type);
+                    $('#appointmentStatus').val(appt.status);
+
+                    $('#appointmentModalTitle').text(this.t('editAppointment'));
+                    $('#appointmentModal').modal('show');
+                }
+            } catch (error) {
+                console.error('Error loading appointment:', error);
+                this.showError('Failed to load appointment');
             }
         }
 
@@ -425,19 +397,19 @@ if (typeof AppointmentsManager === 'undefined') {
             $('#deleteModal').modal('show');
         }
 
-        confirmDelete() {
+        async confirmDelete() {
             if (this.deleteId) {
-                this.appointments = this.appointments.filter(a => a.id !== this.deleteId);
-                this.saveToStorage();
-                $('#deleteModal').modal('hide');
-                this.deleteId = null;
-                if (typeof app !== 'undefined') app.showAlert(this.t('appointmentCancelled'), 'success');
-                this.render();
+                try {
+                    await API.appointments.delete(this.deleteId);
+                    this.showSuccess(this.t('appointmentCancelled'));
+                    this.deleteId = null;
+                    $('#deleteModal').modal('hide');
+                    await this.loadAppointments();
+                } catch (error) {
+                    console.error('Error deleting appointment:', error);
+                    this.showError('Failed to delete appointment');
+                }
             }
-        }
-
-        saveToStorage() {
-            localStorage.setItem('clinic_appointments', JSON.stringify(this.appointments));
         }
 
         resetForm() {
@@ -446,62 +418,79 @@ if (typeof AppointmentsManager === 'undefined') {
             $('#appointmentId').val('');
             $('#appointmentPatientId').val('');
             $('#appointmentDoctorId').val('');
-            $('#patientSearchInput').removeClass('is-invalid');
-            $('#doctorSearchInput').removeClass('is-invalid');
+            $('#patientSearchInput').val('').removeClass('is-invalid');
+            $('#doctorSearchInput').val('').removeClass('is-invalid');
         }
 
         prevPage() {
             if (this.currentPage > 1) {
                 this.currentPage--;
-                this.render();
+                this.loadAppointments();
             }
         }
 
         nextPage() {
-            const total = this.getFilteredAppointments().length;
-            if (this.currentPage * this.itemsPerPage < total) {
+            if (this.currentPage < this.totalPages) {
                 this.currentPage++;
-                this.render();
+                this.loadAppointments();
             }
         }
 
-        exportCSV() {
-            const data = this.getFilteredAppointments().map(appt => ({
-                ID: appt.id,
-                Patient: appt.patientName,
-                Doctor: appt.doctorName,
-                Date: appt.date,
-                Time: appt.time,
-                Type: appt.type,
-                Status: appt.status
-            }));
-            Utils.exportToCSV(data, 'appointments.csv');
+        async exportCSV() {
+            try {
+                const response = await API.appointments.getAll({ per_page: 1000 });
+                const data = response.data.map(appt => ({
+                    ID: appt.id,
+                    Patient: appt.patient?.name || '',
+                    Doctor: appt.doctor?.name || '',
+                    Date: appt.date,
+                    Time: appt.time,
+                    Type: appt.type,
+                    Status: appt.status
+                }));
+                Utils.exportToCSV(data, 'appointments.csv');
+            } catch (error) {
+                this.showError('Failed to export data');
+            }
         }
 
-        exportJSON() {
-            const data = this.getFilteredAppointments().map(appt => ({
-                id: appt.id,
-                patient: appt.patientName,
-                doctor: appt.doctorName,
-                date: appt.date,
-                time: appt.time,
-                type: appt.type,
-                status: appt.status
-            }));
-            Utils.exportToJSON(data, 'appointments.json');
+        async exportJSON() {
+            try {
+                const response = await API.appointments.getAll({ per_page: 1000 });
+                Utils.exportToJSON(response.data, 'appointments.json');
+            } catch (error) {
+                this.showError('Failed to export data');
+            }
+        }
+
+        showSuccess(message) {
+            if (window.app && window.app.showAlert) {
+                window.app.showAlert(message, 'success');
+            } else {
+                alert(message);
+            }
+        }
+
+        showError(message) {
+            if (window.app && window.app.showAlert) {
+                window.app.showAlert(message, 'danger');
+            } else {
+                alert(message);
+            }
         }
     }
 
-    // Create instance and initialize
     window.appointmentsManager = new AppointmentsManager();
     $(document).ready(() => {
-        window.appointmentsManager.init();
-    });
-} else {
-    // Class already exists, just re-initialize if manager exists
-    if (window.appointmentsManager) {
-        $(document).ready(() => {
+        if (typeof API !== 'undefined') {
             window.appointmentsManager.init();
-        });
-    }
+        } else {
+            const checkAPI = setInterval(() => {
+                if (typeof API !== 'undefined') {
+                    clearInterval(checkAPI);
+                    window.appointmentsManager.init();
+                }
+            }, 100);
+        }
+    });
 }
