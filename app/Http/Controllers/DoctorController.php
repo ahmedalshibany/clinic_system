@@ -4,19 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Doctor;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 
 class DoctorController extends Controller
 {
     /**
      * Display a listing of doctors.
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $query = Doctor::query();
 
-        // Search functionality
-        if ($request->has('search') && $request->search) {
+        // Search
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -26,26 +25,32 @@ class DoctorController extends Controller
         }
 
         // Filter by active status
-        if ($request->has('active')) {
-            $query->where('is_active', $request->boolean('active'));
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status === 'active');
         }
 
-        // Sorting
-        $sortField = $request->get('sort', 'id');
+        // Sort
+        $sortColumn = $request->get('sort', 'id');
         $sortDirection = $request->get('direction', 'desc');
-        $query->orderBy($sortField, $sortDirection);
+        $query->orderBy($sortColumn, $sortDirection);
 
-        // Pagination
-        $perPage = $request->get('per_page', 8);
-        $doctors = $query->paginate($perPage);
+        $doctors = $query->paginate(8)->withQueryString();
 
-        return response()->json($doctors);
+        return view('doctors.index', compact('doctors'));
+    }
+
+    /**
+     * Show the form for creating a new doctor.
+     */
+    public function create()
+    {
+        return view('doctors.create');
     }
 
     /**
      * Store a newly created doctor.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -53,111 +58,75 @@ class DoctorController extends Controller
             'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
             'bio' => 'nullable|string',
-            'avatar' => 'nullable|string',
             'working_days' => 'nullable|array',
-            'work_start_time' => 'nullable|date_format:H:i',
-            'work_end_time' => 'nullable|date_format:H:i',
+            'work_start_time' => 'nullable|string',
+            'work_end_time' => 'nullable|string',
             'consultation_fee' => 'nullable|numeric|min:0',
             'is_active' => 'boolean',
         ]);
 
-        $doctor = Doctor::create($validated);
+        // Set default values
+        $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['working_days'] = $request->input('working_days', []);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Doctor created successfully',
-            'data' => $doctor
-        ], 201);
+        Doctor::create($validated);
+
+        return redirect()->route('doctors.index')
+            ->with('success', __('Doctor added successfully!'));
     }
 
     /**
      * Display the specified doctor.
      */
-    public function show(Doctor $doctor): JsonResponse
+    public function show(Doctor $doctor)
     {
         $doctor->load('appointments.patient');
-        
-        return response()->json([
-            'success' => true,
-            'data' => $doctor
-        ]);
+        return view('doctors.show', compact('doctor'));
+    }
+
+    /**
+     * Show the form for editing the specified doctor.
+     */
+    public function edit(Doctor $doctor)
+    {
+        return view('doctors.edit', compact('doctor'));
     }
 
     /**
      * Update the specified doctor.
      */
-    public function update(Request $request, Doctor $doctor): JsonResponse
+    public function update(Request $request, Doctor $doctor)
     {
         $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'specialty' => 'sometimes|required|string|max:255',
-            'phone' => 'sometimes|required|string|max:20',
+            'name' => 'required|string|max:255',
+            'specialty' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
             'bio' => 'nullable|string',
-            'avatar' => 'nullable|string',
             'working_days' => 'nullable|array',
-            'work_start_time' => 'nullable|date_format:H:i',
-            'work_end_time' => 'nullable|date_format:H:i',
+            'work_start_time' => 'nullable|string',
+            'work_end_time' => 'nullable|string',
             'consultation_fee' => 'nullable|numeric|min:0',
             'is_active' => 'boolean',
         ]);
 
+        $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['working_days'] = $request->input('working_days', []);
+
         $doctor->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Doctor updated successfully',
-            'data' => $doctor
-        ]);
+        return redirect()->route('doctors.index')
+            ->with('success', __('Doctor updated successfully!'));
     }
 
     /**
      * Remove the specified doctor.
      */
-    public function destroy(Doctor $doctor): JsonResponse
+    public function destroy(Doctor $doctor)
     {
         $doctor->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Doctor deleted successfully'
-        ]);
-    }
-
-    /**
-     * Search doctors for autocomplete.
-     */
-    public function search(Request $request): JsonResponse
-    {
-        $search = $request->get('q', '');
-        
-        $doctors = Doctor::active()
-            ->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('specialty', 'like', "%{$search}%");
-            })
-            ->limit(10)
-            ->get(['id', 'name', 'specialty', 'phone']);
-
-        return response()->json($doctors);
-    }
-
-    /**
-     * Get doctor's schedule/appointments for a specific date.
-     */
-    public function schedule(Request $request, Doctor $doctor): JsonResponse
-    {
-        $date = $request->get('date', now()->toDateString());
-        
-        $appointments = $doctor->appointments()
-            ->with('patient:id,name,phone')
-            ->where('date', $date)
-            ->orderBy('time')
-            ->get();
-
-        return response()->json([
-            'success' => true,
-            'data' => $appointments
-        ]);
+        return redirect()->route('doctors.index')
+            ->with('success', __('Doctor deleted successfully!'));
     }
 }

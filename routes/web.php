@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\AppointmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -11,36 +15,23 @@ use App\Http\Controllers\AuthController;
 
 // Guest routes (login page)
 Route::middleware('guest')->group(function () {
-    Route::get('/', function () {
-        return view('auth.login');
-    })->name('login');
-
-    Route::get('/login', function () {
-        return view('auth.login');
-    })->name('auth.login');
+    Route::get('/', [AuthController::class, 'showLogin'])->name('login');
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
+    Route::post('/login', [AuthController::class, 'login'])->name('auth.attempt');
 });
 
-// Auth routes
-Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.attempt');
+// Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Protected routes (views only - data comes from API)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+// Dashboard
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/patients', function () {
-    return view('patients.index');
-})->name('patients.index');
+// Resource Routes
+Route::resource('patients', PatientController::class);
+Route::resource('doctors', DoctorController::class);
+Route::resource('appointments', AppointmentController::class);
 
-Route::get('/doctors', function () {
-    return view('doctors.index');
-})->name('doctors.index');
-
-Route::get('/appointments', function () {
-    return view('appointments.index');
-})->name('appointments.index');
-
+// Settings
 Route::get('/settings', function () {
     return view('settings.index');
 })->name('settings.index');

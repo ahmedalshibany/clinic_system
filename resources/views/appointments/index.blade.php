@@ -5,31 +5,44 @@
 @section('page-i18n', 'appointments')
 
 @section('content')
+<!-- Flash Messages -->
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        @foreach($errors->all() as $error)
+            {{ $error }}<br>
+        @endforeach
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
 <!-- Action Toolbar -->
 <div class="action-toolbar d-flex gap-3 flex-wrap align-items-center mb-4 fade-in">
-    <div class="search-box">
-        <i class="fas fa-search"></i>
-        <input type="text" id="appointmentSearch" class="form-control" placeholder="Search appointments..."
-            data-i18n-placeholder="searchPlaceholder">
-    </div>
+    <form action="{{ route('appointments.index') }}" method="GET" class="d-flex gap-2 flex-wrap">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ request('search') }}">
+        </div>
 
-    <select class="form-select rounded-3" id="statusFilter" style="width: 150px;">
-        <option value="all" selected data-i18n="all">All Status</option>
-        <option value="pending" data-i18n="pending">Pending</option>
-        <option value="confirmed" data-i18n="confirmed">Confirmed</option>
-        <option value="completed" data-i18n="completed">Completed</option>
-        <option value="cancelled" data-i18n="cancelled">Cancelled</option>
-    </select>
+        <select name="status" class="form-select" style="width: auto;" onchange="this.form.submit()">
+            <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status</option>
+            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+        </select>
 
-    <button class="btn btn-light btn-sm d-inline-flex align-items-center gap-2" data-action="export-csv">
-        <i class="fas fa-file-csv"></i> CSV
-    </button>
+        <input type="date" name="date" class="form-control" style="width: auto;" value="{{ request('date') }}" onchange="this.form.submit()">
+    </form>
 
-    <button class="btn btn-light btn-sm d-inline-flex align-items-center gap-2" data-action="export-json">
-        <i class="fas fa-file-code"></i> JSON
-    </button>
-
-    <button class="btn btn-primary d-flex align-items-center gap-2 ms-auto" data-action="add-appointment">
+    <button class="btn btn-primary d-flex align-items-center gap-2 ms-auto" data-bs-toggle="modal" data-bs-target="#appointmentModal">
         <i class="fas fa-plus"></i>
         <span data-i18n="bookAppt">Book Appointment</span>
     </button>
@@ -42,138 +55,153 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
                     <tr>
-                        <th class="ps-4 py-3 sortable-header" data-sort="id" style="width: 50px;">
-                            # <i class="fas fa-sort"></i>
-                        </th>
-                        <th class="py-3 sortable-header" data-sort="patientName">
-                            <span data-i18n="patientName">Patient Name</span> <i class="fas fa-sort"></i>
-                        </th>
-                        <th class="py-3 sortable-header" data-sort="doctorName">
-                            <span data-i18n="doctorName">Doctor Name</span> <i class="fas fa-sort"></i>
-                        </th>
-                        <th class="py-3 sortable-header" data-sort="date">
-                            <span data-i18n="date">Date</span> <i class="fas fa-sort"></i>
-                        </th>
+                        <th class="ps-4 py-3" style="width: 50px;">#</th>
+                        <th class="py-3" data-i18n="patient">Patient</th>
+                        <th class="py-3" data-i18n="doctor">Doctor</th>
+                        <th class="py-3" data-i18n="date">Date</th>
                         <th class="py-3" data-i18n="time">Time</th>
-                        <th class="py-3 sortable-header" data-sort="status">
-                            <span data-i18n="status">Status</span> <i class="fas fa-sort"></i>
-                        </th>
+                        <th class="py-3" data-i18n="status">Status</th>
                         <th class="pe-4 py-3 text-center" data-i18n="actions">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="appointmentsTableBody">
-                    <!-- Injected via JS -->
+                <tbody>
+                    @forelse($appointments as $appointment)
+                        @php
+                            $statusColors = [
+                                'pending' => 'warning',
+                                'confirmed' => 'success',
+                                'completed' => 'info',
+                                'cancelled' => 'danger'
+                            ];
+                            $badgeColor = $statusColors[$appointment->status] ?? 'secondary';
+                        @endphp
+                        <tr>
+                            <td class="ps-4 fw-bold text-secondary">{{ $appointment->id }}</td>
+                            <td>
+                                <span class="fw-medium">{{ $appointment->patient->name ?? 'Unknown' }}</span>
+                            </td>
+                            <td>{{ $appointment->doctor->name ?? 'Unknown' }}</td>
+                            <td>{{ \Carbon\Carbon::parse($appointment->date)->format('Y-m-d') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($appointment->time)->format('H:i') }}</td>
+                            <td>
+                                <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} px-3 py-2 rounded-pill">
+                                    {{ ucfirst($appointment->status) }}
+                                </span>
+                            </td>
+                            <td class="pe-4">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-soft-primary btn-sm" onclick="editAppointment({{ json_encode($appointment) }})" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form action="{{ route('appointments.destroy', $appointment) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this appointment?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <i class="fas fa-calendar-times text-muted mb-3" style="font-size: 2rem;"></i>
+                                <p class="text-muted mb-0" data-i18n="noAppointments">No appointments found</p>
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination -->
+        @if($appointments->hasPages())
         <div class="pagination-controls">
             <div class="pagination-info">
-                Showing <strong>0-0</strong> of <strong>0</strong> appointments
+                Showing <strong>{{ $appointments->firstItem() }}-{{ $appointments->lastItem() }}</strong> of <strong>{{ $appointments->total() }}</strong> appointments
             </div>
-            <div class="pagination-buttons">
-                <button data-action="prev-page" disabled>
-                    <i class="fas fa-chevron-left"></i> <span data-i18n="previous">Previous</span>
-                </button>
-                <button data-action="next-page" disabled>
-                    <span data-i18n="next">Next</span> <i class="fas fa-chevron-right"></i>
-                </button>
+            <div class="d-flex gap-2">
+                @if(!$appointments->onFirstPage())
+                    <a href="{{ $appointments->previousPageUrl() }}" class="btn btn-light btn-sm"><i class="fas fa-chevron-left"></i> Previous</a>
+                @endif
+                @if($appointments->hasMorePages())
+                    <a href="{{ $appointments->nextPageUrl() }}" class="btn btn-light btn-sm">Next <i class="fas fa-chevron-right"></i></a>
+                @endif
             </div>
         </div>
+        @endif
     </div>
 </div>
 
 <!-- Add/Edit Appointment Modal -->
 <div class="modal fade" id="appointmentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content modal-glass border-0">
             <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold" id="appointmentModalTitle" data-i18n="bookAppt">Book
-                    Appointment</h5>
+                <h5 class="modal-title fw-bold" id="appointmentModalTitle" data-i18n="bookAppt">Book Appointment</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <form id="appointmentForm">
-                    <input type="hidden" id="appointmentId">
-                    <input type="hidden" id="appointmentPatientId" required>
-                    <input type="hidden" id="appointmentDoctorId" required>
-
-                    <div class="mb-3 position-relative">
-                        <label class="form-label" data-i18n="patientName">Patient Name</label>
-                        <input type="text" class="form-control" id="patientSearchInput"
-                            data-i18n-placeholder="searchPatientPlaceholder"
-                            placeholder="Type to search patient..." autocomplete="off">
-                        <div id="patientSearchResults" class="autocomplete-results"></div>
-                    </div>
-
-                    <div class="mb-3 position-relative">
-                        <label class="form-label" data-i18n="doctorName">Doctor Name</label>
-                        <input type="text" class="form-control" id="doctorSearchInput"
-                            data-i18n-placeholder="searchDoctorPlaceholder"
-                            placeholder="Type to search doctor..." autocomplete="off">
-                        <div id="doctorSearchResults" class="autocomplete-results"></div>
-                    </div>
-
-                    <div class="row g-3 mb-3">
+                <form id="appointmentForm" action="{{ route('appointments.store') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="_method" id="formMethod" value="POST">
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" data-i18n="patient">Patient</label>
+                            <select class="form-select" name="patient_id" id="patientSelect" required>
+                                <option value="">Select Patient</option>
+                                @foreach($patients as $patient)
+                                    <option value="{{ $patient->id }}">{{ $patient->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" data-i18n="doctor">Doctor</label>
+                            <select class="form-select" name="doctor_id" id="doctorSelect" required>
+                                <option value="">Select Doctor</option>
+                                @foreach($doctors as $doctor)
+                                    <option value="{{ $doctor->id }}">{{ $doctor->name }} - {{ $doctor->specialty }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="col-md-6">
                             <label class="form-label" data-i18n="date">Date</label>
-                            <input type="date" class="form-control" id="appointmentDate" required>
+                            <input type="date" class="form-control" name="date" id="appointmentDate" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" data-i18n="time">Time</label>
-                            <input type="time" class="form-control" id="appointmentTime" required>
+                            <input type="time" class="form-control" name="time" id="appointmentTime" required>
                         </div>
-                    </div>
-
-                    <div class="row g-3 mb-4">
                         <div class="col-md-6">
                             <label class="form-label" data-i18n="type">Type</label>
-                            <select class="form-select" id="appointmentType" required>
-                                <option value="Consultation" data-i18n="typeConsultation">Consultation
-                                </option>
-                                <option value="Checkup" data-i18n="typeCheckup">Checkup</option>
-                                <option value="Follow-up" data-i18n="typeFollowUp">Follow-up</option>
-                                <option value="Emergency" data-i18n="typeEmergency">Emergency</option>
+                            <select class="form-select" name="type" id="appointmentType" required>
+                                <option value="Consultation">Consultation</option>
+                                <option value="Checkup">Checkup</option>
+                                <option value="Follow-up">Follow-up</option>
+                                <option value="Emergency">Emergency</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" data-i18n="status">Status</label>
-                            <select class="form-select" id="appointmentStatus" required>
-                                <option value="pending" data-i18n="pending">Pending</option>
-                                <option value="confirmed" data-i18n="confirmed">Confirmed</option>
-                                <option value="completed" data-i18n="completed">Completed</option>
-                                <option value="cancelled" data-i18n="cancelled">Cancelled</option>
+                            <select class="form-select" name="status" id="appointmentStatus" required>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
+                        <div class="col-12">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" id="appointmentNotes" rows="2"></textarea>
+                        </div>
                     </div>
-
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary" data-i18n="save">Save Changes</button>
+                    
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary" data-i18n="save">Save</button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-glass border-0">
-            <div class="modal-body text-center p-5">
-                <div class="mb-4">
-                    <i class="fas fa-exclamation-circle text-danger display-1 pulse-anim"></i>
-                </div>
-                <h4 class="fw-bold mb-2" data-i18n="areYouSure">Are you sure?</h4>
-                <p class="text-muted mb-4" data-i18n="deleteAppointmentConfirmation">Do you really want to
-                    cancel this appointment?</p>
-                <div class="d-flex justify-content-center gap-3">
-                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal"
-                        data-i18n="cancel">Cancel</button>
-                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteBtn"
-                        data-i18n="delete">Delete</button>
-                </div>
             </div>
         </div>
     </div>
@@ -181,5 +209,27 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('js/appointments.js') }}"></script>
+<script>
+function editAppointment(appt) {
+    document.getElementById('appointmentModalTitle').textContent = 'Edit Appointment';
+    document.getElementById('appointmentForm').action = '/appointments/' + appt.id;
+    document.getElementById('formMethod').value = 'PUT';
+    document.getElementById('patientSelect').value = appt.patient_id;
+    document.getElementById('doctorSelect').value = appt.doctor_id;
+    document.getElementById('appointmentDate').value = appt.date.split('T')[0];
+    document.getElementById('appointmentTime').value = appt.time ? appt.time.substring(0, 5) : '';
+    document.getElementById('appointmentType').value = appt.type;
+    document.getElementById('appointmentStatus').value = appt.status;
+    document.getElementById('appointmentNotes').value = appt.notes || '';
+    new bootstrap.Modal(document.getElementById('appointmentModal')).show();
+}
+
+// Reset form when modal is closed
+document.getElementById('appointmentModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('appointmentModalTitle').textContent = 'Book Appointment';
+    document.getElementById('appointmentForm').action = '{{ route("appointments.store") }}';
+    document.getElementById('formMethod').value = 'POST';
+    document.getElementById('appointmentForm').reset();
+});
+</script>
 @endsection

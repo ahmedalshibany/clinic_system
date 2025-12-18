@@ -34,28 +34,6 @@
     <div class="welcome-wave"></div>
 </div>
 
-<!-- Time Range Filter -->
-<div class="time-filter-bar">
-    <div class="filter-label">
-        <i class="fas fa-filter"></i>
-        <span data-i18n="filterBy">Filter by:</span>
-    </div>
-    <div class="filter-buttons">
-        <button class="filter-btn active" data-filter="all">
-            <i class="fas fa-infinity"></i>
-            <span data-i18n="allTime">All Time</span>
-        </button>
-        <button class="filter-btn" data-filter="week">
-            <i class="fas fa-calendar-week"></i>
-            <span data-i18n="thisWeek">This Week</span>
-        </button>
-        <button class="filter-btn" data-filter="today">
-            <i class="fas fa-calendar-day"></i>
-            <span data-i18n="today">Today</span>
-        </button>
-    </div>
-</div>
-
 <!-- Stats Grid -->
 <div class="stats-grid">
     <div class="stat-card-premium patients-card">
@@ -65,7 +43,7 @@
             <i class="fas fa-users"></i>
         </div>
         <div class="stat-data">
-            <span class="stat-number" id="totalPatients">0</span>
+            <span class="stat-number">{{ $totalPatients }}</span>
             <span class="stat-label" data-i18n="totalPatients">Total Patients</span>
         </div>
         <div class="stat-decoration"></div>
@@ -78,7 +56,7 @@
             <i class="fas fa-user-md"></i>
         </div>
         <div class="stat-data">
-            <span class="stat-number" id="totalDoctors">0</span>
+            <span class="stat-number">{{ $totalDoctors }}</span>
             <span class="stat-label" data-i18n="totalDoctors">Total Doctors</span>
         </div>
         <div class="stat-decoration"></div>
@@ -91,7 +69,7 @@
             <i class="fas fa-calendar-check"></i>
         </div>
         <div class="stat-data">
-            <span class="stat-number" id="totalAppointments">0</span>
+            <span class="stat-number">{{ $totalAppointments }}</span>
             <span class="stat-label" data-i18n="appointments">Appointments</span>
         </div>
         <div class="stat-decoration"></div>
@@ -104,7 +82,7 @@
             <i class="fas fa-clock"></i>
         </div>
         <div class="stat-data">
-            <span class="stat-number" id="todayAppointments">0</span>
+            <span class="stat-number">{{ $todayAppointments }}</span>
             <span class="stat-label" data-i18n="todayAppts">Today</span>
         </div>
         <div class="stat-decoration"></div>
@@ -128,7 +106,7 @@
             <div class="donut-wrapper">
                 <canvas id="statusChart"></canvas>
                 <div class="donut-center">
-                    <span class="donut-total" id="totalAppointments2">0</span>
+                    <span class="donut-total">{{ $totalAppointments }}</span>
                     <span class="donut-label" data-i18n="total">Total</span>
                 </div>
             </div>
@@ -136,22 +114,22 @@
                 <div class="status-item pending">
                     <div class="status-indicator"></div>
                     <span class="status-name" data-i18n="pending">Pending</span>
-                    <span class="status-count" id="pendingCount">0</span>
+                    <span class="status-count">{{ $pending }}</span>
                 </div>
                 <div class="status-item confirmed">
                     <div class="status-indicator"></div>
                     <span class="status-name" data-i18n="confirmed">Confirmed</span>
-                    <span class="status-count" id="confirmedCount">0</span>
+                    <span class="status-count">{{ $confirmed }}</span>
                 </div>
                 <div class="status-item completed">
                     <div class="status-indicator"></div>
                     <span class="status-name" data-i18n="completed">Completed</span>
-                    <span class="status-count" id="completedCount">0</span>
+                    <span class="status-count">{{ $completed }}</span>
                 </div>
                 <div class="status-item cancelled">
                     <div class="status-indicator"></div>
                     <span class="status-name" data-i18n="cancelled">Cancelled</span>
-                    <span class="status-count" id="cancelledCount">0</span>
+                    <span class="status-count">{{ $cancelled }}</span>
                 </div>
             </div>
         </div>
@@ -197,8 +175,47 @@
             </a>
         </div>
         <div class="panel-body">
-            <div id="recentAppointments" class="activity-list">
-                <!-- Dynamic content -->
+            <div class="activity-list">
+                @forelse($recentAppointments as $appt)
+                    @php
+                        $statusColors = [
+                            'pending' => 'warning',
+                            'confirmed' => 'info',
+                            'completed' => 'success',
+                            'cancelled' => 'danger'
+                        ];
+                        $statusIcons = [
+                            'pending' => 'fa-clock',
+                            'confirmed' => 'fa-check-circle',
+                            'completed' => 'fa-check-double',
+                            'cancelled' => 'fa-times-circle'
+                        ];
+                        $color = $statusColors[$appt->status] ?? 'secondary';
+                        $icon = $statusIcons[$appt->status] ?? 'fa-calendar';
+                    @endphp
+                    <div class="activity-item">
+                        <div class="activity-icon bg-{{ $color }}-subtle text-{{ $color }}">
+                            <i class="fas {{ $icon }}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-header">
+                                <span class="activity-title">{{ $appt->patient->name ?? 'Unknown' }}</span>
+                                <span class="activity-time">{{ \Carbon\Carbon::parse($appt->date)->format('M d') }} • {{ \Carbon\Carbon::parse($appt->time)->format('H:i') }}</span>
+                            </div>
+                            <div class="activity-details">
+                                <span class="activity-doctor">
+                                    <i class="fas fa-user-md me-1"></i>{{ $appt->doctor->name ?? 'Unknown' }}
+                                </span>
+                                <span class="badge bg-{{ $color }}-subtle text-{{ $color }}">{{ ucfirst($appt->status) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="empty-activity text-center py-4">
+                        <i class="fas fa-calendar-day text-muted mb-3" style="font-size: 2.5rem;"></i>
+                        <p class="text-muted mb-0" data-i18n="noAppointments">No recent appointments</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -207,5 +224,73 @@
 
 @section('scripts')
 <script src="{{ asset('vendor/chartjs/chart.min.js') }}"></script>
-<script src="{{ asset('js/dashboard.js') }}"></script>
+<script>
+// Chart data from server
+const statusData = [{{ $pending }}, {{ $confirmed }}, {{ $completed }}, {{ $cancelled }}];
+const weeklyData = {
+    labels: [@foreach($weeklyData as $day)'{{ $day['day'] }}'@if(!$loop->last),@endif @endforeach],
+    data: [@foreach($weeklyData as $day){{ $day['count'] }}@if(!$loop->last),@endif @endforeach]
+};
+
+// Status Chart
+const statusCtx = document.getElementById('statusChart');
+if (statusCtx) {
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
+            datasets: [{
+                data: statusData,
+                backgroundColor: [
+                    'rgba(255, 193, 7, 0.8)',
+                    'rgba(13, 202, 240, 0.8)',
+                    'rgba(25, 135, 84, 0.8)',
+                    'rgba(220, 53, 69, 0.8)'
+                ],
+                borderWidth: 2,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+// Weekly Chart
+const weeklyCtx = document.getElementById('weeklyChart');
+if (weeklyCtx) {
+    new Chart(weeklyCtx, {
+        type: 'line',
+        data: {
+            labels: weeklyData.labels,
+            datasets: [{
+                label: 'Appointments',
+                data: weeklyData.data,
+                fill: true,
+                backgroundColor: 'rgba(47, 65, 86, 0.1)',
+                borderColor: 'rgba(47, 65, 86, 0.8)',
+                borderWidth: 3,
+                tension: 0.4,
+                pointBackgroundColor: 'rgba(47, 65, 86, 1)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+}
+</script>
 @endsection
