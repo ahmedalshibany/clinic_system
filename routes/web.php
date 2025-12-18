@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -8,18 +9,22 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Login page (guest only)
-Route::get('/', function () {
-    return view('auth.login');
-})->name('login');
+// Guest routes (login page)
+Route::middleware('guest')->group(function () {
+    Route::get('/', function () {
+        return view('auth.login');
+    })->name('login');
 
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('auth.login');
+    Route::get('/login', function () {
+        return view('auth.login');
+    })->name('auth.login');
+});
 
-// For now, we'll create simple routes without auth middleware
-// Later you can add authentication
+// Auth routes
+Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.attempt');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Protected routes (views only - data comes from API)
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
@@ -39,8 +44,3 @@ Route::get('/appointments', function () {
 Route::get('/settings', function () {
     return view('settings.index');
 })->name('settings.index');
-
-// Logout route (placeholder for now)
-Route::post('/logout', function () {
-    return redirect('/');
-})->name('logout');
