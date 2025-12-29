@@ -24,7 +24,7 @@
 @endif
 
 <!-- Action Toolbar -->
-<div class="action-toolbar d-flex gap-3 flex-wrap align-items-center mb-4 fade-in">
+<div class="action-toolbar d-flex gap-3 flex-wrap align-items-center justify-content-between mb-4 fade-in">
     <form action="{{ route('patients.index') }}" method="GET" class="search-box">
         <i class="fas fa-search"></i>
         <input type="text" name="search" class="form-control" placeholder="Search patients..."

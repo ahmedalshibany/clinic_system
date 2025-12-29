@@ -1326,3 +1326,8 @@ textarea.form-control {
     margin-right: 0 !important;
     margin-left: 0.5rem !important;
 }
+
+[dir="rtl"] .ms-auto {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}

@@ -24,7 +24,7 @@
 @endif
 
 <!-- Action Toolbar -->
-<div class="action-toolbar d-flex gap-3 flex-wrap align-items-center mb-4 fade-in">
+<div class="action-toolbar d-flex gap-3 flex-wrap align-items-center justify-content-between mb-4 fade-in">
     <form action="{{ route('appointments.index') }}" method="GET" class="d-flex gap-2 flex-wrap">
         <div class="search-box">
             <i class="fas fa-search"></i>
