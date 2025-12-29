@@ -217,25 +217,76 @@ h6 {
     padding: 12px 28px;
     border-radius: 12px;
     font-weight: 500;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
 }
 
 .btn-primary:hover {
     background-color: var(--secondary);
     border-color: var(--secondary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(86, 124, 141, 0.25);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(45, 106, 79, 0.35), 0 0 20px rgba(45, 106, 79, 0.15);
+}
+
+.btn-primary:hover::before {
+    left: 100%;
+}
+
+.btn-primary:active {
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 0 4px 15px rgba(45, 106, 79, 0.25);
 }
 
 .btn-light {
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     color: var(--secondary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-light::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(45, 106, 79, 0.1) 0%, transparent 70%);
+    transition: width 0.4s ease, height 0.4s ease;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
 }
 
 .btn-light:hover {
     background: var(--white);
     color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1), 0 0 15px rgba(45, 106, 79, 0.08);
+    border-color: rgba(45, 106, 79, 0.15);
+}
+
+.btn-light:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-light:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .progress-circle {
@@ -634,18 +685,42 @@ textarea.form-control {
     justify-content: center;
     border-radius: 10px;
     backdrop-filter: blur(4px);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-soft-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    transition: width 0.4s ease, height 0.4s ease;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
 }
 
 .btn-soft-primary:hover {
     background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
     color: #fff !important;
     border-color: transparent;
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 6px 20px rgba(86, 124, 141, 0.35);
+    transform: translateY(-4px) scale(1.1);
+    box-shadow:
+        0 8px 25px rgba(86, 124, 141, 0.4),
+        0 0 20px rgba(86, 124, 141, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-soft-primary:hover::before {
+    width: 100px;
+    height: 100px;
 }
 
 .btn-soft-primary:active {
-    transform: translateY(-1px) scale(1.02);
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(86, 124, 141, 0.3);
 }
 
 .btn-soft-primary i {
@@ -656,7 +731,7 @@ textarea.form-control {
 
 .btn-soft-primary:hover i {
     color: #fff !important;
-    transform: scale(1.1);
+    transform: scale(1.15) rotate(5deg);
 }
 
 .btn-soft-danger {
@@ -671,18 +746,42 @@ textarea.form-control {
     justify-content: center;
     border-radius: 10px;
     backdrop-filter: blur(4px);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-soft-danger::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    transition: width 0.4s ease, height 0.4s ease;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
 }
 
 .btn-soft-danger:hover {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: #fff !important;
     border-color: transparent;
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+    transform: translateY(-4px) scale(1.1);
+    box-shadow:
+        0 8px 25px rgba(239, 68, 68, 0.4),
+        0 0 20px rgba(239, 68, 68, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-soft-danger:hover::before {
+    width: 100px;
+    height: 100px;
 }
 
 .btn-soft-danger:active {
-    transform: translateY(-1px) scale(1.02);
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 }
 
 .btn-soft-danger i {
@@ -693,7 +792,7 @@ textarea.form-control {
 
 .btn-soft-danger:hover i {
     color: #fff !important;
-    transform: scale(1.1);
+    transform: scale(1.15) rotate(-5deg);
 }
 
 /* Secondary Soft Button - for History/Info actions */
