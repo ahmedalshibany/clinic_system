@@ -53,7 +53,7 @@
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0"><i class="fas fa-lock text-muted"></i></span>
                         <input type="password" class="form-control border-start-0" id="password" name="password" required
-                            placeholder="********">
+                            data-i18n-placeholder="passwordPlaceholder" placeholder="********">
                     </div>
                 </div>
 
@@ -61,30 +61,86 @@
             </form>
 
             <div class="text-center mt-3 text-muted small">
-                <p class="mb-0">Demo: <strong>admin</strong> / <strong>admin123</strong></p>
+                <p class="mb-0" data-i18n="demoCredentials">Demo: <strong>admin</strong> / <strong>admin123</strong></p>
             </div>
         </div>
     </div>
 
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script>
+        // Translations
+        const translations = {
+            en: {
+                appTitle: 'Clinic System - Login',
+                loginTitle: 'Welcome Back',
+                loginSubtitle: 'Sign in to access your dashboard',
+                usernameLabel: 'USERNAME',
+                usernamePlaceholder: 'Enter your username',
+                passwordLabel: 'PASSWORD',
+                passwordPlaceholder: '********',
+                loginBtn: 'Login',
+                demoCredentials: 'Demo: <strong>admin</strong> / <strong>admin123</strong>'
+            },
+            ar: {
+                appTitle: 'نظام العيادة - تسجيل الدخول',
+                loginTitle: 'مرحباً بعودتك',
+                loginSubtitle: 'سجل دخولك للوصول إلى لوحة التحكم',
+                usernameLabel: 'اسم المستخدم',
+                usernamePlaceholder: 'أدخل اسم المستخدم',
+                passwordLabel: 'كلمة المرور',
+                passwordPlaceholder: '********',
+                loginBtn: 'تسجيل الدخول',
+                demoCredentials: 'تجريبي: <strong>admin</strong> / <strong>admin123</strong>'
+            }
+        };
+
+        function applyTranslations(lang) {
+            const t = translations[lang] || translations.en;
+            
+            // Translate text content
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    if (el.tagName === 'TITLE') {
+                        el.textContent = t[key];
+                    } else {
+                        el.innerHTML = t[key];
+                    }
+                }
+            });
+            
+            // Translate placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (t[key]) {
+                    el.placeholder = t[key];
+                }
+            });
+        }
+
         function toggleLanguage() {
             const html = document.documentElement;
             const isArabic = html.lang === 'ar';
-            html.lang = isArabic ? 'en' : 'ar';
-            html.dir = isArabic ? 'ltr' : 'rtl';
-            document.getElementById('langToggleText').textContent = isArabic ? 'العربية' : 'English';
-            localStorage.setItem('clinic_lang', html.lang);
+            const newLang = isArabic ? 'en' : 'ar';
+            
+            html.lang = newLang;
+            html.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('langToggleText').textContent = newLang === 'ar' ? 'English' : 'العربية';
+            localStorage.setItem('clinic_lang', newLang);
+            
+            applyTranslations(newLang);
         }
         
-        // Apply saved language
-        const savedLang = localStorage.getItem('clinic_lang');
-        if (savedLang) {
+        // Apply saved language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('clinic_lang') || 'en';
             document.documentElement.lang = savedLang;
             document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
             document.getElementById('langToggleText').textContent = savedLang === 'ar' ? 'English' : 'العربية';
-        }
+            applyTranslations(savedLang);
+        });
     </script>
 </body>
 
 </html>
+
