@@ -109,10 +109,10 @@
                         </button>
 
                         <div class="user-profile-glass">
-                            <img src="https://ui-avatars.com/api/?name=Dr+John&background=random" alt="User" class="avatar-img">
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=random" alt="User" class="avatar-img">
                             <div class="user-info d-none d-lg-block">
-                                <span class="user-name" data-i18n="welcomeDr">Dr. John</span>
-                                <span class="user-role">Ortho</span>
+                                <span class="user-name">{{ Auth::user()->name ?? 'User' }}</span>
+                                <span class="user-role">{{ Auth::user()->role ?? 'Staff' }}</span>
                             </div>
                         </div>
                     </div>
