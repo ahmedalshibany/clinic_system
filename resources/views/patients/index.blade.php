@@ -31,10 +31,10 @@
             value="{{ request('search') }}" data-i18n-placeholder="searchPatients">
     </form>
 
-    <button class="btn btn-primary d-flex align-items-center gap-2 ms-auto" data-bs-toggle="modal" data-bs-target="#patientModal">
+    <a href="{{ route('patients.create') }}" class="btn btn-primary d-flex align-items-center gap-2 ms-auto">
         <i class="fas fa-plus"></i>
         <span data-i18n="addPatient">Add Patient</span>
-    </button>
+    </a>
 </div>
 
 <!-- Patients Table -->
@@ -68,9 +68,11 @@
                 <tbody>
                     @forelse($patients as $patient)
                         <tr>
-                            <td class="ps-4 fw-bold text-secondary"><span dir="ltr">{{ $patient->id }}</span></td>
+                            <td class="ps-4 fw-bold text-secondary"><span dir="ltr">{{ $patient->patient_code ?? $patient->id }}</span></td>
                             <td>
-                                <h6 class="mb-0 fw-bold text-dark">{{ $patient->name }}</h6>
+                                <a href="{{ route('patients.show', $patient) }}" class="text-dark text-decoration-none hover-primary">
+                                    <h6 class="mb-0 fw-bold">{{ $patient->name }}</h6>
+                                </a>
                             </td>
                             <td>{{ $patient->age }}</td>
                             <td>
@@ -82,9 +84,12 @@
                             <td>{{ $patient->address ?? '-' }}</td>
                             <td class="pe-4">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-soft-primary btn-sm" onclick="editPatient({{ $patient->id }}, '{{ addslashes($patient->name) }}', {{ $patient->age }}, '{{ $patient->gender }}', '{{ addslashes($patient->phone) }}', '{{ addslashes($patient->address) }}')" title="Edit">
+                                    <a href="{{ route('patients.show', $patient) }}" class="btn btn-soft-info btn-sm" title="View Profile">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('patients.edit', $patient) }}" class="btn btn-soft-primary btn-sm" title="Edit">
                                         <i class="fas fa-edit"></i>
-                                    </button>
+                                    </a>
                                     <form action="{{ route('patients.destroy', $patient) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this patient?')">
                                         @csrf
                                         @method('DELETE')
@@ -133,74 +138,5 @@
         @endif
     </div>
 </div>
-
-<!-- Add/Edit Patient Modal -->
-<div class="modal fade" id="patientModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-glass border-0">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold" id="patientModalTitle" data-i18n="addPatient">Add Patient</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <form id="patientForm" action="{{ route('patients.store') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="_method" id="formMethod" value="POST">
-                    <div class="mb-3">
-                        <label class="form-label" data-i18n="fullName">Full Name</label>
-                        <input type="text" class="form-control" name="name" id="patientName" required>
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label" data-i18n="age">Age</label>
-                            <input type="number" class="form-control" name="age" id="patientAge" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" data-i18n="gender">Gender</label>
-                            <select class="form-select" name="gender" id="patientGender" required>
-                                <option value="male" data-i18n="male">Male</option>
-                                <option value="female" data-i18n="female">Female</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" data-i18n="phone">Phone Number</label>
-                        <input type="tel" class="form-control" name="phone" id="patientPhone" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" data-i18n="address">Address</label>
-                        <textarea class="form-control" name="address" id="patientAddress" rows="2"></textarea>
-                    </div>
-                    <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-primary" data-i18n="save">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
 
-@section('scripts')
-<script>
-function editPatient(id, name, age, gender, phone, address) {
-    document.getElementById('patientModalTitle').textContent = 'Edit Patient';
-    document.getElementById('patientForm').action = '/patients/' + id;
-    document.getElementById('formMethod').value = 'PUT';
-    document.getElementById('patientName').value = name;
-    document.getElementById('patientAge').value = age;
-    document.getElementById('patientGender').value = gender;
-    document.getElementById('patientPhone').value = phone;
-    document.getElementById('patientAddress').value = address;
-    new bootstrap.Modal(document.getElementById('patientModal')).show();
-}
-
-// Reset form when modal is closed
-document.getElementById('patientModal').addEventListener('hidden.bs.modal', function () {
-    document.getElementById('patientModalTitle').textContent = 'Add Patient';
-    document.getElementById('patientForm').action = '{{ route("patients.store") }}';
-    document.getElementById('formMethod').value = 'POST';
-    document.getElementById('patientForm').reset();
-});
-</script>
-@endsection

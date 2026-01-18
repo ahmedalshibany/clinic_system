@@ -45,36 +45,68 @@ class PatientController extends Controller
     /**
      * Store a newly created patient.
      */
+    /**
+     * Store a newly created patient.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'name_en' => 'nullable|string|max:255',
             'age' => 'required|integer|min:0|max:150',
             'gender' => 'required|in:male,female',
             'phone' => 'required|string|max:20',
+            'phone_secondary' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
+            'city' => 'nullable|string|max:100',
             'email' => 'nullable|email|max:255',
             'date_of_birth' => 'nullable|date',
+            'nationality' => 'nullable|string|max:100',
+            'id_number' => 'nullable|string|max:50',
+            'marital_status' => 'nullable|in:single,married,divorced,widowed',
+            'occupation' => 'nullable|string|max:100',
             'blood_type' => 'nullable|string|max:10',
             'medical_history' => 'nullable|string',
+            'chronic_diseases' => 'nullable|string',
+            'current_medications' => 'nullable|string',
+            'previous_surgeries' => 'nullable|string',
+            'family_history' => 'nullable|string',
             'allergies' => 'nullable|string',
             'emergency_contact' => 'nullable|string|max:255',
             'emergency_phone' => 'nullable|string|max:20',
+            'emergency_relation' => 'nullable|string|max:50',
+            'insurance_provider' => 'nullable|string|max:255',
+            'insurance_number' => 'nullable|string|max:50',
+            'insurance_expiry' => 'nullable|date',
+            'status' => 'nullable|in:active,inactive,deceased',
         ]);
 
-        Patient::create($validated);
+        $patient = Patient::create($validated);
 
-        return redirect()->route('patients.index')
+        return redirect()->route('patients.show', $patient)
             ->with('success', __('Patient added successfully!'));
     }
 
     /**
-     * Display the specified patient.
+     * Display the specified patient profile.
      */
     public function show(Patient $patient)
     {
-        $patient->load('appointments.doctor');
-        return view('patients.show', compact('patient'));
+        // Load all relationships for the profile page
+        $patient->load([
+            'appointments.doctor',
+            'files.uploader',
+        ]);
+
+        // Get appointment statistics
+        $appointmentStats = [
+            'total' => $patient->appointments->count(),
+            'completed' => $patient->appointments->where('status', 'completed')->count(),
+            'upcoming' => $patient->appointments->where('date', '>=', now()->toDateString())
+                ->whereIn('status', ['pending', 'confirmed'])->count(),
+        ];
+
+        return view('patients.show', compact('patient', 'appointmentStats'));
     }
 
     /**
@@ -92,17 +124,33 @@ class PatientController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'name_en' => 'nullable|string|max:255',
             'age' => 'required|integer|min:0|max:150',
             'gender' => 'required|in:male,female',
             'phone' => 'required|string|max:20',
+            'phone_secondary' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
+            'city' => 'nullable|string|max:100',
             'email' => 'nullable|email|max:255',
             'date_of_birth' => 'nullable|date',
+            'nationality' => 'nullable|string|max:100',
+            'id_number' => 'nullable|string|max:50',
+            'marital_status' => 'nullable|in:single,married,divorced,widowed',
+            'occupation' => 'nullable|string|max:100',
             'blood_type' => 'nullable|string|max:10',
             'medical_history' => 'nullable|string',
+            'chronic_diseases' => 'nullable|string',
+            'current_medications' => 'nullable|string',
+            'previous_surgeries' => 'nullable|string',
+            'family_history' => 'nullable|string',
             'allergies' => 'nullable|string',
             'emergency_contact' => 'nullable|string|max:255',
             'emergency_phone' => 'nullable|string|max:20',
+            'emergency_relation' => 'nullable|string|max:50',
+            'insurance_provider' => 'nullable|string|max:255',
+            'insurance_number' => 'nullable|string|max:50',
+            'insurance_expiry' => 'nullable|date',
+            'status' => 'nullable|in:active,inactive,deceased',
         ]);
 
         $patient->update($validated);
@@ -120,5 +168,34 @@ class PatientController extends Controller
 
         return redirect()->route('patients.index')
             ->with('success', __('Patient deleted successfully!'));
+    }
+
+    /**
+     * Upload a file for the patient.
+     */
+    public function uploadFile(Request $request, Patient $patient)
+    {
+        $request->validate([
+            'file' => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'category' => 'required|in:lab_result,xray,mri,prescription,report,other',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $file = $request->file('file');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $path = $file->storeAs('patient_files/' . $patient->id, $filename, 'public');
+
+        $patient->files()->create([
+            'uploaded_by' => auth()->id(),
+            'filename' => $filename,
+            'original_name' => $file->getClientOriginalName(),
+            'file_path' => $path,
+            'file_type' => $file->getClientOriginalExtension(),
+            'file_size' => $file->getSize(),
+            'category' => $request->category,
+            'description' => $request->description,
+        ]);
+
+        return back()->with('success', __('File uploaded successfully!'));
     }
 }
