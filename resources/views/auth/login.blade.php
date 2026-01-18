@@ -59,10 +59,6 @@
 
                 <button type="submit" class="btn btn-primary w-100 py-2" data-i18n="loginBtn">Login</button>
             </form>
-
-            <div class="text-center mt-3 text-muted small">
-                <p class="mb-0" data-i18n="demoCredentials">Demo: <strong>admin</strong> / <strong>admin123</strong></p>
-            </div>
         </div>
     </div>
 
@@ -78,8 +74,7 @@
                 usernamePlaceholder: 'Enter your username',
                 passwordLabel: 'PASSWORD',
                 passwordPlaceholder: '********',
-                loginBtn: 'Login',
-                demoCredentials: 'Demo: <strong>admin</strong> / <strong>admin123</strong>'
+                loginBtn: 'Login'
             },
             ar: {
                 appTitle: 'نظام العيادة - تسجيل الدخول',
@@ -89,8 +84,7 @@
                 usernamePlaceholder: 'أدخل اسم المستخدم',
                 passwordLabel: 'كلمة المرور',
                 passwordPlaceholder: '********',
-                loginBtn: 'تسجيل الدخول',
-                demoCredentials: 'تجريبي: <strong>admin</strong> / <strong>admin123</strong>'
+                loginBtn: 'تسجيل الدخول'
             }
         };
 
