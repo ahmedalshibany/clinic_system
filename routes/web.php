@@ -32,6 +32,8 @@ Route::middleware('auth')->group(function () {
     // Resource Routes
     Route::resource('patients', PatientController::class);
     Route::post('patients/{patient}/files', [PatientController::class, 'uploadFile'])->name('patients.upload-file');
+    Route::get('patients/{patient}/files/{file}', [PatientController::class, 'downloadFile'])->name('patients.download-file');
+    Route::delete('patients/{patient}/files/{file}', [PatientController::class, 'deleteFile'])->name('patients.delete-file');
     Route::resource('doctors', DoctorController::class);
     Route::resource('appointments', AppointmentController::class);
 

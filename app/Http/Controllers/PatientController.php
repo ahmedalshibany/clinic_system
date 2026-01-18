@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use App\Models\PatientFile;
+use Illuminate\Support\Facades\Storage;
 
 class PatientController extends Controller
 {
@@ -173,17 +175,22 @@ class PatientController extends Controller
     /**
      * Upload a file for the patient.
      */
+
+
+    /**
+     * Upload a file for the patient.
+     */
     public function uploadFile(Request $request, Patient $patient)
     {
         $request->validate([
-            'file' => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png,doc,docx',
+            'file' => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png',
             'category' => 'required|in:lab_result,xray,mri,prescription,report,other',
             'description' => 'nullable|string|max:1000',
         ]);
 
         $file = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('patient_files/' . $patient->id, $filename, 'public');
+        $path = $file->storeAs('patient-files/' . $patient->id, $filename, 'public');
 
         $patient->files()->create([
             'uploaded_by' => auth()->id(),
@@ -197,5 +204,39 @@ class PatientController extends Controller
         ]);
 
         return back()->with('success', __('File uploaded successfully!'));
+    }
+
+    /**
+     * Download a patient file.
+     */
+    public function downloadFile(Patient $patient, PatientFile $file)
+    {
+        // Ensure the file belongs to the patient
+        if ($file->patient_id !== $patient->id) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->download($file->file_path, $file->original_name);
+    }
+
+    /**
+     * Delete a patient file.
+     */
+    public function deleteFile(Patient $patient, PatientFile $file)
+    {
+        // Ensure the file belongs to the patient
+        if ($file->patient_id !== $patient->id) {
+            abort(404);
+        }
+
+        // Delete from storage
+        if (Storage::disk('public')->exists($file->file_path)) {
+            Storage::disk('public')->delete($file->file_path);
+        }
+
+        // Delete from database
+        $file->delete();
+
+        return back()->with('success', __('File deleted successfully!'));
     }
 }

@@ -558,9 +558,16 @@
                                         <small class="text-muted">{{ $file->formatted_size }} • {{ $file->category_label }}</small>
                                     </div>
                                     <div class="d-flex gap-1">
-                                        <a href="{{ $file->url }}" target="_blank" class="btn btn-soft-primary btn-sm">
+                                        <a href="{{ route('patients.download-file', [$patient, $file]) }}" class="btn btn-soft-primary btn-sm" title="Download">
                                             <i class="fas fa-download"></i>
                                         </a>
+                                        <form action="{{ route('patients.delete-file', [$patient, $file]) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this file?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -610,8 +617,8 @@
                     
                     <div class="mb-3">
                         <label class="form-label">File <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" name="file" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                        <small class="text-muted">Allowed: PDF, JPG, PNG, DOC (Max 10MB)</small>
+                        <input type="file" class="form-control" name="file" required accept=".pdf,.jpg,.jpeg,.png">
+                        <small class="text-muted">Allowed: PDF, JPG, PNG (Max 10MB)</small>
                     </div>
                     
                     <div class="mb-3">
