@@ -61,6 +61,14 @@
                     <span data-i18n="settings">Settings</span>
                 </a>
             </li>
+            @if(auth()->user()->isAdmin())
+            <li class="nav-item">
+                <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                    <div class="icon-box"><i class="fas fa-users-cog"></i></div>
+                    <span data-i18n="users">Users</span>
+                </a>
+            </li>
+            @endif
         </ul>
 
         <ul class="nav flex-column mt-auto sidebar-footer">
