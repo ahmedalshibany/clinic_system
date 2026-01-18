@@ -47,6 +47,22 @@ class Doctor extends Model
     }
 
     /**
+     * Get the doctor's schedules.
+     */
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(DoctorSchedule::class);
+    }
+
+    /**
+     * Get the doctor's leaves.
+     */
+    public function leaves(): HasMany
+    {
+        return $this->hasMany(DoctorLeave::class);
+    }
+
+    /**
      * Get today's appointments for the doctor.
      */
     public function todayAppointments(): HasMany
