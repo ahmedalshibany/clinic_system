@@ -175,5 +175,12 @@ class Patient extends Model
     {
         return $this->hasMany(MedicalRecord::class);
     }
+    /**
+     * Get all invoices for the patient.
+     */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }
 

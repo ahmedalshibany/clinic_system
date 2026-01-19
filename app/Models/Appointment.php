@@ -172,4 +172,11 @@ class Appointment extends Model
     {
         return $this->hasOne(MedicalRecord::class);
     }
+    /**
+     * Get the invoice associated with the appointment.
+     */
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
+    }
 }
