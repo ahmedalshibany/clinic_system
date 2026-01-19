@@ -41,6 +41,10 @@ Route::middleware('auth')->group(function () {
     Route::get('doctors/{doctor}/available-slots/{date}', [App\Http\Controllers\ScheduleController::class, 'getAvailableSlots'])->name('doctors.available-slots');
     Route::resource('doctors', DoctorController::class);
     Route::resource('appointments', AppointmentController::class);
+    Route::post('appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn'])->name('appointments.check-in');
+    Route::post('appointments/{appointment}/start', [AppointmentController::class, 'startVisit'])->name('appointments.start');
+    Route::post('appointments/{appointment}/complete', [AppointmentController::class, 'complete'])->name('appointments.complete');
+    Route::post('appointments/{appointment}/no-show', [AppointmentController::class, 'markNoShow'])->name('appointments.no-show');
 
     // Settings
     Route::get('/settings', function () {
