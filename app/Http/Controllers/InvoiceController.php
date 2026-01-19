@@ -19,7 +19,9 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Invoice::query()->with(['patient', 'appointment']);
+        $query = Invoice::query()
+            ->with(['patient:id,name,patient_code', 'appointment:id,date,type'])
+            ->select('id', 'invoice_number', 'patient_id', 'appointment_id', 'total', 'amount_paid', 'balance', 'status', 'created_at', 'due_date');
 
         // Filter by status
         if ($request->filled('status')) {

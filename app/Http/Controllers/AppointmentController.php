@@ -14,7 +14,8 @@ class AppointmentController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Appointment::with(['patient', 'doctor']);
+        $query = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name,specialization'])
+            ->select('id', 'patient_id', 'doctor_id', 'date', 'time', 'type', 'status', 'fee');
 
         // Search
         if ($request->filled('search')) {
@@ -55,8 +56,8 @@ class AppointmentController extends Controller
         }
 
         $appointments = $query->paginate(10)->withQueryString();
-        $patients = Patient::orderBy('name')->get();
-        $doctors = Doctor::where('is_active', true)->orderBy('name')->get();
+        $patients = Patient::select('id', 'name')->orderBy('name')->get();
+        $doctors = Doctor::select('id', 'name')->where('is_active', true)->orderBy('name')->get();
 
         return view('appointments.index', compact('appointments', 'patients', 'doctors'));
     }

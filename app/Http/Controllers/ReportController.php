@@ -47,17 +47,36 @@ class ReportController extends Controller
         $dateFrom = $request->date_from ?? now()->startOfMonth()->toDateString();
         $dateTo = $request->date_to ?? now()->endOfMonth()->toDateString();
 
-        // 1. Payments Query (Cash Flow)
-        $msg = Payment::query()
+        // Base Query
+        $baseQuery = Payment::query()
             ->whereDate('payment_date', '>=', $dateFrom)
             ->whereDate('payment_date', '<=', $dateTo);
-            
-        $payments = $msg->with('invoice.patient', 'receiver')->orderBy('payment_date', 'desc')->get();
-        
-        $total_revenue = $payments->sum('amount');
-        $revenue_by_method = $payments->groupBy('payment_method')->map->sum('amount');
 
-        // 2. Invoices Query (Billed / Sales)
+        // 1. Total Revenue (DB Aggregation)
+        $total_revenue = (clone $baseQuery)->sum('amount');
+
+        // 2. Revenue by Method (DB Aggregation)
+        $revenue_by_method = (clone $baseQuery)
+            ->select('payment_method', DB::raw('sum(amount) as total'))
+            ->groupBy('payment_method')
+            ->pluck('total', 'payment_method');
+
+        // 3. Daily Revenue (DB Aggregation)
+        $daily_stats = (clone $baseQuery)
+            ->selectRaw('DATE(payment_date) as date, sum(amount) as total')
+            ->groupBy('date')
+            ->get()
+            ->pluck('total', 'date'); // ['2023-01-01' => 100, ...]
+
+        // 4. Payments List (Paginated + Eager Loading)
+        // Optimization: Select only needed columns for the list
+        $payments = (clone $baseQuery)
+            ->with(['invoice.patient:id,name,patient_code', 'receiver:id,name'])
+            ->orderBy('payment_date', 'desc')
+            ->paginate(50)
+            ->withQueryString();
+
+        // 5. Invoices Query (Billed / Sales)
         $invQuery = Invoice::query()
             ->whereDate('created_at', '>=', $dateFrom)
             ->whereDate('created_at', '<=', $dateTo)
@@ -65,27 +84,25 @@ class ReportController extends Controller
             
         $invoices_stats = $invQuery->selectRaw('count(*) as count, sum(total) as total_amount, avg(total) as avg_amount, sum(total - amount_paid) as pending_amount')->first();
             
-        // 3. Paid Percentage (Collected / Billed)
+        // 6. Paid Percentage (Collected / Billed)
         $paid_percentage = $invoices_stats->total_amount > 0 
             ? ($total_revenue / $invoices_stats->total_amount) * 100 
             : 0;
 
-        // 4. Chart Data (Daily Revenue)
-        $daily_revenue = $payments->groupBy(function($date) {
-            return Carbon::parse($date->payment_date)->format('Y-m-d');
-        })->map->sum('amount');
-
-        // Fill missing days for chart
+        // 7. Process Chart Data
         $chart_labels = [];
         $chart_data = [];
         $period = \Carbon\CarbonPeriod::create($dateFrom, $dateTo);
         foreach ($period as $date) {
             $day = $date->format('Y-m-d');
             $chart_labels[] = $date->format('M d');
-            $chart_data[] = $daily_revenue[$day] ?? 0;
+            // Use the DB aggregated data
+            $chart_data[] = $daily_stats[$day] ?? 0;
         }
 
-        // 5. Sales by Category (Top 5)
+        // 8. Sales by Category (Top 5)
+        // Using chunk() example for hypothetical large processing if we needed to export
+        // For now, the existing query is efficient enough
         $revenue_by_category = DB::table('invoice_items')
             ->join('invoices', 'invoice_items.invoice_id', '=', 'invoices.id')
             ->leftJoin('services', 'invoice_items.service_id', '=', 'services.id')

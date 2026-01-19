@@ -8,9 +8,9 @@
     <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Clinic Services</h5>
+                <h5 class="card-title mb-0" data-i18n="clinicServices">Clinic Services</h5>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">
-                    <i class="fas fa-plus me-2"></i> Add Service
+                    <i class="fas fa-plus me-2"></i> <span data-i18n="addService">Add Service</span>
                 </button>
             </div>
             <div class="card-body">
@@ -19,17 +19,17 @@
                     <div class="col-md-4">
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
-                            <input type="text" name="search" class="form-control border-start-0" placeholder="Search code or name..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control border-start-0" placeholder="Search code or name..." value="{{ request('search') }}" data-i18n-placeholder="searchServices">
                         </div>
                     </div>
                     <div class="col-md-3">
                         <select name="category" class="form-select" onchange="this.form.submit()">
-                            <option value="">All Categories</option>
-                            <option value="consultation" {{ request('category') == 'consultation' ? 'selected' : '' }}>Consultation</option>
-                            <option value="procedure" {{ request('category') == 'procedure' ? 'selected' : '' }}>Procedure</option>
-                            <option value="lab" {{ request('category') == 'lab' ? 'selected' : '' }}>Lab</option>
-                            <option value="imaging" {{ request('category') == 'imaging' ? 'selected' : '' }}>Imaging</option>
-                            <option value="other" {{ request('category') == 'other' ? 'selected' : '' }}>Other</option>
+                            <option value="" data-i18n="allCategories">All Categories</option>
+                            <option value="consultation" {{ request('category') == 'consultation' ? 'selected' : '' }} data-i18n="catConsultation">Consultation</option>
+                            <option value="procedure" {{ request('category') == 'procedure' ? 'selected' : '' }} data-i18n="catProcedure">Procedure</option>
+                            <option value="lab" {{ request('category') == 'lab' ? 'selected' : '' }} data-i18n="catLab">Lab</option>
+                            <option value="imaging" {{ request('category') == 'imaging' ? 'selected' : '' }} data-i18n="catImaging">Imaging</option>
+                            <option value="other" {{ request('category') == 'other' ? 'selected' : '' }} data-i18n="catOther">Other</option>
                         </select>
                     </div>
                 </form>
@@ -39,12 +39,12 @@
                     <table class="table table-hover align-middle">
                         <thead class="bg-light">
                             <tr>
-                                <th>Code</th>
-                                <th>Name</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th class="text-end">Actions</th>
+                                <th data-i18n="serviceCode">Code</th>
+                                <th data-i18n="name">Name</th>
+                                <th data-i18n="category">Category</th>
+                                <th data-i18n="price">Price</th>
+                                <th data-i18n="status">Status</th>
+                                <th class="text-end" data-i18n="actions">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -61,9 +61,9 @@
                                 <td class="fw-bold">{{ number_format($service->price, 2) }}</td>
                                 <td>
                                     @if($service->is_active)
-                                        <span class="badge bg-success-subtle text-success">Active</span>
+                                        <span class="badge bg-success-subtle text-success" data-i18n="active">Active</span>
                                     @else
-                                        <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                        <span class="badge bg-secondary-subtle text-secondary" data-i18n="inactive">Inactive</span>
                                     @endif
                                 </td>
                                 <td class="text-end">
@@ -83,7 +83,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">No services found.</td>
+                                <td colspan="6" class="text-center py-5 text-muted" data-i18n="noServices">No services found.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -104,35 +104,35 @@
         <form action="{{ route('services.store') }}" method="POST" class="modal-content">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title">Add New Service</h5>
+                <h5 class="modal-title" data-i18n="addService">Add New Service</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">Service Code</label>
+                    <label class="form-label" data-i18n="serviceCode">Service Code</label>
                     <input type="text" name="code" class="form-control" required placeholder="e.g. CON-001">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Name (English)</label>
+                    <label class="form-label" data-i18n="nameEn">Name (English)</label>
                     <input type="text" name="name" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Name (Arabic)</label>
+                    <label class="form-label" data-i18n="nameAr">Name (Arabic)</label>
                     <input type="text" name="name_ar" class="form-control" dir="rtl">
                 </div>
                 <div class="row g-2 mb-3">
                     <div class="col-6">
-                        <label class="form-label">Category</label>
+                        <label class="form-label" data-i18n="category">Category</label>
                         <select name="category" class="form-select" required>
-                            <option value="consultation">Consultation</option>
-                            <option value="procedure">Procedure</option>
-                            <option value="lab">Lab</option>
-                            <option value="imaging">Imaging</option>
-                            <option value="other">Other</option>
+                            <option value="consultation" data-i18n="catConsultation">Consultation</option>
+                            <option value="procedure" data-i18n="catProcedure">Procedure</option>
+                            <option value="lab" data-i18n="catLab">Lab</option>
+                            <option value="imaging" data-i18n="catImaging">Imaging</option>
+                            <option value="other" data-i18n="catOther">Other</option>
                         </select>
                     </div>
                     <div class="col-6">
-                        <label class="form-label">Price</label>
+                        <label class="form-label" data-i18n="price">Price</label>
                         <div class="input-group">
                             <input type="number" step="0.01" name="price" class="form-control" required>
                             <span class="input-group-text">$</span>
@@ -141,12 +141,12 @@
                 </div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" name="is_active" value="1" checked>
-                    <label class="form-check-label">Active Service</label>
+                    <label class="form-check-label" data-i18n="activeService">Active Service</label>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Service</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" data-i18n="cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary" data-i18n="saveService">Save Service</button>
             </div>
         </form>
     </div>
@@ -159,35 +159,35 @@
             @csrf
             @method('PUT')
             <div class="modal-header">
-                <h5 class="modal-title">Edit Service</h5>
+                <h5 class="modal-title" data-i18n="editService">Edit Service</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">Service Code</label>
+                    <label class="form-label" data-i18n="serviceCode">Service Code</label>
                     <input type="text" name="code" id="edit_code" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Name (English)</label>
+                    <label class="form-label" data-i18n="nameEn">Name (English)</label>
                     <input type="text" name="name" id="edit_name" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Name (Arabic)</label>
+                    <label class="form-label" data-i18n="nameAr">Name (Arabic)</label>
                     <input type="text" name="name_ar" id="edit_name_ar" class="form-control" dir="rtl">
                 </div>
                 <div class="row g-2 mb-3">
                     <div class="col-6">
-                        <label class="form-label">Category</label>
+                        <label class="form-label" data-i18n="category">Category</label>
                         <select name="category" id="edit_category" class="form-select" required>
-                            <option value="consultation">Consultation</option>
-                            <option value="procedure">Procedure</option>
-                            <option value="lab">Lab</option>
-                            <option value="imaging">Imaging</option>
-                            <option value="other">Other</option>
+                            <option value="consultation" data-i18n="catConsultation">Consultation</option>
+                            <option value="procedure" data-i18n="catProcedure">Procedure</option>
+                            <option value="lab" data-i18n="catLab">Lab</option>
+                            <option value="imaging" data-i18n="catImaging">Imaging</option>
+                            <option value="other" data-i18n="catOther">Other</option>
                         </select>
                     </div>
                     <div class="col-6">
-                        <label class="form-label">Price</label>
+                        <label class="form-label" data-i18n="price">Price</label>
                         <div class="input-group">
                             <input type="number" step="0.01" name="price" id="edit_price" class="form-control" required>
                             <span class="input-group-text">$</span>
@@ -196,12 +196,12 @@
                 </div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" name="is_active" id="edit_is_active" value="1">
-                    <label class="form-check-label">Active Service</label>
+                    <label class="form-check-label" data-i18n="activeService">Active Service</label>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary">Update Service</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" data-i18n="cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary" data-i18n="updateService">Update Service</button>
             </div>
         </form>
     </div>

@@ -36,57 +36,115 @@
 
 <!-- Stats Grid -->
 <div class="stats-grid">
-    <div class="stat-card-premium patients-card">
-        <div class="stat-background"></div>
-        <div class="stat-icon-wrapper">
-            <div class="stat-icon-bg"></div>
-            <i class="fas fa-users"></i>
+    @if(auth()->user()->role === 'doctor')
+        <!-- DOCTOR STATS -->
+        <div class="stat-card-premium today-card">
+            <div class="stat-background"></div>
+            <div class="stat-icon-wrapper">
+                <div class="stat-icon-bg"></div>
+                <i class="fas fa-calendar-day"></i>
+            </div>
+            <div class="stat-data">
+                <span class="stat-number">{{ $todayAppointments }}</span>
+                <span class="stat-label">Appointments Today</span>
+            </div>
+            <div class="stat-decoration"></div>
         </div>
-        <div class="stat-data">
-            <span class="stat-number">{{ $totalPatients }}</span>
-            <span class="stat-label" data-i18n="totalPatients">Total Patients</span>
-        </div>
-        <div class="stat-decoration"></div>
-    </div>
 
-    <div class="stat-card-premium doctors-card">
-        <div class="stat-background"></div>
-        <div class="stat-icon-wrapper">
-            <div class="stat-icon-bg"></div>
-            <i class="fas fa-user-md"></i>
+        <div class="stat-card-premium waiting-card" style="--card-primary: #fd7e14;">
+            <div class="stat-background"></div>
+            <div class="stat-icon-wrapper">
+                <div class="stat-icon-bg"></div>
+                <i class="fas fa-user-clock"></i>
+            </div>
+            <div class="stat-data">
+                <span class="stat-number">{{ $waitingPatients }}</span>
+                <span class="stat-label">Waiting Room</span>
+            </div>
+            <div class="stat-decoration"></div>
         </div>
-        <div class="stat-data">
-            <span class="stat-number">{{ $totalDoctors }}</span>
-            <span class="stat-label" data-i18n="totalDoctors">Total Doctors</span>
-        </div>
-        <div class="stat-decoration"></div>
-    </div>
 
-    <div class="stat-card-premium appointments-card">
-        <div class="stat-background"></div>
-        <div class="stat-icon-wrapper">
-            <div class="stat-icon-bg"></div>
-            <i class="fas fa-calendar-check"></i>
+        <div class="stat-card-premium appointments-card">
+            <div class="stat-background"></div>
+            <div class="stat-icon-wrapper">
+                <div class="stat-icon-bg"></div>
+                <i class="fas fa-calendar-week"></i>
+            </div>
+            <div class="stat-data">
+                <span class="stat-number">{{ $weekAppointments }}</span>
+                <span class="stat-label">This Week</span>
+            </div>
+            <div class="stat-decoration"></div>
         </div>
-        <div class="stat-data">
-            <span class="stat-number">{{ $totalAppointments }}</span>
-            <span class="stat-label" data-i18n="appointments">Appointments</span>
-        </div>
-        <div class="stat-decoration"></div>
-    </div>
 
-    <div class="stat-card-premium today-card">
-        <div class="stat-background"></div>
-        <div class="stat-icon-wrapper">
-            <div class="stat-icon-bg"></div>
-            <i class="fas fa-clock"></i>
+        <div class="stat-card-premium patients-card">
+            <div class="stat-background"></div>
+            <div class="stat-icon-wrapper">
+                <div class="stat-icon-bg"></div>
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-data">
+                <span class="stat-number">{{ $monthAppointments }}</span>
+                <span class="stat-label">This Month</span>
+            </div>
+            <div class="stat-decoration"></div>
         </div>
-        <div class="stat-data">
-            <span class="stat-number">{{ $todayAppointments }}</span>
-            <span class="stat-label" data-i18n="todayAppts">Today</span>
+    @else
+        <!-- ADMIN STATS -->
+        <div class="stat-card-premium patients-card">
+            <div class="stat-background"></div>
+            <div class="stat-icon-wrapper">
+                <div class="stat-icon-bg"></div>
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-data">
+                <span class="stat-number">{{ $totalPatients }}</span>
+                <span class="stat-label" data-i18n="totalPatients">Total Patients</span>
+                <span class="stat-badge">+{{ $newPatientsMonth }} new</span>
+            </div>
+            <div class="stat-decoration"></div>
         </div>
-        <div class="stat-decoration"></div>
-    </div>
+
+        <div class="stat-card-premium revenue-card" style="--card-primary: #198754;">
+            <div class="stat-background"></div>
+            <div class="stat-icon-wrapper">
+                <div class="stat-icon-bg"></div>
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-data">
+                <span class="stat-number">{{ number_format($todayRevenue, 0) }}</span>
+                <span class="stat-label">Today's Revenue</span>
+            </div>
+            <div class="stat-decoration"></div>
+        </div>
+
+        <div class="stat-card-premium appointments-card">
+            <div class="stat-background"></div>
+            <div class="stat-icon-wrapper">
+                <div class="stat-icon-bg"></div>
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-data">
+                <span class="stat-number">{{ $todayAppointments }}</span>
+                <span class="stat-label" data-i18n="todayAppts">Today's Appts</span>
+            </div>
+            <div class="stat-decoration"></div>
+        </div>
+
+        <div class="stat-card-premium invoice-card" style="--card-primary: #dc3545;">
+            <div class="stat-background"></div>
+            <div class="stat-icon-wrapper">
+                <div class="stat-icon-bg"></div>
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <div class="stat-data">
+                <span class="stat-number">{{ $pendingInvoicesCount }}</span>
+                <span class="stat-label">Pending Invoices</span>
+                <small class="text-white-50">{{ number_format($pendingInvoicesAmount, 0) }} pending</small>
+            </div>
+            <div class="stat-decoration"></div>
+        </div>
+    @endif
 </div>
 
 <!-- Charts Section -->
