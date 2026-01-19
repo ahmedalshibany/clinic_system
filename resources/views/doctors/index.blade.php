@@ -56,6 +56,9 @@
                     <p class="text-muted small mb-3" dir="ltr">{{ $doctor->phone }}</p>
 
                     <div class="action-buttons d-flex justify-content-center gap-3">
+                        <a href="{{ route('doctors.schedule', $doctor) }}" class="btn btn-soft-info btn-sm" title="Manage Schedule">
+                            <i class="fas fa-calendar-alt"></i>
+                        </a>
                         <button class="btn btn-soft-primary btn-sm" onclick="editDoctor({{ $doctor->id }}, '{{ addslashes($doctor->name) }}', '{{ addslashes($doctor->specialty) }}', '{{ addslashes($doctor->phone) }}')" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>

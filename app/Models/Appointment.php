@@ -20,6 +20,10 @@ class Appointment extends Model
         'time',
         'type',
         'status',
+        'reason',
+        'checked_in_at',
+        'started_at',
+        'completed_at',
         'notes',
         'diagnosis',
         'prescription',
@@ -32,6 +36,9 @@ class Appointment extends Model
     protected $casts = [
         'date' => 'date',
         'time' => 'datetime:H:i',
+        'checked_in_at' => 'datetime',
+        'started_at' => 'datetime',
+        'completed_at' => 'datetime',
         'fee' => 'decimal:2',
     ];
 
@@ -98,6 +105,38 @@ class Appointment extends Model
     {
         return $query->where('date', '>=', now()->toDateString())
             ->where('status', '!=', 'cancelled');
+    }
+
+    /**
+     * Scope to get scheduled appointments.
+     */
+    public function scopeScheduled($query)
+    {
+        return $query->where('status', 'scheduled');
+    }
+
+    /**
+     * Scope to get waiting appointments.
+     */
+    public function scopeWaiting($query)
+    {
+        return $query->where('status', 'waiting');
+    }
+
+    /**
+     * Scope to get in_progress appointments.
+     */
+    public function scopeInProgress($query)
+    {
+        return $query->where('status', 'in_progress');
+    }
+
+    /**
+     * Scope to get no_show appointments.
+     */
+    public function scopeNoShow($query)
+    {
+        return $query->where('status', 'no_show');
     }
 
     /**
