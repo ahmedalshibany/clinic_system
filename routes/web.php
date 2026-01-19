@@ -56,6 +56,14 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('services', App\Http\Controllers\ServiceController::class);
 
+    // Invoices
+    Route::get('invoices/{appointment}/create', [App\Http\Controllers\InvoiceController::class, 'createFromAppointment'])->name('invoices.create-from-appointment');
+    Route::post('invoices/{invoice}/payment', [App\Http\Controllers\InvoiceController::class, 'recordPayment'])->name('invoices.payment');
+    Route::post('invoices/{invoice}/send', [App\Http\Controllers\InvoiceController::class, 'send'])->name('invoices.send');
+    Route::get('invoices/{invoice}/print', [App\Http\Controllers\InvoiceController::class, 'print'])->name('invoices.print');
+    Route::get('invoices/{invoice}/pdf', [App\Http\Controllers\InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
+    Route::resource('invoices', App\Http\Controllers\InvoiceController::class);
+
     // Settings
     Route::get('/settings', function () {
         return view('settings.index');

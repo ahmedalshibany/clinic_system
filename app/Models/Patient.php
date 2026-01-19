@@ -168,13 +168,7 @@ class Patient extends Model
     {
         return $query->where('status', 'inactive');
     }
-    /**
-     * Get all medical records for the patient.
-     */
-    public function medicalRecords(): HasMany
-    {
-        return $this->hasMany(MedicalRecord::class);
-    }
+
     /**
      * Get all invoices for the patient.
      */
