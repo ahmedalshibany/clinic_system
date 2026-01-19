@@ -285,4 +285,59 @@ class AppointmentController extends Controller
         ]);
         return back()->with('success', 'Marked as No Show.');
     }
+
+    /**
+     * Display the appointments calendar.
+     */
+    public function calendar()
+    {
+        $doctors = Doctor::where('is_active', true)->orderBy('name')->get();
+        return view('appointments.calendar', compact('doctors'));
+    }
+
+    /**
+     * Get appointments for calendar JSON API.
+     */
+    public function events(Request $request)
+    {
+        $query = Appointment::with(['patient', 'doctor']);
+
+        if ($request->filled('doctor_id')) {
+            $query->where('doctor_id', $request->doctor_id);
+        }
+
+        if ($request->filled('start') && $request->filled('end')) {
+            $query->whereBetween('date', [$request->start, $request->end]);
+        }
+
+        $appointments = $query->get()->map(function ($appt) {
+            $colors = [
+                'scheduled' => '#3b82f6', // blue
+                'confirmed' => '#10b981', // green
+                'waiting' => '#f59e0b',   // orange
+                'in_progress' => '#8b5cf6', // purple
+                'completed' => '#6b7280', // gray
+                'cancelled' => '#ef4444', // red
+                'no_show' => '#000000',   // black
+                'pending' => '#64748b',   // slate
+            ];
+
+            return [
+                'id' => $appt->id,
+                'title' => $appt->patient->name . ' (' . $appt->type . ')',
+                'start' => $appt->date->format('Y-m-d') . 'T' . $appt->time->format('H:i:s'),
+                'backgroundColor' => $colors[$appt->status] ?? '#3b82f6',
+                'borderColor' => $colors[$appt->status] ?? '#3b82f6',
+                'extendedProps' => [
+                    'doctor_name' => $appt->doctor->name,
+                    'patient_name' => $appt->patient->name,
+                    'status' => ucfirst(str_replace('_', ' ', $appt->status)),
+                    'type' => $appt->type,
+                ],
+                'url' => route('appointments.show', $appt->id)
+            ];
+        });
+
+        return response()->json($appointments);
+    }
 }
