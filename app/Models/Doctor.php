@@ -99,4 +99,11 @@ class Doctor extends Model
     {
         return 'Dr. ' . $this->name . ' (' . $this->specialty . ')';
     }
+    /**
+     * Get all medical records for the doctor.
+     */
+    public function medicalRecords(): HasMany
+    {
+        return $this->hasMany(MedicalRecord::class);
+    }
 }

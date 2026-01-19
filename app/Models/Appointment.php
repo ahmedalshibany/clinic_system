@@ -165,4 +165,11 @@ class Appointment extends Model
     {
         return $this->date->format('M d, Y') . ' at ' . $this->time->format('h:i A');
     }
+    /**
+     * Get the medical record associated with the appointment.
+     */
+    public function medicalRecord()
+    {
+        return $this->hasOne(MedicalRecord::class);
+    }
 }
