@@ -54,6 +54,8 @@ Route::middleware('auth')->group(function () {
     Route::get('medical-records/{medical_record}/print-report', [App\Http\Controllers\MedicalRecordController::class, 'printReport'])->name('medical-records.print-report');
     Route::resource('medical-records', App\Http\Controllers\MedicalRecordController::class);
 
+    Route::resource('services', App\Http\Controllers\ServiceController::class);
+
     // Settings
     Route::get('/settings', function () {
         return view('settings.index');

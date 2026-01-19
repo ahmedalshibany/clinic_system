@@ -56,6 +56,12 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="{{ route('services.index') }}" class="nav-link {{ request()->routeIs('services.*') ? 'active' : '' }}">
+                    <div class="icon-box"><i class="fas fa-briefcase-medical"></i></div>
+                    <span data-i18n="services">Services</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-cog"></i></div>
                     <span data-i18n="settings">Settings</span>
