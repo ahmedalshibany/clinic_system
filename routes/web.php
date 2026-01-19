@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('doctors', DoctorController::class);
     Route::get('appointments/calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
     Route::get('appointments/events', [AppointmentController::class, 'events'])->name('appointments.events');
+    Route::get('appointments/queue', [AppointmentController::class, 'queue'])->name('appointments.queue');
     Route::resource('appointments', AppointmentController::class);
     Route::post('appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn'])->name('appointments.check-in');
     Route::post('appointments/{appointment}/start', [AppointmentController::class, 'startVisit'])->name('appointments.start');
