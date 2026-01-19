@@ -301,6 +301,17 @@ class InvoiceController extends Controller
             $invoice->save();
         });
 
+        // Notify Admins
+        try {
+            app(\App\Services\NotificationService::class)->notifyAdmins(
+                'payment', 
+                'Payment Received', 
+                "Received {$validated['amount']} for Invoice #{$invoice->invoice_number}",
+                ['invoice_id' => $invoice->id, 'amount' => $validated['amount']],
+                route('invoices.show', $invoice->id)
+            );
+        } catch (\Exception $e) {}
+
         return back()->with('success', 'Payment recorded successfully.');
     }
 

@@ -65,6 +65,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user has specific role.
+     */
+    public function hasRole($role): bool
+    {
+        return $this->role === $role;
+    }
+
+    /**
      * Scope to get only active users.
      */
     public function scopeActive($query)

@@ -61,6 +61,14 @@
                     <span data-i18n="services">Services</span>
                 </a>
             </li>
+            @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('doctor'))
+            <li class="nav-item">
+                <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                    <div class="icon-box"><i class="fas fa-chart-line"></i></div>
+                    <span data-i18n="reports">Reports</span>
+                </a>
+            </li>
+            @endif
             <li class="nav-item">
                 <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-cog"></i></div>
@@ -109,10 +117,31 @@
                     </div>
 
                     <div class="header-actions">
-                        <button class="btn-icon-glass notification-btn">
-                            <i class="far fa-bell"></i>
-                            <span class="badge-dot"></span>
-                        </button>
+                        <!-- Notification Dropdown -->
+                        <div class="dropdown">
+                            <button class="btn-icon-glass notification-btn position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="far fa-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notificationBadge">
+                                    0
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0" aria-labelledby="notificationDropdown" style="width: 320px; max-height: 480px; overflow-y: auto;">
+                                <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0 fw-bold">Notifications</h6>
+                                    <form action="{{ route('notifications.mark-all-read') }}" method="POST" id="markAllReadForm">
+                                        @csrf
+                                        <button type="submit" class="btn btn-link btn-sm text-decoration-none p-0">Mark all read</button>
+                                    </form>
+                                </div>
+                                <div id="notificationList">
+                                    <div class="text-center p-4">
+                                        <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <button class="btn-icon-glass theme-toggle" id="themeToggle">
                             <i class="fas fa-moon"></i>
@@ -148,7 +177,41 @@
     <script src="{{ asset('js/utils.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/layout.js') }}"></script>
+    
+    <!-- Notification Scripts -->
+    <script>
+        $(document).ready(function() {
+            // Fetch unread count periodically
+            function fetchUnreadCount() {
+                $.get("{{ route('notifications.unread-count') }}", function(data) {
+                    if (data.count > 0) {
+                        $('#notificationBadge').text(data.count).removeClass('d-none');
+                    } else {
+                        $('#notificationBadge').addClass('d-none');
+                    }
+                });
+            }
+
+            // Fetch notifications on dropdown open
+            $('#notificationDropdown').on('show.bs.dropdown', function () {
+                $('#notificationList').html('<div class="text-center p-4"><div class="spinner-border text-primary spinner-border-sm" role="status"></div></div>');
+                $.get("{{ route('notifications.latest') }}", function(data) {
+                    $('#notificationList').html(data.html);
+                    // Update badge as well
+                    if (data.count > 0) {
+                        $('#notificationBadge').text(data.count).removeClass('d-none');
+                    } else {
+                        $('#notificationBadge').addClass('d-none');
+                    }
+                });
+            });
+
+            // Initial Count Fetch
+            fetchUnreadCount();
+            // Poll every 30 seconds
+            setInterval(fetchUnreadCount, 30000);
+        });
+    </script>
     @yield('scripts')
 </body>
-
 </html>

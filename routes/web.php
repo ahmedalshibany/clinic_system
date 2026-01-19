@@ -64,10 +64,31 @@ Route::middleware('auth')->group(function () {
     Route::get('invoices/{invoice}/pdf', [App\Http\Controllers\InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
     Route::resource('invoices', App\Http\Controllers\InvoiceController::class);
 
+    // Reports
+    Route::middleware(['role:admin,doctor'])->prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [App\Http\Controllers\ReportController::class, 'index'])->name('index');
+        Route::get('/revenue', [App\Http\Controllers\ReportController::class, 'revenue'])->name('revenue');
+        Route::get('/revenue/doctor', [App\Http\Controllers\ReportController::class, 'revenueByDoctor'])->name('revenue.doctor');
+        Route::get('/revenue/service', [App\Http\Controllers\ReportController::class, 'revenueByService'])->name('revenue.service');
+        Route::get('/patients', [App\Http\Controllers\ReportController::class, 'patients'])->name('patients');
+        Route::get('/appointments', [App\Http\Controllers\ReportController::class, 'appointments'])->name('appointments');
+        Route::get('/outstanding', [App\Http\Controllers\ReportController::class, 'outstanding'])->name('outstanding');
+        Route::get('/export/excel/{report}', [App\Http\Controllers\ReportController::class, 'exportExcel'])->name('export.excel');
+        Route::get('/export/pdf/{report}', [App\Http\Controllers\ReportController::class, 'exportPdf'])->name('export.pdf');
+    });
+
     // Settings
-    Route::get('/settings', function () {
-        return view('settings.index');
-    })->name('settings.index');
+    Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+
+    // Notifications
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/latest', [\App\Http\Controllers\NotificationController::class, 'getLatest'])->name('notifications.latest');
+    Route::get('/notifications/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::patch('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::delete('/notifications/clear-all', [\App\Http\Controllers\NotificationController::class, 'clearAll'])->name('notifications.clear-all');
+    Route::delete('/notifications/{notification}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     // User Management (Admin only)
     Route::middleware('role:admin')->group(function () {

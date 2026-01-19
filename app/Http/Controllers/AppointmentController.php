@@ -137,6 +137,20 @@ class AppointmentController extends Controller
 
         Appointment::create($validated);
 
+        // Notify Doctor
+        try {
+            app(\App\Services\NotificationService::class)->notifyDoctor(
+                $doctor, 
+                'appointment', 
+                'New Appointment', 
+                "New appointment scheduled on {$validated['date']} at {$validated['time']}",
+                ['date' => $validated['date'], 'time' => $validated['time']],
+                route('appointments.index')
+            );
+        } catch (\Exception $e) {
+            // fail silently if notification fails
+        }
+
         return redirect()->route('appointments.index')
             ->with('success', __('Appointment booked successfully!'));
     }
@@ -243,6 +257,19 @@ class AppointmentController extends Controller
      */
     public function destroy(Appointment $appointment)
     {
+        // Notify Doctor
+        try {
+            if ($appointment->doctor) {
+                 app(\App\Services\NotificationService::class)->notifyDoctor(
+                     $appointment->doctor, 
+                     'system', 
+                     'Appointment Cancelled', 
+                     "Appointment with {$appointment->patient->name} on {$appointment->date->format('Y-m-d')} was cancelled.",
+                     ['date' => $appointment->date, 'type' => 'cancellation']
+                 );
+            }
+        } catch (\Exception $e) {}
+
         $appointment->delete();
 
         return redirect()->route('appointments.index')
@@ -257,6 +284,19 @@ class AppointmentController extends Controller
             'status' => 'waiting',
             'checked_in_at' => now(),
         ]);
+
+        // Notify Doctor
+        try {
+            app(\App\Services\NotificationService::class)->notifyDoctor(
+                $appointment->doctor, 
+                'system', 
+                'Patient Checked-In', 
+                "{$appointment->patient->name} has arrived for their appointment.",
+                ['appointment_id' => $appointment->id],
+                route('appointments.show', $appointment->id)
+            );
+        } catch (\Exception $e) {}
+
         return back()->with('success', 'Patient checked in successfully.');
     }
 
