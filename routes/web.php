@@ -96,4 +96,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('users/{user}/toggle', [UserController::class, 'toggleActive'])->name('users.toggle');
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     });
+
+    // API Internal Routes (AJAX)
+    Route::get('/api/patients/search', [App\Http\Controllers\Api\PatientApiController::class, 'search'])->name('api.patients.search');
+    Route::get('/api/medicines/search', [App\Http\Controllers\Api\MedicineApiController::class, 'search'])->name('api.medicines.search');
 });

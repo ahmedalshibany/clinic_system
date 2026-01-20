@@ -4,7 +4,22 @@
 @section('page-title', 'Appointments')
 @section('page-i18n', 'appointments')
 
+@section('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<style>
+    /* Fix Select2 inside Modal */
+    .select2-container--bootstrap-5 .select2-selection {
+        border-color: #dee2e6;
+    }
+    .select2-dropdown {
+        z-index: 9999;
+    }
+</style>
+@endsection
+
 @section('content')
+
 <!-- Flash Messages -->
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -150,11 +165,10 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label" data-i18n="patient">Patient</label>
-                            <select class="form-select" name="patient_id" id="patientSelect" required>
-                                <option value="">Select Patient</option>
-                                @foreach($patients as $patient)
-                                    <option value="{{ $patient->id }}">{{ $patient->name }}</option>
-                                @endforeach
+                            <label class="form-label" data-i18n="patient">Patient</label>
+                            <select class="form-select" name="patient_id" id="patientSelect" required style="width: 100%;">
+                                <option value="">Search for Patient...</option>
+                                {{-- Options loaded via AJAX --}}
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -208,7 +222,11 @@
 </div>
 @endsection
 
+@endsection
+
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
 function editAppointment(appt) {
     document.getElementById('appointmentModalTitle').textContent = 'Edit Appointment';
@@ -221,8 +239,40 @@ function editAppointment(appt) {
     document.getElementById('appointmentType').value = appt.type;
     document.getElementById('appointmentStatus').value = appt.status;
     document.getElementById('appointmentNotes').value = appt.notes || '';
+    document.getElementById('appointmentNotes').value = appt.notes || '';
+    
+    // Set Select2 value manually for edit
+    if ($('#patientSelect').find("option[value='" + appt.patient_id + "']").length) {
+        $('#patientSelect').val(appt.patient_id).trigger('change');
+    } else { 
+        // Create a DOM Option and pre-select it
+        var newOption = new Option(appt.patient.name, appt.patient_id, true, true);
+        $('#patientSelect').append(newOption).trigger('change');
+    }
+
     new bootstrap.Modal(document.getElementById('appointmentModal')).show();
 }
+
+$(document).ready(function() {
+    $('#patientSelect').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#appointmentModal'),
+        ajax: {
+            url: '{{ route("api.patients.search") }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return { q: params.term };
+            },
+            processResults: function (data) {
+                return { results: data.results };
+            },
+            cache: true
+        },
+        placeholder: 'Search for patient...',
+        minimumInputLength: 1
+    });
+});
 
 // Reset form when modal is closed
 document.getElementById('appointmentModal').addEventListener('hidden.bs.modal', function () {

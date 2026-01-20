@@ -1,4 +1,10 @@
+@section('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+@endsection
+
 {{-- Patient Info & Vitals --}}
+
 <div class="row g-4">
     {{-- Patient Information --}}
     <div class="col-md-4">
@@ -178,7 +184,11 @@
                     @if(isset($record) && $record->prescription && $record->prescription->items->count() > 0)
                         @foreach($record->prescription->items as $index => $item)
                         <tr class="prescription-row">
-                            <td><input type="text" name="prescription_items[{{$index}}][medication_name]" class="form-control form-control-sm" placeholder="Drug Name" required value="{{ $item->medication_name }}"></td>
+                            <td>
+                                <select name="prescription_items[{{$index}}][medication_name]" class="form-select form-select-sm medicine-select" required data-index="{{$index}}">
+                                    <option value="{{ $item->medication_name }}" selected>{{ $item->medication_name }}</option>
+                                </select>
+                            </td>
                             <td><input type="text" name="prescription_items[{{$index}}][dosage]" class="form-control form-control-sm" placeholder="e.g. 500mg" required value="{{ $item->dosage }}"></td>
                             <td><input type="text" name="prescription_items[{{$index}}][frequency]" class="form-control form-control-sm" placeholder="e.g. 1-0-1" required value="{{ $item->frequency }}"></td>
                             <td><input type="text" name="prescription_items[{{$index}}][duration]" class="form-control form-control-sm" placeholder="e.g. 5 days" required value="{{ $item->duration }}"></td>
@@ -250,11 +260,54 @@
         const emptyMsg = document.getElementById('empty-prescription-msg');
         let index = {{ isset($record) && $record->prescription ? $record->prescription->items->count() : 0 }};
 
+        });
+
+        // --- Select2 Logic for Medicines ---
+        function initMedicineSelect(element) {
+            $(element).select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                ajax: {
+                    url: '{{ route("api.medicines.search") }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return { q: params.term };
+                    },
+                    processResults: function (data) {
+                        return { results: data.results };
+                    },
+                    cache: true
+                },
+                placeholder: 'Search Medicine...',
+                minimumInputLength: 1,
+                tags: true // Allow typing custom meds if not in DB
+            }).on('select2:select', function (e) {
+                var data = e.params.data;
+                // Auto-fill logic if available
+                if (data.strength || data.form) {
+                    var row = $(this).closest('tr');
+                    var dosage = (data.strength ? data.strength : '') + (data.form ? ' ' + data.form : '');
+                    row.find('input[name*="[dosage]"]').val(dosage);
+                }
+            });
+        }
+
+        // Init existing rows
+        $('.medicine-select').each(function() {
+            initMedicineSelect(this);
+        });
+
+        // Update add button to init select2
         addBtn.addEventListener('click', function() {
             const row = document.createElement('tr');
             row.className = 'prescription-row animate__animated animate__fadeIn';
             row.innerHTML = `
-                <td><input type="text" name="prescription_items[${index}][medication_name]" class="form-control form-control-sm" placeholder="Drug Name" required></td>
+                <td>
+                    <select name="prescription_items[${index}][medication_name]" class="form-select form-select-sm medicine-select" required>
+                        <option value="">Search...</option>
+                    </select>
+                </td>
                 <td><input type="text" name="prescription_items[${index}][dosage]" class="form-control form-control-sm" placeholder="e.g. 500mg" required></td>
                 <td><input type="text" name="prescription_items[${index}][frequency]" class="form-control form-control-sm" placeholder="e.g. 1-0-1" required></td>
                 <td><input type="text" name="prescription_items[${index}][duration]" class="form-control form-control-sm" placeholder="e.g. 5 days" required></td>
@@ -262,18 +315,16 @@
                 <td class="text-center"><button type="button" class="btn btn-sm btn-link text-danger remove-row"><i class="fas fa-times"></i></button></td>
             `;
             list.appendChild(row);
+            
+            // Init Select2 on new element
+            initMedicineSelect($(row).find('.medicine-select'));
+
             emptyMsg.style.display = 'none';
             index++;
         });
-
-        list.addEventListener('click', function(e) {
-            if (e.target.closest('.remove-row')) {
-                const row = e.target.closest('tr');
-                row.remove();
-                if (list.children.length === 0) {
-                    emptyMsg.style.display = 'block';
-                }
-            }
-        });
     });
 </script>
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+@endsection
