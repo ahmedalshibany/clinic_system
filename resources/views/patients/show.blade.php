@@ -593,10 +593,60 @@
                 <h5 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Billing History</h5>
             </div>
             <div class="card-body">
-                <div class="text-center py-5 text-muted">
-                    <i class="fas fa-receipt fa-3x mb-3"></i>
-                    <p>Billing module coming soon.</p>
-                </div>
+                @if($patient->invoices && $patient->invoices->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Paid</th>
+                                    <th>Balance</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($patient->invoices->sortByDesc('created_at') as $invoice)
+                                    <tr>
+                                        <td class="fw-bold">{{ $invoice->invoice_number }}</td>
+                                        <td>{{ $invoice->created_at->format('M d, Y') }}</td>
+                                        <td>
+                                            @php
+                                                $statusClass = match($invoice->status) {
+                                                    'paid' => 'success',
+                                                    'partial' => 'info',
+                                                    'draft' => 'secondary',
+                                                    'cancelled' => 'danger',
+                                                    'overdue' => 'warning',
+                                                    default => 'primary'
+                                                };
+                                            @endphp
+                                            <span class="badge bg-{{ $statusClass }}">{{ ucfirst($invoice->status) }}</span>
+                                        </td>
+                                        <td>${{ number_format($invoice->total, 2) }}</td>
+                                        <td class="text-success">${{ number_format($invoice->amount_paid, 2) }}</td>
+                                        <td class="text-danger fw-bold">${{ number_format($invoice->total - $invoice->amount_paid, 2) }}</td>
+                                        <td>
+                                            <a href="{{ route('invoices.show', $invoice) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-file-invoice fa-3x mb-3"></i>
+                        <p>No invoices found for this patient.</p>
+                        <a href="{{ route('invoices.create', ['patient_id' => $patient->id]) }}" class="btn btn-primary mt-2">
+                            <i class="fas fa-plus me-1"></i> Create Invoice
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

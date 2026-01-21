@@ -14,7 +14,7 @@ class AppointmentController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name,specialization'])
+        $query = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name,specialty'])
             ->select('id', 'patient_id', 'doctor_id', 'date', 'time', 'type', 'status', 'fee');
 
         // Search
@@ -83,7 +83,7 @@ class AppointmentController extends Controller
             'date' => 'required|date|after_or_equal:today',
             'time' => 'required|string',
             'type' => 'required|in:Consultation,Checkup,Follow-up,Emergency',
-            'status' => 'required|in:scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show',
+            'status' => 'required|in:pending,scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show',
             'notes' => 'nullable|string',
             'diagnosis' => 'nullable|string',
             'prescription' => 'nullable|string',

@@ -81,7 +81,13 @@ class PatientController extends Controller
             'insurance_number' => 'nullable|string|max:50',
             'insurance_expiry' => 'nullable|date',
             'status' => 'nullable|in:active,inactive,deceased',
+            'photo' => 'nullable|image|max:2048', // 2MB Max
         ]);
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('patients', 'public');
+            $validated['photo'] = $path;
+        }
 
         $patient = Patient::create($validated);
 
@@ -153,7 +159,17 @@ class PatientController extends Controller
             'insurance_number' => 'nullable|string|max:50',
             'insurance_expiry' => 'nullable|date',
             'status' => 'nullable|in:active,inactive,deceased',
+            'photo' => 'nullable|image|max:2048',
         ]);
+
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($patient->photo && Storage::disk('public')->exists($patient->photo)) {
+                Storage::disk('public')->delete($patient->photo);
+            }
+            $path = $request->file('photo')->store('patients', 'public');
+            $validated['photo'] = $path;
+        }
 
         $patient->update($validated);
 
