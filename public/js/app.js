@@ -282,6 +282,17 @@ const translations = {
         patientDemographicsDesc: "Age, gender, and registration trends.",
         appointmentsReport: "Appointments",
         appointmentsReportDesc: "Status summaries and no-show rates.",
+
+        // Missing Keys Added via Audit
+        showing: "Showing",
+        of: "of",
+        patientsLabel: "patients",
+        doctorsLabel: "doctors",
+        clickToAddPatient: "Click 'Add Patient' to get started!",
+        clickToAddDoctor: "Click 'Add Doctor' to get started!",
+        clickToBookAppt: "Click 'Book Appointment' to get started!",
+        viewProfile: "View Profile",
+        manageSchedule: "Manage Schedule",
     },
     ar: {
         appTitle: "نظام العيادة",
@@ -566,6 +577,17 @@ const translations = {
         patientDemographicsDesc: "العمر، الجنس، واتجاهات التسجيل.",
         appointmentsReport: "المواعيد",
         appointmentsReportDesc: "ملخصات الحالة ومعدلات التغيب.",
+
+        // Missing Keys Added via Audit
+        showing: "عرض",
+        of: "من",
+        patientsLabel: "مرضى",
+        doctorsLabel: "أطباء",
+        clickToAddPatient: "انقر على 'إضافة مريض' للبدء!",
+        clickToAddDoctor: "انقر على 'إضافة طبيب' للبدء!",
+        clickToBookAppt: "انقر على 'حجز موعد' للبدء!",
+        viewProfile: "عرض الملف الشخصي",
+        manageSchedule: "إدارة الجدول",
     }
 };
 
@@ -729,6 +751,14 @@ class App {
             const key = $el.attr('data-i18n-placeholder');
             if (translations[lang][key]) {
                 $el.attr('placeholder', translations[lang][key]);
+            }
+        });
+
+        $('[data-i18n-title]').each(function () {
+            const $el = $(this);
+            const key = $el.attr('data-i18n-title');
+            if (translations[lang][key]) {
+                $el.attr('title', translations[lang][key]);
             }
         });
 

@@ -56,16 +56,16 @@
                     <p class="text-muted small mb-3" dir="ltr">{{ $doctor->phone }}</p>
 
                     <div class="action-buttons d-flex justify-content-center gap-3">
-                        <a href="{{ route('doctors.schedule', $doctor) }}" class="btn btn-soft-info btn-sm" title="Manage Schedule">
+                        <a href="{{ route('doctors.schedule', $doctor) }}" class="btn btn-soft-info btn-sm" title="Manage Schedule" data-i18n-title="manageSchedule">
                             <i class="fas fa-calendar-alt"></i>
                         </a>
-                        <button class="btn btn-soft-primary btn-sm" onclick="editDoctor({{ $doctor->id }}, '{{ addslashes($doctor->name) }}', '{{ addslashes($doctor->specialty) }}', '{{ addslashes($doctor->phone) }}')" title="Edit">
+                        <button class="btn btn-soft-primary btn-sm" onclick="editDoctor({{ $doctor->id }}, '{{ addslashes($doctor->name) }}', '{{ addslashes($doctor->specialty) }}', '{{ addslashes($doctor->phone) }}')" title="Edit" data-i18n-title="edit">
                             <i class="fas fa-edit"></i>
                         </button>
                         <form action="{{ route('doctors.destroy', $doctor) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this doctor?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete">
+                            <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete" data-i18n-title="delete">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
@@ -78,7 +78,7 @@
             <div class="empty-state text-center py-5">
                 <i class="fas fa-user-md mb-3" style="font-size: 3rem;"></i>
                 <h5 data-i18n="noDoctors">No doctors yet</h5>
-                <p class="text-muted">Click "Add Doctor" to get started!</p>
+                <p class="text-muted" data-i18n="clickToAddDoctor">Click "Add Doctor" to get started!</p>
             </div>
         </div>
     @endforelse
@@ -88,14 +88,14 @@
 @if($doctors->hasPages())
 <div class="pagination-controls mt-4">
     <div class="pagination-info">
-        Showing <strong>{{ $doctors->firstItem() }}-{{ $doctors->lastItem() }}</strong> of <strong>{{ $doctors->total() }}</strong> doctors
+        <span data-i18n="showing">Showing</span> <strong>{{ $doctors->firstItem() }}-{{ $doctors->lastItem() }}</strong> <span data-i18n="of">of</span> <strong>{{ $doctors->total() }}</strong> <span data-i18n="doctorsLabel">doctors</span>
     </div>
     <div class="d-flex gap-2">
         @if(!$doctors->onFirstPage())
-            <a href="{{ $doctors->previousPageUrl() }}" class="btn btn-light btn-sm"><i class="fas fa-chevron-left"></i> Previous</a>
+            <a href="{{ $doctors->previousPageUrl() }}" class="btn btn-light btn-sm"><i class="fas fa-chevron-left"></i> <span data-i18n="previous">Previous</span></a>
         @endif
         @if($doctors->hasMorePages())
-            <a href="{{ $doctors->nextPageUrl() }}" class="btn btn-light btn-sm">Next <i class="fas fa-chevron-right"></i></a>
+            <a href="{{ $doctors->nextPageUrl() }}" class="btn btn-light btn-sm"><span data-i18n="next">Next</span> <i class="fas fa-chevron-right"></i></a>
         @endif
     </div>
 </div>

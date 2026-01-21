@@ -105,13 +105,13 @@
                             </td>
                             <td class="pe-4">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-soft-primary btn-sm" onclick="editAppointment({{ json_encode($appointment) }})" title="Edit">
+                                    <button class="btn btn-soft-primary btn-sm" onclick="editAppointment({{ json_encode($appointment) }})" title="Edit" data-i18n-title="edit">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <form action="{{ route('appointments.destroy', $appointment) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this appointment?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete">
+                                        <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete" data-i18n-title="delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -123,6 +123,7 @@
                             <td colspan="7" class="text-center py-5">
                                 <i class="fas fa-calendar-times text-muted mb-3" style="font-size: 2rem;"></i>
                                 <p class="text-muted mb-0" data-i18n="noAppointments">No appointments found</p>
+                                <p class="text-muted small mt-2" data-i18n="clickToBookAppt">Click "Book Appointment" to get started!</p>
                             </td>
                         </tr>
                     @endforelse
@@ -134,14 +135,14 @@
         @if($appointments->hasPages())
         <div class="pagination-controls">
             <div class="pagination-info">
-                Showing <strong>{{ $appointments->firstItem() }}-{{ $appointments->lastItem() }}</strong> of <strong>{{ $appointments->total() }}</strong> appointments
+                <span data-i18n="showing">Showing</span> <strong>{{ $appointments->firstItem() }}-{{ $appointments->lastItem() }}</strong> <span data-i18n="of">of</span> <strong>{{ $appointments->total() }}</strong> <span data-i18n="appointmentsLabel">appointments</span>
             </div>
             <div class="d-flex gap-2">
                 @if(!$appointments->onFirstPage())
-                    <a href="{{ $appointments->previousPageUrl() }}" class="btn btn-light btn-sm"><i class="fas fa-chevron-left"></i> Previous</a>
+                    <a href="{{ $appointments->previousPageUrl() }}" class="btn btn-light btn-sm"><i class="fas fa-chevron-left"></i> <span data-i18n="previous">Previous</span></a>
                 @endif
                 @if($appointments->hasMorePages())
-                    <a href="{{ $appointments->nextPageUrl() }}" class="btn btn-light btn-sm">Next <i class="fas fa-chevron-right"></i></a>
+                    <a href="{{ $appointments->nextPageUrl() }}" class="btn btn-light btn-sm"><span data-i18n="next">Next</span> <i class="fas fa-chevron-right"></i></a>
                 @endif
             </div>
         </div>

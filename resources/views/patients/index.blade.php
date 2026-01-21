@@ -84,16 +84,16 @@
                             <td>{{ $patient->address ?? '-' }}</td>
                             <td class="pe-4">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ route('patients.show', $patient) }}" class="btn btn-soft-info btn-sm" title="View Profile">
+                                    <a href="{{ route('patients.show', $patient) }}" class="btn btn-soft-info btn-sm" title="View Profile" data-i18n-title="viewProfile">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('patients.edit', $patient) }}" class="btn btn-soft-primary btn-sm" title="Edit">
+                                    <a href="{{ route('patients.edit', $patient) }}" class="btn btn-soft-primary btn-sm" title="Edit" data-i18n-title="edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <form action="{{ route('patients.destroy', $patient) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this patient?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete">
+                                        <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete" data-i18n-title="delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -106,7 +106,7 @@
                                 <div class="empty-state">
                                     <i class="fas fa-user-injured"></i>
                                     <h5 data-i18n="noPatients">No patients yet</h5>
-                                    <p>Click "Add Patient" to get started!</p>
+                                    <p data-i18n="clickToAddPatient">Click "Add Patient" to get started!</p>
                                 </div>
                             </td>
                         </tr>
@@ -119,17 +119,17 @@
         @if($patients->hasPages())
         <div class="pagination-controls">
             <div class="pagination-info">
-                Showing <strong>{{ $patients->firstItem() }}-{{ $patients->lastItem() }}</strong> of <strong>{{ $patients->total() }}</strong> patients
+                <span data-i18n="showing">Showing</span> <strong>{{ $patients->firstItem() }}-{{ $patients->lastItem() }}</strong> <span data-i18n="of">of</span> <strong>{{ $patients->total() }}</strong> <span data-i18n="patientsLabel">patients</span>
             </div>
             <div class="pagination-buttons">
                 @if($patients->onFirstPage())
                     <button disabled><i class="fas fa-chevron-left"></i> <span data-i18n="previous">Previous</span></button>
                 @else
-                    <a href="{{ $patients->previousPageUrl() }}" class="btn btn-light btn-sm"><i class="fas fa-chevron-left"></i> Previous</a>
+                    <a href="{{ $patients->previousPageUrl() }}" class="btn btn-light btn-sm"><i class="fas fa-chevron-left"></i> <span data-i18n="previous">Previous</span></a>
                 @endif
                 
                 @if($patients->hasMorePages())
-                    <a href="{{ $patients->nextPageUrl() }}" class="btn btn-light btn-sm">Next <i class="fas fa-chevron-right"></i></a>
+                    <a href="{{ $patients->nextPageUrl() }}" class="btn btn-light btn-sm"><span data-i18n="next">Next</span> <i class="fas fa-chevron-right"></i></a>
                 @else
                     <button disabled><span data-i18n="next">Next</span> <i class="fas fa-chevron-right"></i></button>
                 @endif
