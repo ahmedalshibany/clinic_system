@@ -107,6 +107,16 @@ if (typeof DashboardManager === 'undefined') {
                 this.stats.cancelled
             ];
 
+            const t = (key) => {
+                if (typeof window.translations !== 'undefined') {
+                    const lang = document.documentElement.lang || 'en';
+                    if (window.translations[lang] && window.translations[lang][key]) {
+                        return window.translations[lang][key];
+                    }
+                }
+                return key.charAt(0).toUpperCase() + key.slice(1);
+            };
+
             if (this.statusChart) {
                 this.statusChart.destroy();
             }
@@ -114,7 +124,7 @@ if (typeof DashboardManager === 'undefined') {
             this.statusChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
+                    labels: [t('pending'), t('confirmed'), t('completed'), t('cancelled')],
                     datasets: [{
                         data: data,
                         backgroundColor: [

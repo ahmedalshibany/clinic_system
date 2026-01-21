@@ -147,7 +147,10 @@
 @section('scripts')
 <script>
 function editDoctor(id, name, specialty, phone) {
-    document.getElementById('doctorModalTitle').textContent = 'Edit Doctor';
+    document.getElementById('doctorModalTitle').setAttribute('data-i18n', 'editDoctor');
+    document.getElementById('doctorModalTitle').textContent = 'Edit Doctor'; // Fallback
+    translatePage();
+
     document.getElementById('doctorForm').action = '/doctors/' + id;
     document.getElementById('formMethod').value = 'PUT';
     document.getElementById('doctorName').value = name;
@@ -158,7 +161,10 @@ function editDoctor(id, name, specialty, phone) {
 
 // Reset form when modal is closed
 document.getElementById('doctorModal').addEventListener('hidden.bs.modal', function () {
-    document.getElementById('doctorModalTitle').textContent = 'Add Doctor';
+    document.getElementById('doctorModalTitle').setAttribute('data-i18n', 'addDoctor');
+    document.getElementById('doctorModalTitle').textContent = 'Add Doctor'; // Fallback
+    translatePage();
+
     document.getElementById('doctorForm').action = '{{ route("doctors.store") }}';
     document.getElementById('formMethod').value = 'POST';
     document.getElementById('doctorForm').reset();

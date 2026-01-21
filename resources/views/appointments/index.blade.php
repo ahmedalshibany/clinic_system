@@ -99,7 +99,7 @@
                             <td>{{ \Carbon\Carbon::parse($appointment->date)->format('Y-m-d') }}</td>
                             <td>{{ \Carbon\Carbon::parse($appointment->time)->format('H:i') }}</td>
                             <td>
-                                <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} px-3 py-2 rounded-pill">
+                                <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} px-3 py-2 rounded-pill" data-i18n="{{ strtolower($appointment->status) }}">
                                     {{ ucfirst($appointment->status) }}
                                 </span>
                             </td>
@@ -166,7 +166,6 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label" data-i18n="patient">Patient</label>
-                            <label class="form-label" data-i18n="patient">Patient</label>
                             <select class="form-select" name="patient_id" id="patientSelect" required style="width: 100%;">
                                 <option value="">Search for Patient...</option>
                                 {{-- Options loaded via AJAX --}}
@@ -201,10 +200,10 @@
                         <div class="col-md-6">
                             <label class="form-label" data-i18n="status">Status</label>
                             <select class="form-select" name="status" id="appointmentStatus" required>
-                                <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
+                                <option value="pending" data-i18n="pending">Pending</option>
+                                <option value="confirmed" data-i18n="confirmed">Confirmed</option>
+                                <option value="completed" data-i18n="completed">Completed</option>
+                                <option value="cancelled" data-i18n="cancelled">Cancelled</option>
                             </select>
                         </div>
                         <div class="col-12">
@@ -230,7 +229,10 @@
 
 <script>
 function editAppointment(appt) {
-    document.getElementById('appointmentModalTitle').textContent = 'Edit Appointment';
+    document.getElementById('appointmentModalTitle').setAttribute('data-i18n', 'editAppt');
+    document.getElementById('appointmentModalTitle').textContent = 'Edit Appointment'; // Fallback
+    translatePage(); // Trigger re-translation
+
     document.getElementById('appointmentForm').action = '/appointments/' + appt.id;
     document.getElementById('formMethod').value = 'PUT';
     document.getElementById('patientSelect').value = appt.patient_id;
@@ -239,7 +241,6 @@ function editAppointment(appt) {
     document.getElementById('appointmentTime').value = appt.time ? appt.time.substring(0, 5) : '';
     document.getElementById('appointmentType').value = appt.type;
     document.getElementById('appointmentStatus').value = appt.status;
-    document.getElementById('appointmentNotes').value = appt.notes || '';
     document.getElementById('appointmentNotes').value = appt.notes || '';
     
     // Set Select2 value manually for edit
@@ -277,10 +278,15 @@ $(document).ready(function() {
 
 // Reset form when modal is closed
 document.getElementById('appointmentModal').addEventListener('hidden.bs.modal', function () {
-    document.getElementById('appointmentModalTitle').textContent = 'Book Appointment';
+    document.getElementById('appointmentModalTitle').setAttribute('data-i18n', 'bookAppt');
+    document.getElementById('appointmentModalTitle').textContent = 'Book Appointment'; // Fallback
+    translatePage();
+
     document.getElementById('appointmentForm').action = '{{ route("appointments.store") }}';
     document.getElementById('formMethod').value = 'POST';
     document.getElementById('appointmentForm').reset();
+    $('#patientSelect').val(null).trigger('change');
 });
+
 </script>
 @endsection

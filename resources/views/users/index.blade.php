@@ -131,7 +131,7 @@
                                     <!-- Edit Button -->
                                     <button class="btn btn-soft-primary btn-sm" 
                                         onclick="editUser({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ $user->username }}', '{{ $user->email }}', '{{ $user->phone }}', '{{ $user->role }}', {{ $user->is_active ? 'true' : 'false' }})" 
-                                        title="Edit">
+                                        title="Edit" data-i18n-title="edit">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     
@@ -142,7 +142,8 @@
                                             @method('PATCH')
                                             <button type="submit" class="btn btn-soft-{{ $user->is_active ? 'warning' : 'success' }} btn-sm" 
                                                 title="{{ $user->is_active ? 'Deactivate' : 'Activate' }}"
-                                                onclick="return confirm('Are you sure you want to {{ $user->is_active ? 'deactivate' : 'activate' }} this user?')">
+                                                data-i18n-title="{{ $user->is_active ? 'deactivate' : 'activate' }}"
+                                                onclick="return confirm(window.translations[document.documentElement.lang || 'en'].confirmToggleUser)">
                                                 <i class="fas fa-{{ $user->is_active ? 'ban' : 'check' }}"></i>
                                             </button>
                                         </form>
@@ -151,18 +152,18 @@
                                     <!-- Reset Password Button -->
                                     <form action="{{ route('users.reset-password', $user) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-soft-info btn-sm" title="Reset Password"
-                                            onclick="return confirm('Are you sure you want to reset this user\'s password?')">
+                                        <button type="submit" class="btn btn-soft-info btn-sm" title="Reset Password" data-i18n-title="resetPassword"
+                                            onclick="return confirm(window.translations[document.documentElement.lang || 'en'].confirmResetPassword)">
                                             <i class="fas fa-key"></i>
                                         </button>
                                     </form>
                                     
                                     <!-- Delete Button -->
                                     @if($user->id !== auth()->id())
-                                        <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                        <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteUser)">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete">
+                                            <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete" data-i18n-title="delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -176,7 +177,7 @@
                                 <div class="empty-state">
                                     <i class="fas fa-users-cog"></i>
                                     <h5 data-i18n="noUsers">No users found</h5>
-                                    <p>Click "Add User" to create a new user!</p>
+                                    <p data-i18n="clickToAddUser">Click "Add User" to create a new user!</p>
                                 </div>
                             </td>
                         </tr>
@@ -189,17 +190,17 @@
         @if($users->hasPages())
         <div class="pagination-controls">
             <div class="pagination-info">
-                Showing <strong>{{ $users->firstItem() }}-{{ $users->lastItem() }}</strong> of <strong>{{ $users->total() }}</strong> users
+                <span data-i18n="showing">Showing</span> <strong>{{ $users->firstItem() }}-{{ $users->lastItem() }}</strong> <span data-i18n="of">of</span> <strong>{{ $users->total() }}</strong> <span data-i18n="usersLabel">users</span>
             </div>
             <div class="pagination-buttons">
                 @if($users->onFirstPage())
                     <button disabled><i class="fas fa-chevron-left"></i> <span data-i18n="previous">Previous</span></button>
                 @else
-                    <a href="{{ $users->previousPageUrl() }}" class="btn btn-light btn-sm"><i class="fas fa-chevron-left"></i> Previous</a>
+                    <a href="{{ $users->previousPageUrl() }}" class="btn btn-light btn-sm"><i class="fas fa-chevron-left"></i> <span data-i18n="previous">Previous</span></a>
                 @endif
                 
                 @if($users->hasMorePages())
-                    <a href="{{ $users->nextPageUrl() }}" class="btn btn-light btn-sm">Next <i class="fas fa-chevron-right"></i></a>
+                    <a href="{{ $users->nextPageUrl() }}" class="btn btn-light btn-sm"><span data-i18n="next">Next</span> <i class="fas fa-chevron-right"></i></a>
                 @else
                     <button disabled><span data-i18n="next">Next</span> <i class="fas fa-chevron-right"></i></button>
                 @endif

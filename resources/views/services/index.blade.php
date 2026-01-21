@@ -72,10 +72,10 @@
                                             data-bs-toggle="modal" data-bs-target="#editServiceModal">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <form action="{{ route('services.destroy', $service) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?')">
+                                    <form action="{{ route('services.destroy', $service) }}" method="POST" class="d-inline" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteService)">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" data-i18n-title="delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -83,7 +83,12 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted" data-i18n="noServices">No services found.</td>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <div class="empty-state">
+                                        <h5 data-i18n="noServices">No services found.</h5>
+                                        <p data-i18n="clickToAddService">Click "Add Service" to get started!</p>
+                                    </div>
+                                </td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -110,7 +115,7 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <label class="form-label" data-i18n="serviceCode">Service Code</label>
-                    <input type="text" name="code" class="form-control" required placeholder="e.g. CON-001">
+                    <input type="text" name="code" class="form-control" required placeholder="e.g. CON-001" data-i18n-placeholder="serviceCodePlaceholder">
                 </div>
                 <div class="mb-3">
                     <label class="form-label" data-i18n="nameEn">Name (English)</label>

@@ -6,6 +6,16 @@
     --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
     --neon-accent: #00f2fe;
     --primary-gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    --font-en: 'Plus Jakarta Sans', sans-serif;
+    --font-ar: 'Tajawal', sans-serif;
+}
+
+body {
+    font-family: var(--font-en);
+}
+
+[dir="rtl"] body {
+    font-family: var(--font-ar);
 }
 
 [data-theme="dark"] {
@@ -19,11 +29,11 @@
 }
 
 .glass-effect {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 }
 
 .sidebar {

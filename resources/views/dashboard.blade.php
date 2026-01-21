@@ -113,7 +113,7 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ number_format($todayRevenue, 0) }}</span>
-                <span class="stat-label">Today's Revenue</span>
+                <span class="stat-label" data-i18n="revenueToday">Today's Revenue</span>
             </div>
             <div class="stat-decoration"></div>
         </div>
@@ -139,8 +139,8 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ $pendingInvoicesCount }}</span>
-                <span class="stat-label">Pending Invoices</span>
-                <small class="text-white-50">{{ number_format($pendingInvoicesAmount, 0) }} pending</small>
+                <span class="stat-label" data-i18n="pendingInvoices">Pending Invoices</span>
+                <small class="text-white-50"><span data-i18n="outstanding">{{ $pendingInvoicesAmount }}</span> <span data-i18n="pending">pending</span></small>
             </div>
             <div class="stat-decoration"></div>
         </div>
@@ -261,10 +261,9 @@
                                 <span class="activity-time">{{ \Carbon\Carbon::parse($appt->date)->format('M d') }} • {{ \Carbon\Carbon::parse($appt->time)->format('H:i') }}</span>
                             </div>
                             <div class="activity-details">
-                                <span class="activity-doctor">
                                     <i class="fas fa-user-md me-1"></i>{{ $appt->doctor->name ?? 'Unknown' }}
                                 </span>
-                                <span class="badge bg-{{ $color }}-subtle text-{{ $color }}">{{ ucfirst($appt->status) }}</span>
+                                <span class="badge bg-{{ $color }}-subtle text-{{ $color }}" data-i18n="{{ strtolower($appt->status) }}">{{ ucfirst($appt->status) }}</span>
                             </div>
                         </div>
                     </div>
@@ -293,10 +292,20 @@ const weeklyData = {
 // Status Chart
 const statusCtx = document.getElementById('statusChart');
 if (statusCtx) {
+    const t = (key) => {
+        if (typeof window.translations !== 'undefined') {
+            const lang = document.documentElement.lang || 'en';
+            if (window.translations[lang] && window.translations[lang][key]) {
+                return window.translations[lang][key];
+            }
+        }
+        return key.charAt(0).toUpperCase() + key.slice(1);
+    };
+
     new Chart(statusCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
+            labels: [t('pending'), t('confirmed'), t('completed'), t('cancelled')],
             datasets: [{
                 data: statusData,
                 backgroundColor: [
