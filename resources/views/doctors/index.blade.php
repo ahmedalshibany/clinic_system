@@ -76,7 +76,7 @@
     @empty
         <div class="col-12">
             <div class="empty-state text-center py-5">
-                <i class="fas fa-user-md mb-3" style="font-size: 3rem;"></i>
+                <i class="fas fa-user-md mb-3 icon-xl"></i>
                 <h5 data-i18n="noDoctors">No doctors yet</h5>
                 <p class="text-muted" data-i18n="clickToAddDoctor">Click "Add Doctor" to get started!</p>
             </div>

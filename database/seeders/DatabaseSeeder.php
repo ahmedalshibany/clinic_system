@@ -15,7 +15,12 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             PatientSeeder::class,
             DoctorSeeder::class,
+            SettingSeeder::class,
+            ServiceSeeder::class,
+            MedicineSeeder::class,
             AppointmentSeeder::class,
+            MedicalSeeder::class,
+            FinancialSeeder::class,
         ]);
     }
 }

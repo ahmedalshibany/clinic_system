@@ -12,13 +12,11 @@
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/fontawesome-local.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/davinci.css') }}">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
     @yield('styles')
     
     <!-- jQuery -->
@@ -130,7 +128,7 @@
                                     0
                                 </span>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0" aria-labelledby="notificationDropdown" style="width: 320px; max-height: 480px; overflow-y: auto;">
+                            <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0 notification-dropdown-menu" aria-labelledby="notificationDropdown">
                                 <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0 fw-bold">Notifications</h6>
                                     <form action="{{ route('notifications.mark-all-read') }}" method="POST" id="markAllReadForm">

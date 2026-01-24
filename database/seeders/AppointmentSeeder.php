@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Appointment;
+use App\Models\Doctor;
+use App\Models\Patient;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 
@@ -13,143 +15,71 @@ class AppointmentSeeder extends Seeder
      */
     public function run(): void
     {
-        $statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+        $patients = Patient::pluck('id')->toArray();
+        $doctors = Doctor::pluck('id')->toArray();
+        $statuses = ['pending', 'confirmed', 'completed', 'cancelled', 'no_show'];
         $types = ['Consultation', 'Checkup', 'Follow-up', 'Emergency'];
-        
-        $appointments = [
-            // Today's appointments
-            [
-                'patient_id' => 1,
-                'doctor_id' => 1,
-                'date' => Carbon::today(),
-                'time' => '09:00',
-                'type' => 'Consultation',
-                'status' => 'confirmed',
-            ],
-            [
-                'patient_id' => 2,
-                'doctor_id' => 2,
-                'date' => Carbon::today(),
-                'time' => '10:00',
-                'type' => 'Checkup',
-                'status' => 'pending',
-            ],
-            [
-                'patient_id' => 3,
-                'doctor_id' => 3,
-                'date' => Carbon::today(),
-                'time' => '11:00',
-                'type' => 'Follow-up',
-                'status' => 'confirmed',
-            ],
-            [
-                'patient_id' => 4,
-                'doctor_id' => 4,
-                'date' => Carbon::today(),
-                'time' => '14:00',
-                'type' => 'Consultation',
-                'status' => 'pending',
-            ],
-            
-            // Yesterday's appointments
-            [
-                'patient_id' => 5,
-                'doctor_id' => 5,
-                'date' => Carbon::yesterday(),
-                'time' => '09:00',
-                'type' => 'Consultation',
-                'status' => 'completed',
-            ],
-            [
-                'patient_id' => 6,
-                'doctor_id' => 6,
-                'date' => Carbon::yesterday(),
-                'time' => '10:30',
-                'type' => 'Emergency',
-                'status' => 'completed',
-            ],
-            [
-                'patient_id' => 7,
-                'doctor_id' => 1,
-                'date' => Carbon::yesterday(),
-                'time' => '14:00',
-                'type' => 'Follow-up',
-                'status' => 'cancelled',
-            ],
-            
-            // Tomorrow's appointments
-            [
-                'patient_id' => 8,
-                'doctor_id' => 2,
-                'date' => Carbon::tomorrow(),
-                'time' => '09:00',
-                'type' => 'Consultation',
-                'status' => 'confirmed',
-            ],
-            [
-                'patient_id' => 9,
-                'doctor_id' => 3,
-                'date' => Carbon::tomorrow(),
-                'time' => '11:00',
-                'type' => 'Checkup',
-                'status' => 'pending',
-            ],
-            [
-                'patient_id' => 10,
-                'doctor_id' => 4,
-                'date' => Carbon::tomorrow(),
-                'time' => '15:00',
-                'type' => 'Consultation',
-                'status' => 'pending',
-            ],
-            
-            // This week appointments
-            [
-                'patient_id' => 1,
-                'doctor_id' => 5,
-                'date' => Carbon::today()->addDays(2),
-                'time' => '10:00',
-                'type' => 'Follow-up',
-                'status' => 'confirmed',
-            ],
-            [
-                'patient_id' => 2,
-                'doctor_id' => 6,
-                'date' => Carbon::today()->addDays(3),
-                'time' => '09:00',
-                'type' => 'Checkup',
-                'status' => 'pending',
-            ],
-            
-            // Past appointments (completed)
-            [
-                'patient_id' => 3,
-                'doctor_id' => 1,
-                'date' => Carbon::today()->subDays(2),
-                'time' => '09:00',
-                'type' => 'Consultation',
-                'status' => 'completed',
-            ],
-            [
-                'patient_id' => 4,
-                'doctor_id' => 2,
-                'date' => Carbon::today()->subDays(3),
-                'time' => '14:00',
-                'type' => 'Emergency',
-                'status' => 'completed',
-            ],
-            [
-                'patient_id' => 5,
-                'doctor_id' => 3,
-                'date' => Carbon::today()->subDays(4),
-                'time' => '11:00',
-                'type' => 'Checkup',
-                'status' => 'completed',
-            ],
-        ];
+        $times = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '14:00', '14:30', '15:00', '15:30', '16:00'];
 
-        foreach ($appointments as $appointment) {
-            Appointment::create($appointment);
+        // 1. Past Appointments (Last 30 Days) - Mostly Completed/Cancelled
+        for ($i = 0; $i < 60; $i++) {
+            $date = Carbon::today()->subDays(rand(1, 30));
+            $status = $this->getRandomStatus(true); // Past favors completed
+
+            Appointment::create([
+                'patient_id' => $patients[array_rand($patients)],
+                'doctor_id' => $doctors[array_rand($doctors)],
+                'date' => $date,
+                'time' => $times[array_rand($times)],
+                'type' => $types[array_rand($types)],
+                'status' => $status,
+                'fee' => rand(2000, 8000),
+                'completed_at' => $status === 'completed' ? $date->copy()->setTime(rand(9, 16), 0) : null,
+                'started_at' => $status === 'completed' ? $date->copy()->setTime(rand(9, 16), 0)->subMinutes(30) : null,
+            ]);
         }
+
+        // 2. Today's Appointments (Queue)
+        for ($i = 0; $i < 10; $i++) {
+            $status = $i < 3 ? 'completed' : ($i < 5 ? 'in_progress' : 'waiting');
+            if ($i > 7) $status = 'confirmed'; // Not arrived yet
+
+            Appointment::create([
+                'patient_id' => $patients[array_rand($patients)],
+                'doctor_id' => $doctors[array_rand($doctors)],
+                'date' => Carbon::today(),
+                'time' => $times[$i % count($times)],
+                'type' => $types[array_rand($types)],
+                'status' => $status,
+                'fee' => rand(2000, 8000),
+                'checked_in_at' => in_array($status, ['waiting', 'in_progress', 'completed']) ? Carbon::now()->subMinutes(rand(10, 120)) : null,
+            ]);
+        }
+
+        // 3. Future Appointments (Next 14 Days) - Mostly confirmed/pending
+        for ($i = 0; $i < 30; $i++) {
+            $date = Carbon::today()->addDays(rand(1, 14));
+            
+            Appointment::create([
+                'patient_id' => $patients[array_rand($patients)],
+                'doctor_id' => $doctors[array_rand($doctors)],
+                'date' => $date,
+                'time' => $times[array_rand($times)],
+                'type' => $types[array_rand($types)],
+                'status' => rand(0, 10) > 8 ? 'pending' : 'confirmed',
+                'fee' => rand(2000, 8000),
+            ]);
+        }
+    }
+
+    private function getRandomStatus($isPast)
+    {
+        if ($isPast) {
+            $rand = rand(0, 10);
+            if ($rand < 7) return 'completed';
+            if ($rand < 9) return 'cancelled';
+            return 'no_show';
+        }
+        return 'confirmed';
     }
 }

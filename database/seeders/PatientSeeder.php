@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Patient;
 use Illuminate\Database\Seeder;
+use Faker\Factory as Faker;
 
 class PatientSeeder extends Seeder
 {
@@ -12,7 +13,10 @@ class PatientSeeder extends Seeder
      */
     public function run(): void
     {
-        $patients = [
+        $faker = Faker::create('ar_SA'); // Use Arabic locale for names
+
+        // Static Patients for specific testing
+        $staticPatients = [
             [
                 'name' => 'Ahmed Hassan',
                 'age' => 35,
@@ -29,74 +33,24 @@ class PatientSeeder extends Seeder
                 'address' => 'Aden, Yemen',
                 'blood_type' => 'A+',
             ],
-            [
-                'name' => 'Mohammed Omar',
-                'age' => 45,
-                'gender' => 'male',
-                'phone' => '+967 777 345 678',
-                'address' => 'Taiz, Yemen',
-                'blood_type' => 'B+',
-            ],
-            [
-                'name' => 'Aisha Saleh',
-                'age' => 22,
-                'gender' => 'female',
-                'phone' => '+967 777 456 789',
-                'address' => 'Hodeidah, Yemen',
-                'blood_type' => 'AB+',
-            ],
-            [
-                'name' => 'Yusuf Ibrahim',
-                'age' => 55,
-                'gender' => 'male',
-                'phone' => '+967 777 567 890',
-                'address' => 'Ibb, Yemen',
-                'blood_type' => 'O-',
-            ],
-            [
-                'name' => 'Mariam Abdullah',
-                'age' => 32,
-                'gender' => 'female',
-                'phone' => '+967 777 678 901',
-                'address' => 'Mukalla, Yemen',
-                'blood_type' => 'A-',
-            ],
-            [
-                'name' => 'Khalid Nasser',
-                'age' => 40,
-                'gender' => 'male',
-                'phone' => '+967 777 789 012',
-                'address' => 'Dhamar, Yemen',
-                'blood_type' => 'B-',
-            ],
-            [
-                'name' => 'Noura Saeed',
-                'age' => 19,
-                'gender' => 'female',
-                'phone' => '+967 777 890 123',
-                'address' => 'Amran, Yemen',
-                'blood_type' => 'O+',
-            ],
-            [
-                'name' => 'Ali Mansour',
-                'age' => 60,
-                'gender' => 'male',
-                'phone' => '+967 777 901 234',
-                'address' => 'Hajjah, Yemen',
-                'blood_type' => 'A+',
-            ],
-            [
-                'name' => 'Sara Ahmed',
-                'age' => 25,
-                'gender' => 'female',
-                'phone' => '+967 777 012 345',
-                'address' => 'Sana\'a, Yemen',
-                'blood_type' => 'B+',
-            ],
         ];
 
-        foreach ($patients as $patient) {
+        foreach ($staticPatients as $patient) {
             Patient::create($patient);
+        }
+
+        // Generate 50 Random Patients
+        for ($i = 0; $i < 50; $i++) {
+            $gender = $faker->randomElement(['male', 'female']);
+            Patient::create([
+                'name' => $faker->name($gender),
+                'age' => $faker->numberBetween(1, 90),
+                'gender' => $gender,
+                'phone' => '+967 7' . $faker->numberBetween(10, 99) . ' ' . $faker->numberBetween(100, 999) . ' ' . $faker->numberBetween(100, 999),
+                'address' => $faker->city . ', Yemen',
+                'blood_type' => $faker->randomElement(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']),
+                'medical_history' => $faker->optional(0.3)->sentence,
+            ]);
         }
     }
 }

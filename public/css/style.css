@@ -1,5 +1,6 @@
 /* Import Da Vinci Design System */
 @import url('davinci.css');
+@import url('layout.css');
 
 :root {
     /* ═══════════════════════════════════════════════════════════════
@@ -303,6 +304,16 @@ h6 {
     fill: none;
     stroke: var(--accent);
     stroke-width: 8;
+}
+
+.notification-dropdown-menu {
+    width: 320px;
+    max-height: 480px;
+    overflow-y: auto;
+}
+
+.icon-xl {
+    font-size: 3rem;
 }
 
 .progress-circle-fill {
