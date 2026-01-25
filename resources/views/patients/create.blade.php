@@ -196,3 +196,32 @@
     </div>
 </div>
 @endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dobInput = document.querySelector('input[name="date_of_birth"]');
+    const ageInput = document.querySelector('input[name="age"]');
+    
+    if (dobInput && ageInput) {
+        dobInput.addEventListener('change', function() {
+            if (this.value) {
+                const dob = new Date(this.value);
+                const today = new Date();
+                let age = today.getFullYear() - dob.getFullYear();
+                const monthDiff = today.getMonth() - dob.getMonth();
+                
+                // Adjust if birthday hasn't occurred yet this year
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                
+                if (age >= 0 && age <= 150) {
+                    ageInput.value = age;
+                }
+            }
+        });
+    }
+});
+</script>
+@endsection

@@ -149,7 +149,7 @@
 function editDoctor(id, name, specialty, phone) {
     document.getElementById('doctorModalTitle').setAttribute('data-i18n', 'editDoctor');
     document.getElementById('doctorModalTitle').textContent = 'Edit Doctor'; // Fallback
-    translatePage();
+    if (window.app && window.app.applyLanguage) window.app.applyLanguage(window.app.lang);
 
     document.getElementById('doctorForm').action = '/doctors/' + id;
     document.getElementById('formMethod').value = 'PUT';
@@ -163,7 +163,7 @@ function editDoctor(id, name, specialty, phone) {
 document.getElementById('doctorModal').addEventListener('hidden.bs.modal', function () {
     document.getElementById('doctorModalTitle').setAttribute('data-i18n', 'addDoctor');
     document.getElementById('doctorModalTitle').textContent = 'Add Doctor'; // Fallback
-    translatePage();
+    if (window.app && window.app.applyLanguage) window.app.applyLanguage(window.app.lang);
 
     document.getElementById('doctorForm').action = '{{ route("doctors.store") }}';
     document.getElementById('formMethod').value = 'POST';

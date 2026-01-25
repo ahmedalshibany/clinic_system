@@ -231,7 +231,7 @@
 function editAppointment(appt) {
     document.getElementById('appointmentModalTitle').setAttribute('data-i18n', 'editAppt');
     document.getElementById('appointmentModalTitle').textContent = 'Edit Appointment'; // Fallback
-    translatePage(); // Trigger re-translation
+    if (window.app && window.app.applyLanguage) window.app.applyLanguage(window.app.lang); // Trigger re-translation
 
     document.getElementById('appointmentForm').action = '/appointments/' + appt.id;
     document.getElementById('formMethod').value = 'PUT';
@@ -280,7 +280,7 @@ $(document).ready(function() {
 document.getElementById('appointmentModal').addEventListener('hidden.bs.modal', function () {
     document.getElementById('appointmentModalTitle').setAttribute('data-i18n', 'bookAppt');
     document.getElementById('appointmentModalTitle').textContent = 'Book Appointment'; // Fallback
-    translatePage();
+    if (window.app && window.app.applyLanguage) window.app.applyLanguage(window.app.lang);
 
     document.getElementById('appointmentForm').action = '{{ route("appointments.store") }}';
     document.getElementById('formMethod').value = 'POST';
