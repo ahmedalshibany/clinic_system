@@ -65,6 +65,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is nurse.
+     */
+    public function isNurse(): bool
+    {
+        return $this->role === 'nurse';
+    }
+
+    /**
      * Check if user has specific role.
      */
     public function hasRole($role): bool

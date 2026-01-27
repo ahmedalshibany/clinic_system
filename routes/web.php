@@ -49,7 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::post('appointments/{appointment}/complete', [AppointmentController::class, 'complete'])->name('appointments.complete');
     Route::post('appointments/{appointment}/no-show', [AppointmentController::class, 'markNoShow'])->name('appointments.no-show');
     // Medical Records & Prescriptions
-    Route::get('medical-records/create/{patient}', [App\Http\Controllers\MedicalRecordController::class, 'create'])->name('medical-records.create');
+    Route::get('medicalrecords-/create/{patient}', [App\Http\Controllers\MedicalRecordController::class, 'create'])->name('medical-records.create');
     Route::get('medical-records/{medical_record}/print-prescription', [App\Http\Controllers\MedicalRecordController::class, 'printPrescription'])->name('medical-records.print-prescription');
     Route::get('medical-records/{medical_record}/print-report', [App\Http\Controllers\MedicalRecordController::class, 'printReport'])->name('medical-records.print-report');
     Route::resource('medical-records', App\Http\Controllers\MedicalRecordController::class);
@@ -95,6 +95,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class);
         Route::patch('users/{user}/toggle', [UserController::class, 'toggleActive'])->name('users.toggle');
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+    });
+
+    // Nurse / Vitals Routes
+    Route::middleware(['role:nurse,doctor,admin'])->group(function () {
+        Route::get('appointments/{appointment}/vitals/create', [App\Http\Controllers\NurseController::class, 'createVitals'])->name('nurse.vitals.create');
+        Route::post('appointments/{appointment}/vitals', [App\Http\Controllers\NurseController::class, 'storeVitals'])->name('nurse.vitals.store');
     });
 
     // API Internal Routes (AJAX)

@@ -28,7 +28,7 @@
     
     <!-- Custom JS -->
     <script src="{{ asset('js/utils.js') }}"></script>
-    <script src="{{ asset('js/app.js') }}"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('scripts')
 </body>
 
