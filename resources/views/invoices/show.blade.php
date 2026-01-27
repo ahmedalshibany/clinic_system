@@ -21,6 +21,7 @@
                 </div>
                 <div>
                     <a href="{{ route('invoices.print', $invoice) }}" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fas fa-print me-1"></i> Print</a>
+                    <a href="{{ route('invoices.pdf', $invoice) }}" class="btn btn-primary btn-sm ms-1"><i class="fas fa-file-pdf me-1"></i> Download PDF</a>
                     @if($invoice->status == 'draft')
                     <form action="{{ route('invoices.send', $invoice) }}" method="POST" class="d-inline">
                         @csrf

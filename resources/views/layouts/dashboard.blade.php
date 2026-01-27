@@ -47,9 +47,15 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('appointments.index') }}" class="nav-link {{ request()->routeIs('appointments.*') ? 'active' : '' }}">
+                <a href="{{ route('appointments.index') }}" class="nav-link {{ request()->routeIs('appointments.index') || request()->routeIs('appointments.show') || request()->routeIs('appointments.create') || request()->routeIs('appointments.edit') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-calendar-check"></i></div>
                     <span data-i18n="appointments">Appts</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('appointments.calendar') }}" class="nav-link {{ request()->routeIs('appointments.calendar') ? 'active' : '' }}">
+                    <div class="icon-box"><i class="fas fa-calendar-alt"></i></div>
+                    <span data-i18n="calendar">Calendar</span>
                 </a>
             </li>
             <li class="nav-item">

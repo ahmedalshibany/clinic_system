@@ -179,4 +179,12 @@ class Appointment extends Model
     {
         return $this->hasOne(Invoice::class);
     }
+
+    /**
+     * Get the vitals associated with the appointment.
+     */
+    public function vital()
+    {
+        return $this->hasOne(Vital::class);
+    }
 }
