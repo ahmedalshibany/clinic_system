@@ -78,14 +78,17 @@ class InvoiceController extends Controller
         $services = Service::active()->get();
         $selected_patient = $appointment->patient;
         
-        // Try to identify consultation service based on fee or default
-        // This is a placeholder logic, ideally we map appointment type to service
-        $default_service = null;
-        if ($appointment->fee > 0) {
-            // Logic to find a matching service or pass fee as custom item
-        }
+        // Default item for appointment
+        $prefilled_items = [
+            [
+                'service_id' => null,
+                'description' => 'Consultation - ' . $appointment->type,
+                'quantity' => 1,
+                'unit_price' => $appointment->fee > 0 ? $appointment->fee : 0,
+            ]
+        ];
 
-        return view('invoices.create', compact('patients', 'services', 'selected_patient', 'appointment'));
+        return view('invoices.create', compact('patients', 'services', 'selected_patient', 'appointment', 'prefilled_items'));
     }
 
     /**

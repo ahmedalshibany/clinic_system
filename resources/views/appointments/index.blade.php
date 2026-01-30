@@ -85,6 +85,7 @@
                             $statusColors = [
                                 'pending' => 'warning',
                                 'confirmed' => 'success',
+                                'checked_in' => 'primary',
                                 'completed' => 'info',
                                 'cancelled' => 'danger'
                             ];
@@ -105,6 +106,21 @@
                             </td>
                             <td class="pe-4">
                                 <div class="d-flex justify-content-center gap-2">
+                                    @if($appointment->status === 'confirmed')
+                                        <form action="{{ route('appointments.update', $appointment) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="checked_in">
+                                            <input type="hidden" name="patient_id" value="{{ $appointment->patient_id }}">
+                                            <input type="hidden" name="doctor_id" value="{{ $appointment->doctor_id }}">
+                                            <input type="hidden" name="date" value="{{ $appointment->date->format('Y-m-d') }}">
+                                            <input type="hidden" name="time" value="{{ $appointment->time->format('H:i') }}">
+                                            <input type="hidden" name="type" value="{{ $appointment->type }}">
+                                            <button type="submit" class="btn btn-primary btn-sm" title="Check In" data-i18n-title="checkIn">
+                                                <i class="fas fa-check-square me-1"></i> Check In
+                                            </button>
+                                        </form>
+                                    @endif
                                     <button class="btn btn-soft-primary btn-sm" onclick="editAppointment({{ json_encode($appointment) }})" title="Edit" data-i18n-title="edit">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -116,6 +132,13 @@
                                         </button>
                                     </form>
                                 </div>
+                                @if($appointment->status === 'completed' && !$appointment->invoice)
+                                    <div class="mt-2 text-center">
+                                        <a href="{{ route('invoices.create-from-appointment', $appointment->id) }}" class="btn btn-warning btn-sm w-100 text-dark">
+                                            <i class="fas fa-file-invoice-dollar me-1"></i> <span data-i18n="createInvoice">Create Invoice</span>
+                                        </a>
+                                    </div>
+                                @endif
                             </td>
                         </tr>
                     @empty

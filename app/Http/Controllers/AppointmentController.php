@@ -83,7 +83,7 @@ class AppointmentController extends Controller
             'date' => 'required|date|after_or_equal:today',
             'time' => 'required|string',
             'type' => 'required|in:Consultation,Checkup,Follow-up,Emergency',
-            'status' => 'required|in:pending,scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show',
+            'status' => 'required|in:pending,scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show,checked_in',
             'notes' => 'nullable|string',
             'diagnosis' => 'nullable|string',
             'prescription' => 'nullable|string',
@@ -186,7 +186,7 @@ class AppointmentController extends Controller
             'date' => 'required|date',
             'time' => 'required|string',
             'type' => 'required|in:Consultation,Checkup,Follow-up,Emergency',
-            'status' => 'required|in:scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show',
+            'status' => 'required|in:scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show,checked_in',
             'notes' => 'nullable|string',
             'diagnosis' => 'nullable|string',
             'prescription' => 'nullable|string',
@@ -282,7 +282,7 @@ class AppointmentController extends Controller
     public function checkIn(Appointment $appointment)
     {
         $appointment->update([
-            'status' => 'waiting',
+            'status' => 'checked_in',
             'checked_in_at' => now(),
         ]);
 
@@ -387,7 +387,7 @@ class AppointmentController extends Controller
      */
     public function queue(Request $request)
     {
-        $query = Appointment::with(['patient', 'doctor'])
+        $query = Appointment::with(['patient', 'doctor', 'vital'])
             ->whereDate('date', now()->today());
 
         if ($request->filled('doctor_id')) {

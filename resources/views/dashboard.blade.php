@@ -89,8 +89,127 @@
             </div>
             <div class="stat-decoration"></div>
         </div>
+            <div class="stat-decoration"></div>
+        </div>
+    @elseif(auth()->user()->hasRole('receptionist'))
+        <!-- RECEPTIONIST DASHBOARD -->
+        <div class="col-12 mb-4">
+            @if($readyToBillCount > 0)
+            <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center" role="alert">
+                <i class="fas fa-file-invoice-dollar fa-2x me-3"></i>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-1">Billing Action Required</h5>
+                    <p class="mb-0">There are <strong>{{ $readyToBillCount }}</strong> completed appointments ready for invoicing.</p>
+                </div>
+                <a href="{{ route('appointments.index', ['status' => 'completed']) }}" class="btn btn-warning text-dark fw-bold">
+                    Go to Billing <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+            @else
+            <div class="alert alert-success border-0 shadow-sm d-flex align-items-center" role="alert">
+                <i class="fas fa-check-circle fa-2x me-3"></i>
+                <div>
+                     <h5 class="alert-heading mb-1">All Caught Up!</h5>
+                     <p class="mb-0">No pending billing actions required at this time.</p>
+                </div>
+            </div>
+            @endif
+        </div>
+        
+        <!-- Standard Appointment Stats -->
+        <div class="stat-card-premium today-card">
+            <div class="stat-background"></div>
+            <div class="stat-icon-wrapper">
+                <div class="stat-icon-bg"></div>
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-data">
+                <span class="stat-number">{{ $todayAppointments }}</span>
+                <span class="stat-label">Today's Appointments</span>
+            </div>
+        </div>
+    @elseif(auth()->user()->hasRole('nurse'))
+        <!-- NURSE DASHBOARD -->
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-user-nurse me-2"></i>Triage Queue (To Vitals)</h5>
+                    <span class="badge bg-light text-primary">{{ $triageQueue->count() }} Pending</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Patient Name</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($triageQueue as $appt)
+                                <tr>
+                                    <td>{{ $appt->time->format('H:i') }}</td>
+                                    <td class="fw-bold">{{ $appt->patient->name }}</td>
+                                    <td>{{ $appt->doctor->name }}</td>
+                                    <td><span class="badge bg-info">Confirmed</span></td>
+                                    <td>
+                                        <a href="{{ route('nurse.vitals.create', $appt->id) }}" class="btn btn-success btn-sm text-white">
+                                            <i class="fas fa-heartbeat me-1"></i> Record Vitals
+                                        </a>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">Thinking... No patients in triage queue.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-chair me-2"></i>Waiting Room (Ready for Doctor)</h5>
+                    <span class="badge bg-dark text-white">{{ $waitingList->count() }} Waiting</span>
+                </div>
+                <div class="card-body p-0">
+                     <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Patient Name</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($waitingList as $appt)
+                                <tr>
+                                    <td>{{ $appt->time->format('H:i') }}</td>
+                                    <td class="fw-bold">{{ $appt->patient->name }}</td>
+                                    <td>{{ $appt->doctor->name }}</td>
+                                    <td><span class="badge bg-warning text-dark">Waiting</span></td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">No patients waiting.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     @else
-        <!-- ADMIN STATS -->
         <div class="stat-card-premium patients-card">
             <div class="stat-background"></div>
             <div class="stat-icon-wrapper">

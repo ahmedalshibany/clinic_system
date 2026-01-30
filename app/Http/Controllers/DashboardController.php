@@ -42,7 +42,39 @@ class DashboardController extends Controller
         $recentAppointments = collect([]);
         $weeklyData = [];
 
-        if ($user->role === 'doctor') {
+        // Nurse Specific Variables
+        $triageQueue = collect([]);
+        $waitingList = collect([]);
+        
+        // Receptionist Specific Variables
+        $readyToBillCount = 0;
+
+        if($user->hasRole('receptionist')) {
+            // RECEPTIONIST DASHBOARD
+            // Ready to Bill: Completed appointments without direct invoice relationship
+            // Assuming 1-to-1 relationship 'invoice'
+            $readyToBillCount = Appointment::where('status', 'completed')
+                ->doesntHave('invoice')
+                ->count();
+        }
+
+        if ($user->hasRole('nurse')) {
+            // NURSE DASHBOARD
+            // 1. Triage Queue: Today + Confirmed
+            $triageQueue = Appointment::with(['patient', 'doctor'])
+                ->whereDate('date', today())
+                ->whereIn('status', ['confirmed', 'checked_in'])
+                ->orderBy('time', 'asc')
+                ->get();
+
+            // 2. Waiting List: Today + Waiting
+            $waitingList = Appointment::with(['patient', 'doctor'])
+                ->whereDate('date', today())
+                ->where('status', 'waiting')
+                ->orderBy('time', 'asc')
+                ->get();
+
+        } elseif ($user->role === 'doctor') {
             // DOCTOR DASHBOARD
             $doctor = Doctor::where('email', $user->email)->first();
             
@@ -89,10 +121,7 @@ class DashboardController extends Controller
             
             $pendingInvQuery = Invoice::where('status', '!=', 'paid')->where('status', '!=', 'cancelled');
             $pendingInvoicesCount = $pendingInvQuery->count();
-            // Calculate pending amount: total - amount_paid
-            // Or roughly sum total for now if amount_paid logic is complex directly in DB, 
-            // but we can do a raw select or just sum total - sum amount_paid?
-            // Actually Invoice model has amount_paid and total columns.
+            
             $pdInvoices = $pendingInvQuery->get();
             $pendingInvoicesAmount = $pdInvoices->sum('total') - $pdInvoices->sum('amount_paid');
 
@@ -109,7 +138,7 @@ class DashboardController extends Controller
                 ->limit(5)
                 ->get();
 
-             // Weekly Trend 
+            // Weekly Trend 
             for ($i = 6; $i >= 0; $i--) {
                 $date = now()->subDays($i);
                 $weeklyData[] = [
@@ -137,7 +166,10 @@ class DashboardController extends Controller
             'pendingInvoicesAmount',
             'waitingPatients',
             'weekAppointments',
-            'monthAppointments'
+            'monthAppointments',
+            'triageQueue',
+            'waitingList',
+            'readyToBillCount'
         ));
     }
 }

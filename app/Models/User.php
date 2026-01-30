@@ -12,17 +12,23 @@ class User extends Authenticatable
 
     /**
      * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'username',
-        'password',
+        'email',
+        'phone',
         'role',
+        'password',
         'is_active',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -30,61 +36,44 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'password' => 'hashed',
-            'is_active' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_active' => 'boolean',
+    ];
 
     /**
-     * Check if user is admin.
+     * Check if the user is a nurse.
+     *
+     * @return bool
      */
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
-    }
-
-    /**
-     * Check if user is doctor.
-     */
-    public function isDoctor(): bool
-    {
-        return $this->role === 'doctor';
-    }
-
-    /**
-     * Check if user is receptionist.
-     */
-    public function isReceptionist(): bool
-    {
-        return $this->role === 'receptionist';
-    }
-
-    /**
-     * Check if user is nurse.
-     */
-    public function isNurse(): bool
+    public function isNurse()
     {
         return $this->role === 'nurse';
     }
 
     /**
-     * Check if user has specific role.
+     * Check if the user has a specific role.
+     *
+     * @param string $role
+     * @return bool
      */
-    public function hasRole($role): bool
+    public function hasRole($role)
     {
         return $this->role === $role;
     }
 
     /**
-     * Scope to get only active users.
+     * Check if the user is an admin.
+     *
+     * @return bool
      */
-    public function scopeActive($query)
+    public function isAdmin()
     {
-        return $query->where('is_active', true);
+        return $this->role === 'admin';
     }
 }

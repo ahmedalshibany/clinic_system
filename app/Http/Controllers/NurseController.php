@@ -56,12 +56,12 @@ class NurseController extends Controller
             ]);
 
             // Optional: Update appointment status to 'waiting' if it was pending/confirmed
-            if (in_array($appointment->status, ['pending', 'confirmed'])) {
+            if (in_array($appointment->status, ['pending', 'confirmed', 'checked_in'])) {
                 $appointment->update(['status' => 'waiting']);
             }
         });
 
-        return redirect()->route('appointments.show', $appointment)
+        return redirect()->route('dashboard')
             ->with('success', __('Vitals recorded successfully.'));
     }
 }

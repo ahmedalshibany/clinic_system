@@ -119,7 +119,7 @@
 {{-- Pass services data to JS --}}
 <script>
     const services = @json($services);
-    const existingItems = @json(isset($invoice) ? $invoice->items : []);
+    const existingItems = @json(isset($invoice) ? $invoice->items : ($prefilled_items ?? []));
 </script>
 
 <script>
