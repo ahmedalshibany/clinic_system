@@ -51,7 +51,7 @@
             <div class="stat-decoration"></div>
         </div>
 
-        <div class="stat-card-premium waiting-card" style="--card-primary: #fd7e14;">
+        <div class="stat-card-premium waiting-card">
             <div class="stat-background"></div>
             <div class="stat-icon-wrapper">
                 <div class="stat-icon-bg"></div>
@@ -224,7 +224,7 @@
             <div class="stat-decoration"></div>
         </div>
 
-        <div class="stat-card-premium revenue-card" style="--card-primary: #198754;">
+        <div class="stat-card-premium revenue-card">
             <div class="stat-background"></div>
             <div class="stat-icon-wrapper">
                 <div class="stat-icon-bg"></div>
@@ -250,7 +250,7 @@
             <div class="stat-decoration"></div>
         </div>
 
-        <div class="stat-card-premium invoice-card" style="--card-primary: #dc3545;">
+        <div class="stat-card-premium invoice-card">
             <div class="stat-background"></div>
             <div class="stat-icon-wrapper">
                 <div class="stat-icon-bg"></div>

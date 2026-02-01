@@ -347,9 +347,8 @@
     opacity: 1;
 }
 
-/* Card Accents */
 .patients-card {
-    --card-accent: var(--secondary);
+    --card-accent: var(--tertiary);
 }
 
 .doctors-card {
@@ -362,6 +361,18 @@
 
 .today-card {
     --card-accent: var(--success);
+}
+
+.waiting-card {
+    --card-accent: var(--warning);
+}
+
+.revenue-card {
+    --card-accent: var(--success);
+}
+
+.invoice-card {
+    --card-accent: var(--danger);
 }
 
 .stat-background,
@@ -388,7 +399,7 @@
 }
 
 .patients-card .stat-icon-bg {
-    background: var(--secondary);
+    background: var(--tertiary);
 }
 
 .doctors-card .stat-icon-bg {
@@ -403,6 +414,18 @@
     background: var(--success);
 }
 
+.waiting-card .stat-icon-bg {
+    background: var(--warning);
+}
+
+.revenue-card .stat-icon-bg {
+    background: var(--success);
+}
+
+.invoice-card .stat-icon-bg {
+    background: var(--danger);
+}
+
 .stat-icon-wrapper i {
     position: relative;
     z-index: 1;
@@ -415,7 +438,7 @@
 }
 
 .patients-card .stat-icon-wrapper i {
-    color: var(--secondary);
+    color: var(--tertiary);
 }
 
 .doctors-card .stat-icon-wrapper i {
@@ -428,6 +451,18 @@
 
 .today-card .stat-icon-wrapper i {
     color: var(--success);
+}
+
+.waiting-card .stat-icon-wrapper i {
+    color: var(--warning);
+}
+
+.revenue-card .stat-icon-wrapper i {
+    color: var(--success);
+}
+
+.invoice-card .stat-icon-wrapper i {
+    color: var(--danger);
 }
 
 .stat-data {

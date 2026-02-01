@@ -2,65 +2,40 @@
 @import url('davinci.css');
 @import url('layout.css');
 
-:root {
-    /* ═══════════════════════════════════════════════════════════════
-       REFINED COLOR PALETTE - Inspired by Classical Harmony
-       ═══════════════════════════════════════════════════════════════ */
-
-    /* Primary - Deep Ocean Teal */
+/*  CONFLICTING VARIABLES COMMENTED OUT TO USE DAVINCI.CSS
+    :root {
     --primary: #0d1f2d;
     --primary-light: #1a3a4a;
-
-    /* Secondary - Warm Sage */
     --secondary: #2d6a4f;
     --secondary-light: #40916c;
-
-    /* Accent - Antique Gold */
     --accent: #d4a373;
     --accent-light: #e9c46a;
-
-    /* Neutrals - Warm Paper Tones */
     --white: #fefaf6;
     --cream: #faf6f0;
     --sand: #e9e3d8;
     --stone: #d4cec4;
-
-    /* Text Colors */
     --dark: #1a1a1a;
     --text-primary: #2d2d2d;
     --text-secondary: #5c5c5c;
     --light-text: #8a8a8a;
-
-    /* Semantic Colors */
     --success: #2d6a4f;
     --warning: #e9c46a;
     --danger: #c1574e;
     --info: #457b9d;
-
-    /* Backgrounds */
     --body-bg: linear-gradient(165deg, #fefaf6 0%, #f5ebe0 50%, #e9e3d8 100%);
     --beige: #fefaf6;
-
-    /* Shadows - Warm undertones */
     --shadow-soft: 0 2px 20px rgba(26, 26, 26, 0.06);
     --shadow-medium: 0 8px 30px rgba(26, 26, 26, 0.1);
     --shadow-hover: 0 12px 40px rgba(26, 26, 26, 0.12);
-
-    /* Borders */
     --border-light: rgba(26, 26, 26, 0.06);
     --border-medium: rgba(26, 26, 26, 0.1);
-
-    /* Spacing & Radius */
     --radius: 16px;
     --radius-lg: 24px;
     --radius-xl: 32px;
-
-    /* Typography */
     --font-en: 'Plus Jakarta Sans', sans-serif;
     --font-ar: 'Tajawal', sans-serif;
-
     --input-bg: #faf6f0;
-}
+} */
 
 /* ═══════════════════════════════════════════════════════════════
    DARK THEME - "Midnight Aurora" Edition
