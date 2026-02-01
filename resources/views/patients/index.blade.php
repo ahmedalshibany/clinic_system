@@ -83,14 +83,13 @@
                             <td><span dir="ltr">{{ $patient->phone }}</span></td>
                             <td>{{ $patient->address ?? '-' }}</td>
                             <td class="pe-4">
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ route('patients.show', $patient) }}" class="btn btn-soft-info btn-sm" title="View Profile" data-i18n-title="viewProfile">
+                                    <a href="{{ route('patients.show', $patient->id) }}" class="btn btn-soft-info btn-sm" title="View Profile" data-i18n-title="viewProfile">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('patients.edit', $patient) }}" class="btn btn-soft-primary btn-sm" title="Edit" data-i18n-title="edit">
+                                    <a href="{{ route('patients.edit', $patient->id) }}" class="btn btn-soft-primary btn-sm" title="Edit" data-i18n-title="edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="{{ route('patients.destroy', $patient) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this patient?')">
+                                    <form action="{{ route('patients.destroy', $patient->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this patient?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete" data-i18n-title="delete">

@@ -158,19 +158,21 @@ class PatientController extends Controller
      */
     public function update(Request $request, Patient $patient)
     {
+        \Illuminate\Support\Facades\Log::info('Updating Patient ID: ' . $patient->id, $request->all());
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'name_en' => 'nullable|string|max:255',
             'age' => 'required|integer|min:0|max:150',
             'gender' => 'required|in:male,female',
-            'phone' => 'required|string|max:20',
+            'phone' => 'required|string|max:20|unique:patients,phone,' . $patient->id,
             'phone_secondary' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'city' => 'nullable|string|max:100',
-            'email' => 'nullable|email|max:255',
+            'email' => 'nullable|email|max:255|unique:patients,email,' . $patient->id,
             'date_of_birth' => 'nullable|date',
             'nationality' => 'nullable|string|max:100',
-            'id_number' => 'nullable|string|max:50',
+            'id_number' => 'nullable|string|max:50|unique:patients,id_number,' . $patient->id,
             'marital_status' => 'nullable|in:single,married,divorced,widowed',
             'occupation' => 'nullable|string|max:100',
             'blood_type' => 'nullable|string|max:10',
@@ -210,10 +212,23 @@ class PatientController extends Controller
      */
     public function destroy(Patient $patient)
     {
-        $patient->delete();
+        try {
+            // Manually delete related records to allow patient deletion (Cascade Delete)
+            $patient->appointments()->delete();
+            $patient->invoices()->delete();
+            $patient->medicalRecords()->delete();
+            $patient->files()->delete();
 
-        return redirect()->route('patients.index')
-            ->with('success', __('Patient deleted successfully!'));
+            // Finally delete the patient
+            $patient->delete();
+
+            return redirect()->route('patients.index')
+                ->with('success', __('Patient deleted successfully!'));
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Patient Deletion Failed: ' . $e->getMessage());
+            return back()->with('error', 'Cannot delete patient: ' . $e->getMessage());
+        }
     }
 
     /**
