@@ -136,12 +136,11 @@
                                             </button>
                                         </form>
                                     @elseif($appointment->status === 'in_progress')
-                                        <form action="{{ route('appointments.complete', $appointment) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-info text-white btn-sm rounded-pill px-3 fw-bold" title="Complete Visit">
-                                                <i class="fas fa-check-double me-1"></i> Complete
-                                            </button>
-                                        </form>
+                                        <button class="btn btn-info text-white btn-sm rounded-pill px-3 fw-bold" 
+                                            onclick="openCompletionModal({{ $appointment->id }}, '{{ addslashes($appointment->patient->name ?? 'Unknown') }}')" 
+                                            title="Complete Visit">
+                                            <i class="fas fa-check-double me-1"></i> Complete
+                                        </button>
                                     @endif
                                     
                                     <button class="btn btn-soft-primary btn-sm" onclick="editAppointment({{ json_encode($appointment) }})" title="Edit" data-i18n-title="edit">
@@ -266,6 +265,34 @@
         </div>
     </div>
 </div>
+
+<!-- Doctor Completion Modal -->
+<div class="modal fade" id="completionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-info bg-opacity-10 border-0">
+                <h5 class="modal-title fw-bold text-info" id="completionModalTitle">Complete Visit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="completionForm" action="" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Final Diagnosis / Notes</label>
+                        <textarea class="form-control" name="diagnosis" rows="3" placeholder="Enter findings, diagnosis, or notes for the patient record..." required></textarea>
+                        <div class="form-text">This will be saved to the patient's medical history.</div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-info text-white fw-bold">
+                            <i class="fas fa-check-circle me-1"></i> Confirm & Close Visit
+                        </button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 
@@ -274,6 +301,12 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
+function openCompletionModal(id, patientName) {
+    document.getElementById('completionModalTitle').textContent = 'Complete Visit: ' + patientName;
+    document.getElementById('completionForm').action = '/appointments/' + id + '/complete';
+    new bootstrap.Modal(document.getElementById('completionModal')).show();
+}
+
 function editAppointment(appt) {
     document.getElementById('appointmentModalTitle').setAttribute('data-i18n', 'editAppt');
     document.getElementById('appointmentModalTitle').textContent = 'Edit Appointment'; // Fallback

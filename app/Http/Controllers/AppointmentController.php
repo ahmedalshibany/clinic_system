@@ -310,13 +310,18 @@ class AppointmentController extends Controller
         return back()->with('success', 'Visit started.');
     }
 
-    public function complete(Appointment $appointment)
+    public function complete(Request $request, Appointment $appointment)
     {
+        $request->validate([
+            'diagnosis' => 'nullable|string',
+        ]);
+
         $appointment->update([
             'status' => 'completed',
             'completed_at' => now(),
+            'diagnosis' => $request->diagnosis,
         ]);
-        return back()->with('success', 'Appointment completed.');
+        return back()->with('success', 'Visit completed and diagnosis saved.');
     }
 
     public function markNoShow(Appointment $appointment)
