@@ -75,6 +75,7 @@
                         <th class="py-3" data-i18n="doctor">Doctor</th>
                         <th class="py-3" data-i18n="date">Date</th>
                         <th class="py-3" data-i18n="time">Time</th>
+                        <th class="py-3" data-i18n="vitals">Vitals</th>
                         <th class="py-3" data-i18n="status">Status</th>
                         <th class="pe-4 py-3 text-center" data-i18n="actions">Actions</th>
                     </tr>
@@ -100,6 +101,20 @@
                             <td>{{ \Carbon\Carbon::parse($appointment->date)->format('Y-m-d') }}</td>
                             <td>{{ \Carbon\Carbon::parse($appointment->time)->format('H:i') }}</td>
                             <td>
+                                @if($appointment->vital)
+                                    <div class="d-flex flex-column gap-1" style="font-size: 0.85rem;">
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" title="Blood Pressure">
+                                            <i class="fas fa-heartbeat me-1"></i> BP: {{ $appointment->vital->bp_systolic }}/{{ $appointment->vital->bp_diastolic }}
+                                        </span>
+                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25" title="Temperature">
+                                            <i class="fas fa-thermometer-half me-1"></i> {{ $appointment->vital->temperature }}°C
+                                        </span>
+                                    </div>
+                                @else
+                                    <span class="text-muted small py-1 px-2 bg-light rounded">—</span>
+                                @endif
+                            </td>
+                            <td>
                                 <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} px-3 py-2 rounded-pill" data-i18n="{{ strtolower($appointment->status) }}">
                                     {{ ucfirst($appointment->status) }}
                                 </span>
@@ -107,20 +122,28 @@
                             <td class="pe-4">
                                 <div class="d-flex justify-content-center gap-2">
                                     @if($appointment->status === 'confirmed')
-                                        <form action="{{ route('appointments.update', $appointment) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('appointments.check-in', $appointment) }}" method="POST" class="d-inline">
                                             @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="checked_in">
-                                            <input type="hidden" name="patient_id" value="{{ $appointment->patient_id }}">
-                                            <input type="hidden" name="doctor_id" value="{{ $appointment->doctor_id }}">
-                                            <input type="hidden" name="date" value="{{ $appointment->date->format('Y-m-d') }}">
-                                            <input type="hidden" name="time" value="{{ $appointment->time->format('H:i') }}">
-                                            <input type="hidden" name="type" value="{{ $appointment->type }}">
-                                            <button type="submit" class="btn btn-primary btn-sm" title="Check In" data-i18n-title="checkIn">
+                                            <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3" title="Check In" data-i18n-title="checkIn">
                                                 <i class="fas fa-check-square me-1"></i> Check In
                                             </button>
                                         </form>
+                                    @elseif($appointment->status === 'waiting')
+                                        <form action="{{ route('appointments.start', $appointment) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-bold" title="Start Visit">
+                                                <i class="fas fa-play me-1"></i> Start Visit
+                                            </button>
+                                        </form>
+                                    @elseif($appointment->status === 'in_progress')
+                                        <form action="{{ route('appointments.complete', $appointment) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-info text-white btn-sm rounded-pill px-3 fw-bold" title="Complete Visit">
+                                                <i class="fas fa-check-double me-1"></i> Complete
+                                            </button>
+                                        </form>
                                     @endif
+                                    
                                     <button class="btn btn-soft-primary btn-sm" onclick="editAppointment({{ json_encode($appointment) }})" title="Edit" data-i18n-title="edit">
                                         <i class="fas fa-edit"></i>
                                     </button>

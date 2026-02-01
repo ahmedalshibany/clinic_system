@@ -52,47 +52,75 @@ class PatientController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'name_en' => 'nullable|string|max:255',
-            'age' => 'required|integer|min:0|max:150',
-            'gender' => 'required|in:male,female',
-            'phone' => 'required|string|max:20',
-            'phone_secondary' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
-            'city' => 'nullable|string|max:100',
-            'email' => 'nullable|email|max:255',
-            'date_of_birth' => 'nullable|date',
-            'nationality' => 'nullable|string|max:100',
-            'id_number' => 'nullable|string|max:50',
-            'marital_status' => 'nullable|in:single,married,divorced,widowed',
-            'occupation' => 'nullable|string|max:100',
-            'blood_type' => 'nullable|string|max:10',
-            'medical_history' => 'nullable|string',
-            'chronic_diseases' => 'nullable|string',
-            'current_medications' => 'nullable|string',
-            'previous_surgeries' => 'nullable|string',
-            'family_history' => 'nullable|string',
-            'allergies' => 'nullable|string',
-            'emergency_contact' => 'nullable|string|max:255',
-            'emergency_phone' => 'nullable|string|max:20',
-            'emergency_relation' => 'nullable|string|max:50',
-            'insurance_provider' => 'nullable|string|max:255',
-            'insurance_number' => 'nullable|string|max:50',
-            'insurance_expiry' => 'nullable|date',
-            'status' => 'nullable|in:active,inactive,deceased',
-            'photo' => 'nullable|image|max:2048', // 2MB Max
-        ]);
+        try {
+            // Validation
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'name_en' => 'nullable|string|max:255',
+                'age' => 'required|integer|min:0|max:150',
+                'gender' => 'required|in:male,female',
+                'phone' => 'required|string|max:20',
+                'phone_secondary' => 'nullable|string|max:20',
+                'address' => 'nullable|string|max:500',
+                'city' => 'nullable|string|max:100',
+                'email' => 'nullable|email|max:255',
+                'date_of_birth' => 'nullable|date',
+                'nationality' => 'nullable|string|max:100',
+                'id_number' => 'nullable|string|max:50',
+                'marital_status' => 'nullable|in:single,married,divorced,widowed',
+                'occupation' => 'nullable|string|max:100',
+                'blood_type' => 'nullable|string|max:10',
+                'medical_history' => 'nullable|string',
+                'chronic_diseases' => 'nullable|string',
+                'current_medications' => 'nullable|string',
+                'previous_surgeries' => 'nullable|string',
+                'family_history' => 'nullable|string',
+                'allergies' => 'nullable|string',
+                'emergency_contact' => 'nullable|string|max:255',
+                'emergency_phone' => 'nullable|string|max:20',
+                'emergency_relation' => 'nullable|string|max:50',
+                'insurance_provider' => 'nullable|string|max:255',
+                'insurance_number' => 'nullable|string|max:50',
+                'insurance_expiry' => 'nullable|date',
+                'status' => 'nullable|in:active,inactive,deceased',
+                'photo' => 'nullable|image|max:2048', // 2MB Max
+            ]);
 
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('patients', 'public');
-            $validated['photo'] = $path;
+            if ($request->hasFile('photo')) {
+                $path = $request->file('photo')->store('patients', 'public');
+                $validated['photo'] = $path;
+            }
+
+            // Ensure status defaulted to active
+            if (!isset($validated['status'])) {
+                $validated['status'] = 'active';
+            }
+
+            $patient = Patient::create($validated);
+
+            if ($request->wantsJson()) {
+                 return response()->json([
+                     'message' => 'Patient added successfully',
+                     'patient' => $patient,
+                     'redirect' => route('patients.show', $patient)
+                 ], 201);
+            }
+
+            return redirect()->route('patients.show', $patient)
+                ->with('success', __('Patient added successfully!'));
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Patient Creation Failed: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
+
+            if ($request->wantsJson()) {
+                 return response()->json(['error' => $e->getMessage()], 500);
+            }
+
+            return back()->withInput()->with('error', 'Error creating patient: ' . $e->getMessage());
         }
-
-        $patient = Patient::create($validated);
-
-        return redirect()->route('patients.show', $patient)
-            ->with('success', __('Patient added successfully!'));
     }
 
     /**

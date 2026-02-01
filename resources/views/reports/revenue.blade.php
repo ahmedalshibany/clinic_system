@@ -100,7 +100,9 @@
                 <h6 class="mb-0 fw-bold">Revenue Trend</h6>
             </div>
             <div class="card-body">
-                <canvas id="revenueChart" style="height: 300px;"></canvas>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -113,7 +115,9 @@
             </div>
             <div class="card-body">
                 @if($revenue_by_method->count() > 0)
-                <canvas id="methodChart" style="height: 200px;"></canvas>
+                <div style="position: relative; height: 200px; width: 100%;">
+                    <canvas id="methodChart"></canvas>
+                </div>
                 <div class="mt-4">
                     <ul class="list-group list-group-flush small">
                         @foreach($revenue_by_method as $method => $amount)

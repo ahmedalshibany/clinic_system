@@ -97,7 +97,7 @@ class ReportController extends Controller
             $day = $date->format('Y-m-d');
             $chart_labels[] = $date->format('M d');
             // Use the DB aggregated data
-            $chart_data[] = $daily_stats[$day] ?? 0;
+            $chart_data[] = (float) ($daily_stats[$day] ?? 0);
         }
 
         // 8. Sales by Category (Top 5)

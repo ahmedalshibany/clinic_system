@@ -14,7 +14,7 @@ class AppointmentController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name,specialty'])
+        $query = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name,specialty', 'vital'])
             ->select('id', 'patient_id', 'doctor_id', 'date', 'time', 'type', 'status', 'fee');
 
         // Search
