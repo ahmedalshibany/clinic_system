@@ -134,7 +134,7 @@
 
                     <!-- Add Leave Form -->
                     <div class="col-md-5">
-                        <div class="bg-light p-3 rounded">
+                        <div class="  p-3 rounded">
                             <h6 class="mb-3">Add New Leave</h6>
                             <form action="{{ route('doctors.leaves.store', $doctor) }}" method="POST">
                                 @csrf

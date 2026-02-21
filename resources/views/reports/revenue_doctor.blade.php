@@ -2,7 +2,7 @@
 @section('title', 'Revenue by Doctor')
 @section('content')
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white py-3">
+    <div class="card-header   py-3">
         <h5 class="mb-0">Revenue by Doctor</h5>
     </div>
     <div class="card-body">

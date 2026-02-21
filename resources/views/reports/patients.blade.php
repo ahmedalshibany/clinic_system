@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-md-6">
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white"><h6>Gender Distribution</h6></div>
+            <div class="card-header  "><h6>Gender Distribution</h6></div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
                     @foreach($gender_stats as $gender => $count)
@@ -19,7 +19,7 @@
     </div>
     <div class="col-md-6">
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white"><h6>Age Groups</h6></div>
+            <div class="card-header  "><h6>Age Groups</h6></div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
                     @foreach($age_groups as $group => $count)
@@ -34,7 +34,7 @@
     </div>
     <div class="col-12">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white"><h6>Recent Registrations</h6></div>
+            <div class="card-header  "><h6>Recent Registrations</h6></div>
             <div class="card-body">
                 <table class="table">
                     <thead><tr><th>Name</th><th>Gender</th><th>Age</th><th>Registered</th></tr></thead>

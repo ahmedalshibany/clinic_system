@@ -7,7 +7,7 @@
 <div class="row">
     <div class="col-12">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <div class="card-header   py-3 d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0" data-i18n="clinicServices">Clinic Services</h5>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">
                     <i class="fas fa-plus me-2"></i> <span data-i18n="addService">Add Service</span>
@@ -18,7 +18,7 @@
                 <form action="{{ route('services.index') }}" method="GET" class="row g-3 mb-4">
                     <div class="col-md-4">
                         <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                            <span class="input-group-text   border-end-0"><i class="fas fa-search text-muted"></i></span>
                             <input type="text" name="search" class="form-control border-start-0" placeholder="Search code or name..." value="{{ request('search') }}" data-i18n-placeholder="searchServices">
                         </div>
                     </div>
@@ -37,7 +37,7 @@
                 {{-- Table --}}
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
-                        <thead class="bg-light">
+                        <thead class="">
                             <tr>
                                 <th data-i18n="serviceCode">Code</th>
                                 <th data-i18n="name">Name</th>

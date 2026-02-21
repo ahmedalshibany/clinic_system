@@ -28,10 +28,10 @@
 <div class="row g-4">
     <!-- 1. Upcoming (Not Arrived) -->
     <div class="col-lg-3 col-md-6">
-        <div class="card h-100 bg-light border-0">
+        <div class="card h-100   border-0">
             <div class="card-header bg-secondary text-white text-center py-3">
                 <h6 class="mb-0 fw-bold"><i class="fas fa-calendar me-2"></i>Upcoming</h6>
-                <span class="badge bg-white text-secondary rounded-pill mt-1">
+                <span class="badge   text-secondary rounded-pill mt-1">
                     {{ $appointments->whereIn('status', ['scheduled', 'pending'])->count() }}
                 </span>
             </div>
@@ -41,7 +41,7 @@
                         <div class="card-body p-3">
                             <h6 class="fw-bold mb-1">{{ $appt->patient->name }}</h6>
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-light text-dark fw-normal border">{{ $appt->time->format('h:i A') }}</span>
+                                <span class="badge   text-dark fw-normal border">{{ $appt->time->format('h:i A') }}</span>
                                 <small class="text-muted">{{ ucfirst($appt->type) }}</small>
                             </div>
                             
@@ -62,10 +62,10 @@
 
     <!-- 2. With Nurse (Triage) -->
     <div class="col-lg-3 col-md-6">
-        <div class="card h-100 bg-light border-0">
+        <div class="card h-100   border-0">
             <div class="card-header bg-info text-white text-center py-3">
                 <h6 class="mb-0 fw-bold"><i class="fas fa-user-nurse me-2"></i>With Nurse</h6>
-                <span class="badge bg-white text-info rounded-pill mt-1">
+                <span class="badge   text-info rounded-pill mt-1">
                     {{ $appointments->where('status', 'confirmed')->count() }}
                 </span>
             </div>
@@ -91,10 +91,10 @@
 
     <!-- 3. Ready for You (Priority) -->
     <div class="col-lg-3 col-md-6">
-        <div class="card h-100 bg-light border-0">
+        <div class="card h-100   border-0">
             <div class="card-header bg-success text-white text-center py-3">
                 <h6 class="mb-0 fw-bold"><i class="fas fa-check-circle me-2"></i>Ready for You</h6>
-                <span class="badge bg-white text-success rounded-pill mt-1">
+                <span class="badge   text-success rounded-pill mt-1">
                     {{ $appointments->where('status', 'waiting')->count() }}
                 </span>
             </div>
@@ -110,7 +110,7 @@
                         <div class="card-body p-3">
                             <!-- Vitals Display -->
                             @if($appt->vital)
-                            <div class="mb-3 p-2 bg-light rounded text-center">
+                            <div class="mb-3 p-2   rounded text-center">
                                 <div class="row g-0">
                                     <div class="col-6 border-end">
                                         <small class="text-muted d-block">BP</small>
@@ -146,10 +146,10 @@
 
     <!-- 4. In Progress -->
     <div class="col-lg-3 col-md-6">
-        <div class="card h-100 bg-light border-0">
+        <div class="card h-100   border-0">
             <div class="card-header bg-primary text-white text-center py-3">
                 <h6 class="mb-0 fw-bold"><i class="fas fa-stethoscope me-2"></i>In Progress</h6>
-                <span class="badge bg-white text-primary rounded-pill mt-1">
+                <span class="badge   text-primary rounded-pill mt-1">
                     {{ $appointments->where('status', 'in_progress')->count() }}
                 </span>
             </div>

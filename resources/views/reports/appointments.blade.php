@@ -2,7 +2,7 @@
 @section('title', 'Appointments Report')
 @section('content')
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white d-flex justify-content-between">
+    <div class="card-header   d-flex justify-content-between">
         <h5 class="mb-0">Appointments</h5>
     </div>
     <div class="card-body">

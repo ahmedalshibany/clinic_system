@@ -134,7 +134,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-user-nurse me-2"></i>Triage Queue (To Vitals)</h5>
-                    <span class="badge bg-light text-primary">{{ $triageQueue->count() }} Pending</span>
+                    <span class="badge   text-primary">{{ $triageQueue->count() }} Pending</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">

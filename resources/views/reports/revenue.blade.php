@@ -96,7 +96,7 @@
     <!-- Chart Section -->
     <div class="col-lg-8 mb-4">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white py-3">
+            <div class="card-header   py-3">
                 <h6 class="mb-0 fw-bold">Revenue Trend</h6>
             </div>
             <div class="card-body">
@@ -110,7 +110,7 @@
     <!-- Payment Methods Breakdown -->
     <div class="col-lg-4 mb-4">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white py-3">
+            <div class="card-header   py-3">
                 <h6 class="mb-0 fw-bold">Payment Methods</h6>
             </div>
             <div class="card-body">
@@ -140,13 +140,13 @@
     <!-- Detailed Table -->
     <div class="col-12">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3">
+            <div class="card-header   py-3">
                 <h6 class="mb-0 fw-bold">Transaction Details</h6>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light">
+                        <thead class="">
                             <tr>
                                 <th class="ps-4">Date</th>
                                 <th>Invoice #</th>
@@ -167,13 +167,13 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="avatar-sm rounded-circle bg-light text-primary d-flex align-items-center justify-content-center me-2">
+                                        <div class="avatar-sm rounded-circle   text-primary d-flex align-items-center justify-content-center me-2">
                                             {{ substr($payment->invoice->patient->name, 0, 1) }}
                                         </div>
                                         {{ $payment->invoice->patient->name }}
                                     </div>
                                 </td>
-                                <td><span class="badge bg-light text-dark border">{{ ucfirst($payment->payment_method) }}</span></td>
+                                <td><span class="badge   text-dark border">{{ ucfirst($payment->payment_method) }}</span></td>
                                 <td>{{ $payment->receiver->name ?? 'System' }}</td>
                                 <td class="text-end pe-4 fw-bold">${{ number_format($payment->amount, 2) }}</td>
                             </tr>

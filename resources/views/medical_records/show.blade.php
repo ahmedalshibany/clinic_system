@@ -6,7 +6,7 @@
 <div class="row">
     <div class="col-md-10 mx-auto">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <div class="card-header   py-3 d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 text-primary">{{ __('Medical Record') }} #{{ $medicalRecord->id }}</h5>
                 <div class="btn-group">
                     <a href="{{ route('medical-records.print-prescription', $medicalRecord) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
@@ -34,7 +34,7 @@
 
                 <div class="mb-3">
                     <label class="text-muted small">{{ __('Diagnosis') }}</label>
-                    <div class="p-2 bg-light rounded">{{ $medicalRecord->diagnosis }}</div>
+                    <div class="p-2   rounded">{{ $medicalRecord->diagnosis }}</div>
                 </div>
 
                 <div class="mb-3">
@@ -44,7 +44,7 @@
 
                 <div class="mb-3">
                     <label class="text-muted small">{{ __('Treatment Plan') }}</label>
-                    <div class="p-2 border rounded bg-light">
+                    <div class="p-2 border rounded  ">
                         {!! nl2br(e($medicalRecord->treatment_plan ?? 'N/A')) !!}
                     </div>
                 </div>

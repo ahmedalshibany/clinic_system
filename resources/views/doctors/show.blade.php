@@ -24,7 +24,7 @@
                     </a>
                 </div>
             </div>
-            <div class="card-footer bg-white p-4">
+            <div class="card-footer   p-4">
                 <h6 class="text-uppercase text-muted small fw-bold mb-3">Contact Info</h6>
                 <div class="d-flex align-items-center mb-3">
                     <div class="text-primary me-3"><i class="bi bi-telephone"></i></div>
@@ -52,7 +52,7 @@
 
     <div class="col-md-8 mb-4">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white p-0">
+            <div class="card-header   p-0">
                 <ul class="nav nav-tabs card-header-tabs m-0" id="doctorTabs" role="tablist">
                     <li class="nav-item">
                         <button class="nav-link active border-0 border-bottom border-primary py-3 px-4" id="bio-tab" data-bs-toggle="tab" data-bs-target="#bio" type="button" role="tab">Overview</button>
@@ -73,7 +73,7 @@
                         <div class="d-flex flex-wrap gap-2 mb-4">
                             @if(!empty($doctor->working_days))
                                 @foreach($doctor->working_days as $day)
-                                    <span class="badge bg-light text-dark border">{{ $day }}</span>
+                                    <span class="badge   text-dark border">{{ $day }}</span>
                                 @endforeach
                             @else
                                 <span class="text-muted small">No working days configured.</span>
@@ -94,7 +94,7 @@
                         @if($doctor->appointments->count() > 0)
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle">
-                                    <thead class="bg-light">
+                                    <thead class="">
                                         <tr>
                                             <th>Date</th>
                                             <th>Patient</th>

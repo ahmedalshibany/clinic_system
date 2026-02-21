@@ -61,7 +61,7 @@
                 <!-- Clinic Info Tab -->
                 <div class="tab-pane fade show active" id="clinic" role="tabpanel" aria-labelledby="clinic-tab">
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white py-3">
+                        <div class="card-header   py-3">
                             <h6 class="mb-0 fw-bold text-primary" data-i18n="clinicInfoSection">Clinic Information</h6>
                         </div>
                         <div class="card-body">
@@ -117,7 +117,7 @@
                 <!-- System Tab -->
                 <div class="tab-pane fade" id="system" role="tabpanel" aria-labelledby="system-tab">
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white py-3">
+                        <div class="card-header   py-3">
                             <h6 class="mb-0 fw-bold text-info" data-i18n="systemPrefSection">System Preferences</h6>
                         </div>
                         <div class="card-body">
@@ -171,7 +171,7 @@
                 <!-- Appointments Tab -->
                 <div class="tab-pane fade" id="appointments" role="tabpanel" aria-labelledby="appointments-tab">
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white py-3">
+                        <div class="card-header   py-3">
                             <h6 class="mb-0 fw-bold text-success" data-i18n="apptSettingsSection">Appointment Settings</h6>
                         </div>
                         <div class="card-body">
@@ -218,7 +218,7 @@
                 <!-- Invoices Tab -->
                 <div class="tab-pane fade" id="invoices" role="tabpanel" aria-labelledby="invoices-tab">
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white py-3">
+                        <div class="card-header   py-3">
                             <h6 class="mb-0 fw-bold text-warning" data-i18n="invConfigSection">Invoice Configuration</h6>
                         </div>
                         <div class="card-body">

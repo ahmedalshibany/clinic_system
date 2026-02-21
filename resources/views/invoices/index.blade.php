@@ -7,7 +7,7 @@
 <div class="row">
     <div class="col-12">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <div class="card-header   py-3 d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0" data-i18n="billingAndInvoices">Billing & Invoices</h5>
                 <a href="{{ route('invoices.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i> <span data-i18n="createInvoice">Create Invoice</span>
@@ -43,7 +43,7 @@
                 {{-- Table --}}
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
-                        <thead class="bg-light">
+                        <thead class="">
                             <tr>
                                 <th data-i18n="invoiceNum">Invoice #</th>
                                 <th data-i18n="patient">Patient</th>
@@ -78,7 +78,7 @@
                                         @case('overdue') <span class="badge bg-danger" data-i18n="overdue">Overdue</span> @break
                                         @case('sent') <span class="badge bg-info text-dark" data-i18n="sent">Sent</span> @break
                                         @case('cancelled') <span class="badge bg-secondary" data-i18n="cancelled">Cancelled</span> @break
-                                        @default <span class="badge bg-light text-dark border" data-i18n="draft">Draft</span>
+                                        @default <span class="badge   text-dark border" data-i18n="draft">Draft</span>
                                     @endswitch
                                 </td>
                                 <td class="text-end">

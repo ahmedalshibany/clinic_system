@@ -1,5 +1,5 @@
 @forelse($notifications as $notification)
-    <a href="{{ route('notifications.index') }}" class="dropdown-item p-3 border-bottom {{ is_null($notification->read_at) ? 'bg-light' : '' }}">
+    <a href="{{ route('notifications.index') }}" class="dropdown-item p-3 border-bottom {{ is_null($notification->read_at) ? ' ' : '' }}">
         <div class="d-flex align-items-center">
             <div class="flex-shrink-0">
                 @php
@@ -8,7 +8,7 @@
                     if($notification->type == 'payment') $icon = 'fa-file-invoice-dollar text-warning';
                     if($notification->type == 'system') $icon = 'fa-cogs text-secondary';
                 @endphp
-                <div class="avatar avatar-sm bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center">
+                <div class="avatar avatar-sm   rounded-circle shadow-sm d-flex align-items-center justify-content-center">
                     <i class="fas {{ $icon }}"></i>
                 </div>
             </div>
@@ -36,7 +36,7 @@
 @endforelse
 
 @if($notifications->count() > 0)
-    <div class="dropdown-footer text-center p-2 bg-light">
+    <div class="dropdown-footer text-center p-2  ">
         <a href="{{ route('notifications.index') }}" class="small text-decoration-none fw-bold">View All Notifications</a>
     </div>
 @endif

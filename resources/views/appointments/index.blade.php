@@ -68,7 +68,7 @@
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
+                <thead class="">
                     <tr>
                         <th class="ps-4 py-3" style="width: 50px;">#</th>
                         <th class="py-3" data-i18n="patient">Patient</th>
@@ -111,7 +111,7 @@
                                         </span>
                                     </div>
                                 @else
-                                    <span class="text-muted small py-1 px-2 bg-light rounded">—</span>
+                                    <span class="text-muted small py-1 px-2   rounded">—</span>
                                 @endif
                             </td>
                             <td>

@@ -7,7 +7,7 @@
 <div class="row">
     <div class="col-lg-9">
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <div class="card-header   py-3 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
                     <h5 class="mb-0 text-primary fw-bold">{{ $invoice->invoice_number }}</h5>
                     @switch($invoice->status)
@@ -16,7 +16,7 @@
                         @case('overdue') <span class="badge bg-danger">Overdue</span> @break
                         @case('sent') <span class="badge bg-info text-dark">Sent</span> @break
                         @case('cancelled') <span class="badge bg-secondary">Cancelled</span> @break
-                        @default <span class="badge bg-light text-dark border">Draft</span>
+                        @default <span class="badge   text-dark border">Draft</span>
                     @endswitch
                 </div>
                 <div>
@@ -57,7 +57,7 @@
 
                 <div class="table-responsive mb-4">
                     <table class="table table-bordered">
-                        <thead class="bg-light">
+                        <thead class="">
                             <tr>
                                 <th>Description</th>
                                 <th class="text-center" width="10%">Qty</th>
@@ -118,7 +118,7 @@
                                 <td>Amount Paid:</td>
                                 <td class="text-end text-success fw-bold">${{ number_format($invoice->amount_paid, 2) }}</td>
                             </tr>
-                            <tr class="bg-light">
+                            <tr class="">
                                 <td class="fw-bold">Balance Due:</td>
                                 <td class="text-end fw-bold text-danger">${{ number_format($invoice->balance, 2) }}</td>
                             </tr>
@@ -143,7 +143,7 @@
 
         <!-- Payment History -->
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3">
+            <div class="card-header   py-3">
                 <h6 class="mb-0">Payment History</h6>
             </div>
             <div class="card-body p-0">

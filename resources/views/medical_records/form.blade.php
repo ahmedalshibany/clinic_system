@@ -9,7 +9,7 @@
     {{-- Patient Information --}}
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white py-3">
+            <div class="card-header   py-3">
                 <h5 class="card-title mb-0"><i class="fas fa-user-circle me-2 text-primary"></i>Patient Info</h5>
             </div>
             <div class="card-body">
@@ -17,7 +17,7 @@
                     @if($patient->photo)
                         <img src="{{ Storage::url($patient->photo) }}" class="rounded-circle mb-2" width="80" height="80" alt="{{ $patient->name }}">
                     @else
-                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center text-primary fw-bold fs-3 mb-2" style="width: 80px; height: 80px;">
+                        <div class="rounded-circle   d-inline-flex align-items-center justify-content-center text-primary fw-bold fs-3 mb-2" style="width: 80px; height: 80px;">
                             {{ substr($patient->name, 0, 1) }}
                         </div>
                     @endif
@@ -59,7 +59,7 @@
     {{-- Vital Signs --}}
     <div class="col-md-8">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white py-3">
+            <div class="card-header   py-3">
                 <h5 class="card-title mb-0"><i class="fas fa-heartbeat me-2 text-danger"></i>Vital Signs</h5>
             </div>
             <div class="card-body">
@@ -97,7 +97,7 @@
                     </div>
                     <div class="col-md-3 col-6">
                         <label class="form-label small text-muted">BMI</label>
-                        <input type="text" id="bmi" class="form-control bg-light" readonly tabindex="-1" placeholder="-">
+                        <input type="text" id="bmi" class="form-control  " readonly tabindex="-1" placeholder="-">
                     </div>
                     <div class="col-md-3 col-6">
                         <label class="form-label small text-muted">Oxygen Sat (%)</label>
@@ -118,7 +118,7 @@
 
 {{-- Clinical Notes --}}
 <div class="card border-0 shadow-sm mt-4">
-    <div class="card-header bg-white py-3">
+    <div class="card-header   py-3">
         <h5 class="card-title mb-0"><i class="fas fa-stethoscope me-2 text-primary"></i>Clinical Notes</h5>
     </div>
     <div class="card-body p-4">
@@ -161,7 +161,7 @@
 
 {{-- Prescription --}}
 <div class="card border-0 shadow-sm mt-4">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+    <div class="card-header   py-3 d-flex justify-content-between align-items-center">
         <h5 class="card-title mb-0"><i class="fas fa-pills me-2 text-success"></i>Prescription</h5>
         <button type="button" class="btn btn-sm btn-outline-success" id="add-medication">
             <i class="fas fa-plus me-1"></i> Add Medication
@@ -170,7 +170,7 @@
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" id="prescription-table">
-                <thead class="bg-light">
+                <thead class="">
                     <tr>
                         <th style="width: 25%">Medication</th>
                         <th style="width: 15%">Dosage</th>
@@ -208,7 +208,7 @@
 
 {{-- Follow Up & Private Notes --}}
 <div class="card border-0 shadow-sm mt-4">
-    <div class="card-header bg-white py-3">
+    <div class="card-header   py-3">
         <h5 class="card-title mb-0"><i class="fas fa-calendar-check me-2 text-warning"></i>Follow-up & Notes</h5>
     </div>
     <div class="card-body p-4">
@@ -219,7 +219,7 @@
             </div>
             <div class="col-md-8">
                 <label class="form-label fw-bold">Private Notes <span class="badge bg-warning text-dark ms-2">Visible only to doctors</span></label>
-                <textarea name="notes" class="form-control bg-light" rows="2" placeholder="Internal notes...">{{ old('notes', $record->notes ?? '') }}</textarea>
+                <textarea name="notes" class="form-control  " rows="2" placeholder="Internal notes...">{{ old('notes', $record->notes ?? '') }}</textarea>
             </div>
         </div>
     </div>

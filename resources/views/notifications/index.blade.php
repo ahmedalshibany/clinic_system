@@ -29,7 +29,7 @@
         @if($notifications->count() > 0)
             <div class="list-group list-group-flush">
                 @foreach($notifications as $notification)
-                    <div class="list-group-item p-4 d-flex align-items-start {{ is_null($notification->read_at) ? 'bg-light' : '' }}">
+                    <div class="list-group-item p-4 d-flex align-items-start {{ is_null($notification->read_at) ? ' ' : '' }}">
                         <div class="flex-shrink-0 me-3">
                             @php
                                 $icon = 'fa-info-circle text-primary';
@@ -89,7 +89,7 @@
         @endif
     </div>
     @if($notifications->hasPages())
-        <div class="card-footer bg-white py-3">
+        <div class="card-footer   py-3">
             {{ $notifications->links() }}
         </div>
     @endif

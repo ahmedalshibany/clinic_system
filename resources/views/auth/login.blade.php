@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
 
-<body class="bg-light">
+<body>
 
     <button class="lang-toggle" id="langToggle" onclick="toggleLanguage()">
         <i class="fas fa-globe"></i>
@@ -41,7 +41,7 @@
                 <div class="mb-3">
                     <label for="username" class="form-label" data-i18n="usernameLabel">Username</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-user text-muted"></i></span>
+                        <span class="input-group-text   border-end-0"><i class="fas fa-user text-muted"></i></span>
                         <input type="text" class="form-control border-start-0" id="username" name="username" 
                             value="{{ old('username') }}" required
                             data-i18n-placeholder="usernamePlaceholder" placeholder="Enter your username">
@@ -51,7 +51,7 @@
                 <div class="mb-4">
                     <label for="password" class="form-label" data-i18n="passwordLabel">Password</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                        <span class="input-group-text   border-end-0"><i class="fas fa-lock text-muted"></i></span>
                         <input type="password" class="form-control border-start-0" id="password" name="password" required
                             data-i18n-placeholder="passwordPlaceholder" placeholder="********">
                     </div>

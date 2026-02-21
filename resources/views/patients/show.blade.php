@@ -179,13 +179,13 @@
                 @endif
             </div>
             <div class="patient-badges">
-                <span class="badge bg-light text-dark"><i class="fas fa-birthday-cake me-1"></i>{{ $patient->age ?? $patient->calculated_age ?? '-' }} years</span>
-                <span class="badge bg-light text-dark"><i class="fas fa-venus-mars me-1"></i>{{ ucfirst($patient->gender) }}</span>
+                <span class="badge   text-dark"><i class="fas fa-birthday-cake me-1"></i>{{ $patient->age ?? $patient->calculated_age ?? '-' }} years</span>
+                <span class="badge   text-dark"><i class="fas fa-venus-mars me-1"></i>{{ ucfirst($patient->gender) }}</span>
                 @if($patient->blood_type)
                     <span class="badge bg-danger"><i class="fas fa-tint me-1"></i>{{ $patient->blood_type }}</span>
                 @endif
                 @if($patient->phone)
-                    <span class="badge bg-light text-dark"><i class="fas fa-phone me-1"></i>{{ $patient->phone }}</span>
+                    <span class="badge   text-dark"><i class="fas fa-phone me-1"></i>{{ $patient->phone }}</span>
                 @endif
             </div>
         </div>
@@ -446,7 +446,7 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
-                        <thead class="bg-light">
+                        <thead class="">
                             <tr>
                                 <th>Date</th>
                                 <th>Time</th>
@@ -550,7 +550,7 @@
                         @foreach($patient->files as $file)
                             <div class="col-md-4">
                                 <div class="file-card">
-                                    <div class="file-icon bg-light">
+                                    <div class="file-icon  ">
                                         <i class="{{ $file->icon_class }}"></i>
                                     </div>
                                     <div class="flex-grow-1">
@@ -596,7 +596,7 @@
                 @if($patient->invoices && $patient->invoices->count() > 0)
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
-                            <thead class="bg-light">
+                            <thead class="">
                                 <tr>
                                     <th>Invoice #</th>
                                     <th>Date</th>

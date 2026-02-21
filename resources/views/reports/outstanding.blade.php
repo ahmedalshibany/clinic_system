@@ -2,7 +2,7 @@
 @section('title', 'Outstanding Invoices')
 @section('content')
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white d-flex justify-content-between">
+    <div class="card-header   d-flex justify-content-between">
         <h5 class="mb-0">Outstanding Invoices</h5>
         <div class="text-danger fw-bold">Total Due: ${{ number_format($total_outstanding, 2) }}</div>
     </div>

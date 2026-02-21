@@ -45,7 +45,7 @@
 
     <!-- Line Items -->
     <div class="col-12 mt-4">
-        <div class="card bg-light border-0">
+        <div class="card   border-0">
             <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Invoice Items</h6>
                 <button type="button" class="btn btn-sm btn-primary" id="add-item-btn"><i class="fas fa-plus"></i> Add Item</button>
