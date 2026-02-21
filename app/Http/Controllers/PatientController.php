@@ -209,11 +209,6 @@ class PatientController extends Controller
 
     public function destroy(Patient $patient)
     {
-        // Enforce authorization to prevent IDOR (Insecure Direct Object Reference)
-        if (!auth()->user()->hasRole('admin')) {
-            abort(403, 'Unauthorized action. Only administrators can delete records.');
-        }
-
         try {
             \Illuminate\Support\Facades\DB::beginTransaction();
 

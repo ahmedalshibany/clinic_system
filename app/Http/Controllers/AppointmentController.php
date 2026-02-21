@@ -75,7 +75,7 @@ class AppointmentController extends Controller
     /**
      * Store a newly created appointment.
      */
-    public function store(Request $request, \App\Services\AppointmentService $service)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
@@ -93,8 +93,48 @@ class AppointmentController extends Controller
 
         $doctor = Doctor::find($validated['doctor_id']);
         
-        // Use AppointmentService to validate doctor availability and schedule conflicts
-        $service->validateAvailability($doctor, $validated['date'], $validated['time']);
+        // 1. Check if doctor is on leave
+        // Only check if it's not a past date (to allow historical data entry if needed)
+        if (\Carbon\Carbon::parse($validated['date'])->isFuture()) {
+            $isOnLeave = $doctor->leaves()
+                ->whereDate('start_date', '<=', $validated['date'])
+                ->whereDate('end_date', '>=', $validated['date'])
+                ->exists();
+
+            if ($isOnLeave) {
+                return back()->withErrors(['date' => __('Doctor is on leave on this date.')])->withInput();
+            }
+
+            // 2. Check doctor's schedule
+            $dayOfWeek = \Carbon\Carbon::parse($validated['date'])->dayOfWeek;
+            $schedule = $doctor->schedules()->where('day_of_week', $dayOfWeek)->where('is_active', true)->first();
+
+            if (!$schedule) {
+                return back()->withErrors(['date' => __('Doctor is not available on this day.')])->withInput();
+            }
+
+            // 3. Check time slot validity (within working hours)
+            $apptTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $validated['time']);
+            $startTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $schedule->start_time);
+            $endTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $schedule->end_time);
+
+            if ($apptTime->lt($startTime) || $apptTime->gte($endTime)) {
+                return back()->withErrors(['time' => __('Selected time is outside doctor\'s working hours.')])->withInput();
+            }
+        }
+
+        // 4. Check for conflicts
+        $conflict = Appointment::where('doctor_id', $validated['doctor_id'])
+            ->where('date', $validated['date'])
+            ->where('time', $validated['time'])
+            ->whereNotIn('status', ['cancelled'])
+            ->exists();
+
+        if ($conflict) {
+            return back()->withErrors([
+                'time' => __('This time slot is already booked for this doctor.')
+            ])->withInput();
+        }
 
         Appointment::create($validated);
 
@@ -138,7 +178,7 @@ class AppointmentController extends Controller
     /**
      * Update the specified appointment.
      */
-    public function update(Request $request, Appointment $appointment, \App\Services\AppointmentService $service)
+    public function update(Request $request, Appointment $appointment)
     {
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
@@ -146,7 +186,7 @@ class AppointmentController extends Controller
             'date' => 'required|date',
             'time' => 'required|string',
             'type' => 'required|in:Consultation,Checkup,Follow-up,Emergency',
-            'status' => 'required|in:pending,scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show,checked_in',
+            'status' => 'required|in:scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show,checked_in',
             'notes' => 'nullable|string',
             'diagnosis' => 'nullable|string',
             'prescription' => 'nullable|string',
@@ -161,9 +201,50 @@ class AppointmentController extends Controller
                        $validated['time'] !== $appointment->time->format('H:i') ||
                        $validated['doctor_id'] != $appointment->doctor_id;
 
+        if ($timeChanged && \Carbon\Carbon::parse($validated['date'])->isFuture()) {
+            
+            // 1. Check leave
+            $isOnLeave = $doctor->leaves()
+                ->whereDate('start_date', '<=', $validated['date'])
+                ->whereDate('end_date', '>=', $validated['date'])
+                ->exists();
+
+            if ($isOnLeave) {
+                return back()->withErrors(['date' => __('Doctor is on leave on this date.')])->withInput();
+            }
+            
+            // 2. Check schedule 
+            $dayOfWeek = \Carbon\Carbon::parse($validated['date'])->dayOfWeek;
+            $schedule = $doctor->schedules()->where('day_of_week', $dayOfWeek)->where('is_active', true)->first();
+
+            if (!$schedule) {
+                return back()->withErrors(['date' => __('Doctor is not available on this day.')])->withInput();
+            }
+
+             // 3. Check time slot validity (within working hours)
+            $apptTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $validated['time']);
+            $startTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $schedule->start_time);
+            $endTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $schedule->end_time);
+
+            if ($apptTime->lt($startTime) || $apptTime->gte($endTime)) {
+                return back()->withErrors(['time' => __('Selected time is outside doctor\'s working hours.')])->withInput();
+            }
+        }
+
+        // 4. Check for conflicts (excluding current appointment)
         if ($timeChanged) {
-            // Use AppointmentService to validate doctor availability and schedule conflicts
-            $service->validateAvailability($doctor, $validated['date'], $validated['time'], $appointment->id);
+            $conflict = Appointment::where('doctor_id', $validated['doctor_id'])
+                ->where('date', $validated['date'])
+                ->where('time', $validated['time'])
+                ->where('id', '!=', $appointment->id)
+                ->whereNotIn('status', ['cancelled'])
+                ->exists();
+
+            if ($conflict) {
+                return back()->withErrors([
+                    'time' => __('This time slot is already booked for this doctor.')
+                ])->withInput();
+            }
         }
 
         $appointment->update($validated);
@@ -177,11 +258,6 @@ class AppointmentController extends Controller
      */
     public function destroy(Appointment $appointment)
     {
-        // Enforce authorization to prevent IDOR
-        if (!auth()->user()->hasRole('admin')) {
-            abort(403, 'Unauthorized action. Only administrators can delete records.');
-        }
-
         // Notify Doctor
         try {
             if ($appointment->doctor) {
