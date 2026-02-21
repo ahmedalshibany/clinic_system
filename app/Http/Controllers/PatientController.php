@@ -207,27 +207,56 @@ class PatientController extends Controller
             ->with('success', __('Patient updated successfully!'));
     }
 
-    /**
-     * Remove the specified patient.
-     */
     public function destroy(Patient $patient)
     {
         try {
-            // Manually delete related records to allow patient deletion (Cascade Delete)
-            $patient->appointments()->delete();
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            // 1. Delete Invoices (Direct & Cascading)
             $patient->invoices()->delete();
-            $patient->medicalRecords()->delete();
+
+            // 2. Delete Patient Files
             $patient->files()->delete();
 
-            // Finally delete the patient
+            // 3. Delete Medical Records & Prescriptions
+            $medicalRecordIds = $patient->medicalRecords()->pluck('id');
+            if ($medicalRecordIds->isNotEmpty()) {
+                // Find Prescriptions linked to these records
+                $prescriptionIds = \App\Models\Prescription::whereIn('medical_record_id', $medicalRecordIds)->pluck('id');
+                
+                if ($prescriptionIds->isNotEmpty()) {
+                    // Delete Prescription Items
+                    \App\Models\PrescriptionItem::whereIn('prescription_id', $prescriptionIds)->delete();
+                    // Delete Prescriptions
+                    \App\Models\Prescription::whereIn('id', $prescriptionIds)->delete();
+                }
+                
+                // Delete Medical Records
+                $patient->medicalRecords()->delete();
+            }
+
+            // 4. Delete Appointments & Vitals
+            $appointmentIds = $patient->appointments()->pluck('id');
+            if ($appointmentIds->isNotEmpty()) {
+                // Delete Vitals linked to appointments
+                \App\Models\Vital::whereIn('appointment_id', $appointmentIds)->delete();
+                
+                // Delete Appointments
+                $patient->appointments()->delete();
+            }
+
+            // 5. Finally delete the patient
             $patient->delete();
 
+            \Illuminate\Support\Facades\DB::commit();
+
             return redirect()->route('patients.index')
-                ->with('success', __('Patient deleted successfully!'));
+                ->with('success', __('Patient and all related records deleted successfully.'));
 
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Patient Deletion Failed: ' . $e->getMessage());
-            return back()->with('error', 'Cannot delete patient: ' . $e->getMessage());
+            \Illuminate\Support\Facades\DB::rollBack();
+            // STOP SILENCING ERRORS. Show it to the user.
+            return back()->with('error', 'Delete Failed: ' . $e->getMessage());
         }
     }
 
