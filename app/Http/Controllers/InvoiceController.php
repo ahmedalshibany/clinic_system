@@ -3,17 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
-use App\Models\InvoiceItem;
-use App\Models\Payment;
 use App\Models\Appointment;
 use App\Models\Patient;
 use App\Models\Service;
+use App\Services\InvoiceService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class InvoiceController extends Controller
 {
+    protected InvoiceService $invoiceService;
+
+    public function __construct(InvoiceService $invoiceService)
+    {
+        $this->invoiceService = $invoiceService;
+    }
+
     /**
      * Display a listing of invoices.
      */
@@ -111,55 +116,12 @@ class InvoiceController extends Controller
             'items.*.service_id' => 'nullable|exists:services,id',
         ]);
         
-        DB::transaction(function () use ($validated, $request) {
-            // Calculate totals
-            $subtotal = 0;
-            $itemsData = [];
-
-            foreach ($request->items as $item) {
-                $lineTotal = $item['quantity'] * $item['unit_price'];
-                $subtotal += $lineTotal;
-                
-                $itemsData[] = [
-                    'service_id' => $item['service_id'] ?? null,
-                    'description' => $item['description'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'total' => $lineTotal,
-                    'discount' => 0, // Item level discount not in form yet, default 0
-                ];
-            }
-
-            $discount_percent = $request->discount_percent ?? 0;
-            $tax_percent = $request->tax_percent ?? 0;
-            
-            $discount_amount = $subtotal * ($discount_percent / 100);
-            $taxable = $subtotal - $discount_amount;
-            $tax_amount = $taxable * ($tax_percent / 100);
-            $total = $taxable + $tax_amount;
-
-            $invoice = Invoice::create([
-                'patient_id' => $validated['patient_id'],
-                'appointment_id' => $validated['appointment_id'],
-                'created_by' => Auth::id(),
-                'subtotal' => $subtotal,
-                'discount_percent' => $discount_percent,
-                'discount_amount' => $discount_amount,
-                'tax_percent' => $tax_percent,
-                'tax_amount' => $tax_amount,
-                'total' => $total,
-                'amount_paid' => 0,
-                'status' => $validated['status'],
-                'due_date' => $validated['due_date'],
-                'notes' => $validated['notes'],
-            ]);
-
-            foreach ($itemsData as $data) {
-                $invoice->items()->create($data);
-            }
-        });
-
-        return redirect()->route('invoices.index')->with('success', 'Invoice created successfully.');
+        try {
+            $this->invoiceService->createInvoice($validated, Auth::id());
+            return redirect()->route('invoices.index')->with('success', 'Invoice created successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error creating invoice: ' . $e->getMessage())->withInput();
+        }
     }
 
     /**
@@ -191,10 +153,6 @@ class InvoiceController extends Controller
      */
     public function update(Request $request, Invoice $invoice)
     {
-        if ($invoice->status == 'paid' || $invoice->status == 'cancelled') {
-             return back()->with('error', 'Cannot edit paid or cancelled invoices.');
-        }
-
         $validated = $request->validate([
             'due_date' => 'required|date',
             'status' => 'required|in:draft,sent,paid,partial,overdue,cancelled',
@@ -208,54 +166,12 @@ class InvoiceController extends Controller
             'items.*.service_id' => 'nullable|exists:services,id',
         ]);
 
-        DB::transaction(function () use ($validated, $request, $invoice) {
-             // Calculate totals
-            $subtotal = 0;
-            $itemsData = [];
-
-            foreach ($request->items as $item) {
-                $lineTotal = $item['quantity'] * $item['unit_price'];
-                $subtotal += $lineTotal;
-                
-                $itemsData[] = [
-                    'service_id' => $item['service_id'] ?? null,
-                    'description' => $item['description'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'total' => $lineTotal,
-                    'discount' => 0,
-                ];
-            }
-
-            $discount_percent = $request->discount_percent ?? 0;
-            $tax_percent = $request->tax_percent ?? 0;
-            
-            $discount_amount = $subtotal * ($discount_percent / 100);
-            $taxable = $subtotal - $discount_amount;
-            $tax_amount = $taxable * ($tax_percent / 100);
-            $total = $taxable + $tax_amount;
-
-            $invoice->update([
-                'subtotal' => $subtotal,
-                'discount_percent' => $discount_percent,
-                'discount_amount' => $discount_amount,
-                'tax_percent' => $tax_percent,
-                'tax_amount' => $tax_amount,
-                'total' => $total,
-                // Do not update amount_paid here, only via payments
-                'status' => $validated['status'],
-                'due_date' => $validated['due_date'],
-                'notes' => $validated['notes'],
-            ]);
-
-            // Sync items: delete all and recreate (easiest for now)
-            $invoice->items()->delete();
-            foreach ($itemsData as $data) {
-                $invoice->items()->create($data);
-            }
-        });
-
-        return redirect()->route('invoices.show', $invoice)->with('success', 'Invoice updated successfully.');
+        try {
+            $this->invoiceService->updateInvoice($invoice, $validated);
+            return redirect()->route('invoices.show', $invoice)->with('success', 'Invoice updated successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error updating invoice: ' . $e->getMessage())->withInput();
+        }
     }
 
     /**
@@ -263,12 +179,12 @@ class InvoiceController extends Controller
      */
     public function destroy(Invoice $invoice)
     {
-        if ($invoice->status !== 'draft') {
-            return back()->with('error', 'Only draft invoices can be deleted.');
+        try {
+            $this->invoiceService->deleteInvoice($invoice);
+            return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error deleting invoice: ' . $e->getMessage());
         }
-
-        $invoice->delete();
-        return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
     }
 
     /**
@@ -277,47 +193,19 @@ class InvoiceController extends Controller
     public function recordPayment(Request $request, Invoice $invoice)
     {
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:0.01|max:' . ($invoice->total - $invoice->amount_paid),
+            'amount' => 'required|numeric|min:0.01',
             'payment_date' => 'required|date',
             'payment_method' => 'required|in:cash,card,bank_transfer,insurance,other',
             'reference_number' => 'nullable|string',
             'notes' => 'nullable|string',
         ]);
 
-        DB::transaction(function () use ($validated, $invoice) {
-            $payment = Payment::create([
-                'invoice_id' => $invoice->id,
-                'amount' => $validated['amount'],
-                'payment_date' => $validated['payment_date'],
-                'payment_method' => $validated['payment_method'],
-                'reference_number' => $validated['reference_number'],
-                'received_by' => Auth::id(),
-                'notes' => $validated['notes'],
-            ]);
-
-            // Update invoice status and amount paid
-            $invoice->amount_paid += $validated['amount'];
-            
-            if ($invoice->amount_paid >= $invoice->total) {
-                $invoice->status = 'paid';
-            } else {
-                $invoice->status = 'partial';
-            }
-            $invoice->save();
-        });
-
-        // Notify Admins
         try {
-            app(\App\Services\NotificationService::class)->notifyAdmins(
-                'payment', 
-                'Payment Received', 
-                "Received {$validated['amount']} for Invoice #{$invoice->invoice_number}",
-                ['invoice_id' => $invoice->id, 'amount' => $validated['amount']],
-                route('invoices.show', $invoice->id)
-            );
-        } catch (\Exception $e) {}
-
-        return back()->with('success', 'Payment recorded successfully.');
+            $this->invoiceService->addPayment($invoice, $validated, Auth::id());
+            return back()->with('success', 'Payment recorded successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['amount' => $e->getMessage()])->withInput();
+        }
     }
 
     /**
@@ -346,8 +234,6 @@ class InvoiceController extends Controller
     public function downloadPdf(Invoice $invoice)
     {
         // For now, reuse print view or implement dompdf
-        // Simulating PDF download by showing print view with a query param? 
-        // Or just redirect to print for this task as we don't have dompdf installed yet.
         return $this->print($invoice);
     }
 }

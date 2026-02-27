@@ -5,10 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Patient;
 use App\Models\Doctor;
+use App\Services\AppointmentService;
 use Illuminate\Http\Request;
+use App\Http\Requests\Appointment\StoreAppointmentRequest;
+use App\Http\Requests\Appointment\UpdateAppointmentRequest;
 
 class AppointmentController extends Controller
 {
+    protected AppointmentService $appointmentService;
+
+    public function __construct(AppointmentService $appointmentService)
+    {
+        $this->appointmentService = $appointmentService;
+    }
+
     /**
      * Display a listing of appointments.
      */
@@ -75,85 +85,17 @@ class AppointmentController extends Controller
     /**
      * Store a newly created appointment.
      */
-    public function store(Request $request)
+    public function store(StoreAppointmentRequest $request)
     {
-        $validated = $request->validate([
-            'patient_id' => 'required|exists:patients,id',
-            'doctor_id' => 'required|exists:doctors,id',
-            'date' => 'required|date|after_or_equal:today',
-            'time' => 'required|string',
-            'type' => 'required|in:Consultation,Checkup,Follow-up,Emergency',
-            'status' => 'required|in:pending,scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show,checked_in',
-            'notes' => 'nullable|string',
-            'diagnosis' => 'nullable|string',
-            'prescription' => 'nullable|string',
-            'reason' => 'nullable|string',
-            'fee' => 'nullable|numeric|min:0',
-        ]);
+        $validated = $request->validated();
 
-        $doctor = Doctor::find($validated['doctor_id']);
-        
-        // 1. Check if doctor is on leave
-        // Only check if it's not a past date (to allow historical data entry if needed)
-        if (\Carbon\Carbon::parse($validated['date'])->isFuture()) {
-            $isOnLeave = $doctor->leaves()
-                ->whereDate('start_date', '<=', $validated['date'])
-                ->whereDate('end_date', '>=', $validated['date'])
-                ->exists();
-
-            if ($isOnLeave) {
-                return back()->withErrors(['date' => __('Doctor is on leave on this date.')])->withInput();
-            }
-
-            // 2. Check doctor's schedule
-            $dayOfWeek = \Carbon\Carbon::parse($validated['date'])->dayOfWeek;
-            $schedule = $doctor->schedules()->where('day_of_week', $dayOfWeek)->where('is_active', true)->first();
-
-            if (!$schedule) {
-                return back()->withErrors(['date' => __('Doctor is not available on this day.')])->withInput();
-            }
-
-            // 3. Check time slot validity (within working hours)
-            $apptTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $validated['time']);
-            $startTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $schedule->start_time);
-            $endTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $schedule->end_time);
-
-            if ($apptTime->lt($startTime) || $apptTime->gte($endTime)) {
-                return back()->withErrors(['time' => __('Selected time is outside doctor\'s working hours.')])->withInput();
-            }
-        }
-
-        // 4. Check for conflicts
-        $conflict = Appointment::where('doctor_id', $validated['doctor_id'])
-            ->where('date', $validated['date'])
-            ->where('time', $validated['time'])
-            ->whereNotIn('status', ['cancelled'])
-            ->exists();
-
-        if ($conflict) {
-            return back()->withErrors([
-                'time' => __('This time slot is already booked for this doctor.')
-            ])->withInput();
-        }
-
-        Appointment::create($validated);
-
-        // Notify Doctor
         try {
-            app(\App\Services\NotificationService::class)->notifyDoctor(
-                $doctor, 
-                'appointment', 
-                'New Appointment', 
-                "New appointment scheduled on {$validated['date']} at {$validated['time']}",
-                ['date' => $validated['date'], 'time' => $validated['time']],
-                route('appointments.index')
-            );
+            $this->appointmentService->createAppointment($validated);
+            return redirect()->route('appointments.index')
+                ->with('success', __('Appointment booked successfully!'));
         } catch (\Exception $e) {
-            // fail silently if notification fails
+            return back()->withErrors(['time' => $e->getMessage()])->withInput();
         }
-
-        return redirect()->route('appointments.index')
-            ->with('success', __('Appointment booked successfully!'));
     }
 
     /**
@@ -178,79 +120,17 @@ class AppointmentController extends Controller
     /**
      * Update the specified appointment.
      */
-    public function update(Request $request, Appointment $appointment)
+    public function update(UpdateAppointmentRequest $request, Appointment $appointment)
     {
-        $validated = $request->validate([
-            'patient_id' => 'required|exists:patients,id',
-            'doctor_id' => 'required|exists:doctors,id',
-            'date' => 'required|date',
-            'time' => 'required|string',
-            'type' => 'required|in:Consultation,Checkup,Follow-up,Emergency',
-            'status' => 'required|in:scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show,checked_in',
-            'notes' => 'nullable|string',
-            'diagnosis' => 'nullable|string',
-            'prescription' => 'nullable|string',
-            'reason' => 'nullable|string',
-            'fee' => 'nullable|numeric|min:0',
-        ]);
+        $validated = $request->validated();
 
-        $doctor = Doctor::find($validated['doctor_id']);
-
-        // Check availability logic only if date/time/doctor changed
-        $timeChanged = $validated['date'] !== $appointment->date->format('Y-m-d') || 
-                       $validated['time'] !== $appointment->time->format('H:i') ||
-                       $validated['doctor_id'] != $appointment->doctor_id;
-
-        if ($timeChanged && \Carbon\Carbon::parse($validated['date'])->isFuture()) {
-            
-            // 1. Check leave
-            $isOnLeave = $doctor->leaves()
-                ->whereDate('start_date', '<=', $validated['date'])
-                ->whereDate('end_date', '>=', $validated['date'])
-                ->exists();
-
-            if ($isOnLeave) {
-                return back()->withErrors(['date' => __('Doctor is on leave on this date.')])->withInput();
-            }
-            
-            // 2. Check schedule 
-            $dayOfWeek = \Carbon\Carbon::parse($validated['date'])->dayOfWeek;
-            $schedule = $doctor->schedules()->where('day_of_week', $dayOfWeek)->where('is_active', true)->first();
-
-            if (!$schedule) {
-                return back()->withErrors(['date' => __('Doctor is not available on this day.')])->withInput();
-            }
-
-             // 3. Check time slot validity (within working hours)
-            $apptTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $validated['time']);
-            $startTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $schedule->start_time);
-            $endTime = \Carbon\Carbon::parse($validated['date'] . ' ' . $schedule->end_time);
-
-            if ($apptTime->lt($startTime) || $apptTime->gte($endTime)) {
-                return back()->withErrors(['time' => __('Selected time is outside doctor\'s working hours.')])->withInput();
-            }
+        try {
+            $this->appointmentService->updateAppointment($appointment, $validated);
+            return redirect()->route('appointments.index')
+                ->with('success', __('Appointment updated successfully!'));
+        } catch (\Exception $e) {
+            return back()->withErrors(['time' => $e->getMessage()])->withInput();
         }
-
-        // 4. Check for conflicts (excluding current appointment)
-        if ($timeChanged) {
-            $conflict = Appointment::where('doctor_id', $validated['doctor_id'])
-                ->where('date', $validated['date'])
-                ->where('time', $validated['time'])
-                ->where('id', '!=', $appointment->id)
-                ->whereNotIn('status', ['cancelled'])
-                ->exists();
-
-            if ($conflict) {
-                return back()->withErrors([
-                    'time' => __('This time slot is already booked for this doctor.')
-                ])->withInput();
-            }
-        }
-
-        $appointment->update($validated);
-
-        return redirect()->route('appointments.index')
-            ->with('success', __('Appointment updated successfully!'));
     }
 
     /**
@@ -258,55 +138,26 @@ class AppointmentController extends Controller
      */
     public function destroy(Appointment $appointment)
     {
-        // Notify Doctor
         try {
-            if ($appointment->doctor) {
-                 app(\App\Services\NotificationService::class)->notifyDoctor(
-                     $appointment->doctor, 
-                     'system', 
-                     'Appointment Cancelled', 
-                     "Appointment with {$appointment->patient->name} on {$appointment->date->format('Y-m-d')} was cancelled.",
-                     ['date' => $appointment->date, 'type' => 'cancellation']
-                 );
-            }
-        } catch (\Exception $e) {}
-
-        $appointment->delete();
-
-        return redirect()->route('appointments.index')
-            ->with('success', __('Appointment deleted successfully!'));
+            $this->appointmentService->deleteAppointment($appointment);
+            return redirect()->route('appointments.index')
+                ->with('success', __('Appointment deleted successfully!'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error deleting appointment: ' . $e->getMessage());
+        }
     }
 
     // Appointment Lifecycle Methods
 
     public function checkIn(Appointment $appointment)
     {
-        $appointment->update([
-            'status' => 'checked_in',
-            'checked_in_at' => now(),
-        ]);
-
-        // Notify Doctor
-        try {
-            app(\App\Services\NotificationService::class)->notifyDoctor(
-                $appointment->doctor, 
-                'system', 
-                'Patient Checked-In', 
-                "{$appointment->patient->name} has arrived for their appointment.",
-                ['appointment_id' => $appointment->id],
-                route('appointments.show', $appointment->id)
-            );
-        } catch (\Exception $e) {}
-
+        $this->appointmentService->updateStatus($appointment, 'checked_in');
         return back()->with('success', 'Patient checked in successfully.');
     }
 
     public function startVisit(Appointment $appointment)
     {
-        $appointment->update([
-            'status' => 'in_progress',
-            'started_at' => now(),
-        ]);
+        $this->appointmentService->updateStatus($appointment, 'in_progress');
         return back()->with('success', 'Visit started.');
     }
 
@@ -316,19 +167,13 @@ class AppointmentController extends Controller
             'diagnosis' => 'nullable|string',
         ]);
 
-        $appointment->update([
-            'status' => 'completed',
-            'completed_at' => now(),
-            'diagnosis' => $request->diagnosis,
-        ]);
+        $this->appointmentService->updateStatus($appointment, 'completed', ['diagnosis' => $request->diagnosis]);
         return back()->with('success', 'Visit completed and diagnosis saved.');
     }
 
     public function markNoShow(Appointment $appointment)
     {
-        $appointment->update([
-            'status' => 'no_show',
-        ]);
+        $this->appointmentService->updateStatus($appointment, 'no_show');
         return back()->with('success', 'Marked as No Show.');
     }
 

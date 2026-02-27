@@ -5,10 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 use App\Models\PatientFile;
+use App\Services\PatientService;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Patient\StorePatientRequest;
+use App\Http\Requests\Patient\UpdatePatientRequest;
 
 class PatientController extends Controller
 {
+    protected PatientService $patientService;
+
+    public function __construct(PatientService $patientService)
+    {
+        $this->patientService = $patientService;
+    }
+
     /**
      * Display a listing of patients.
      */
@@ -47,56 +57,18 @@ class PatientController extends Controller
     /**
      * Store a newly created patient.
      */
-    /**
-     * Store a newly created patient.
-     */
-    public function store(Request $request)
+    public function store(StorePatientRequest $request)
     {
         try {
             // Validation
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'name_en' => 'nullable|string|max:255',
-                'age' => 'required|integer|min:0|max:150',
-                'gender' => 'required|in:male,female',
-                'phone' => 'required|string|max:20',
-                'phone_secondary' => 'nullable|string|max:20',
-                'address' => 'nullable|string|max:500',
-                'city' => 'nullable|string|max:100',
-                'email' => 'nullable|email|max:255',
-                'date_of_birth' => 'nullable|date',
-                'nationality' => 'nullable|string|max:100',
-                'id_number' => 'nullable|string|max:50',
-                'marital_status' => 'nullable|in:single,married,divorced,widowed',
-                'occupation' => 'nullable|string|max:100',
-                'blood_type' => 'nullable|string|max:10',
-                'medical_history' => 'nullable|string',
-                'chronic_diseases' => 'nullable|string',
-                'current_medications' => 'nullable|string',
-                'previous_surgeries' => 'nullable|string',
-                'family_history' => 'nullable|string',
-                'allergies' => 'nullable|string',
-                'emergency_contact' => 'nullable|string|max:255',
-                'emergency_phone' => 'nullable|string|max:20',
-                'emergency_relation' => 'nullable|string|max:50',
-                'insurance_provider' => 'nullable|string|max:255',
-                'insurance_number' => 'nullable|string|max:50',
-                'insurance_expiry' => 'nullable|date',
-                'status' => 'nullable|in:active,inactive,deceased',
-                'photo' => 'nullable|image|max:2048', // 2MB Max
-            ]);
+            $validated = $request->validated();
 
             if ($request->hasFile('photo')) {
                 $path = $request->file('photo')->store('patients', 'public');
                 $validated['photo'] = $path;
             }
 
-            // Ensure status defaulted to active
-            if (!isset($validated['status'])) {
-                $validated['status'] = 'active';
-            }
-
-            $patient = Patient::create($validated);
+            $patient = $this->patientService->createPatient($validated);
 
             if ($request->wantsJson()) {
                  return response()->json([
@@ -156,41 +128,11 @@ class PatientController extends Controller
     /**
      * Update the specified patient.
      */
-    public function update(Request $request, Patient $patient)
+    public function update(UpdatePatientRequest $request, Patient $patient)
     {
         \Illuminate\Support\Facades\Log::info('Updating Patient ID: ' . $patient->id, $request->all());
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'name_en' => 'nullable|string|max:255',
-            'age' => 'required|integer|min:0|max:150',
-            'gender' => 'required|in:male,female',
-            'phone' => 'required|string|max:20|unique:patients,phone,' . $patient->id,
-            'phone_secondary' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
-            'city' => 'nullable|string|max:100',
-            'email' => 'nullable|email|max:255|unique:patients,email,' . $patient->id,
-            'date_of_birth' => 'nullable|date',
-            'nationality' => 'nullable|string|max:100',
-            'id_number' => 'nullable|string|max:50|unique:patients,id_number,' . $patient->id,
-            'marital_status' => 'nullable|in:single,married,divorced,widowed',
-            'occupation' => 'nullable|string|max:100',
-            'blood_type' => 'nullable|string|max:10',
-            'medical_history' => 'nullable|string',
-            'chronic_diseases' => 'nullable|string',
-            'current_medications' => 'nullable|string',
-            'previous_surgeries' => 'nullable|string',
-            'family_history' => 'nullable|string',
-            'allergies' => 'nullable|string',
-            'emergency_contact' => 'nullable|string|max:255',
-            'emergency_phone' => 'nullable|string|max:20',
-            'emergency_relation' => 'nullable|string|max:50',
-            'insurance_provider' => 'nullable|string|max:255',
-            'insurance_number' => 'nullable|string|max:50',
-            'insurance_expiry' => 'nullable|date',
-            'status' => 'nullable|in:active,inactive,deceased',
-            'photo' => 'nullable|image|max:2048',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('photo')) {
             // Delete old photo if exists
@@ -201,69 +143,24 @@ class PatientController extends Controller
             $validated['photo'] = $path;
         }
 
-        $patient->update($validated);
+        $this->patientService->updatePatient($patient, $validated);
 
         return redirect()->route('patients.index')
             ->with('success', __('Patient updated successfully!'));
     }
 
-    public function destroy(Patient $patient)
+    /**
+     * Remove the specified patient from storage.
+     */
+    public function destroy($id, PatientService $service)
     {
         try {
-            \Illuminate\Support\Facades\DB::beginTransaction();
-
-            // 1. Delete Invoices (Direct & Cascading)
-            $patient->invoices()->delete();
-
-            // 2. Delete Patient Files
-            $patient->files()->delete();
-
-            // 3. Delete Medical Records & Prescriptions
-            $medicalRecordIds = $patient->medicalRecords()->pluck('id');
-            if ($medicalRecordIds->isNotEmpty()) {
-                // Find Prescriptions linked to these records
-                $prescriptionIds = \App\Models\Prescription::whereIn('medical_record_id', $medicalRecordIds)->pluck('id');
-                
-                if ($prescriptionIds->isNotEmpty()) {
-                    // Delete Prescription Items
-                    \App\Models\PrescriptionItem::whereIn('prescription_id', $prescriptionIds)->delete();
-                    // Delete Prescriptions
-                    \App\Models\Prescription::whereIn('id', $prescriptionIds)->delete();
-                }
-                
-                // Delete Medical Records
-                $patient->medicalRecords()->delete();
-            }
-
-            // 4. Delete Appointments & Vitals
-            $appointmentIds = $patient->appointments()->pluck('id');
-            if ($appointmentIds->isNotEmpty()) {
-                // Delete Vitals linked to appointments
-                \App\Models\Vital::whereIn('appointment_id', $appointmentIds)->delete();
-                
-                // Delete Appointments
-                $patient->appointments()->delete();
-            }
-
-            // 5. Finally delete the patient
-            $patient->delete();
-
-            \Illuminate\Support\Facades\DB::commit();
-
-            return redirect()->route('patients.index')
-                ->with('success', __('Patient and all related records deleted successfully.'));
-
+            $service->deletePatient($id);
+            return back()->with('success', 'Patient deleted successfully.');
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\DB::rollBack();
-            // STOP SILENCING ERRORS. Show it to the user.
-            return back()->with('error', 'Delete Failed: ' . $e->getMessage());
+            return back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
-
-    /**
-     * Upload a file for the patient.
-     */
-
 
     /**
      * Upload a file for the patient.

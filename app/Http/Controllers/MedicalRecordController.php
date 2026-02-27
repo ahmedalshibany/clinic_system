@@ -9,10 +9,16 @@ use App\Models\Appointment;
 use App\Models\Prescription;
 use App\Models\PrescriptionItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Services\MedicalRecordService;
 
 class MedicalRecordController extends Controller
 {
+    protected MedicalRecordService $medicalRecordService;
+
+    public function __construct(MedicalRecordService $medicalRecordService)
+    {
+        $this->medicalRecordService = $medicalRecordService;
+    }
     /**
      * Display a listing of medical records.
      */
@@ -94,29 +100,11 @@ class MedicalRecordController extends Controller
             'prescription_items.*.duration' => 'required_with:prescription_items|string',
         ]);
 
-        DB::transaction(function () use ($validated, $request) {
-            // Create Medical Record
-            $record = MedicalRecord::create($validated);
-
-            // Handle Prescription
-            if ($request->filled('prescription_items')) {
-                $prescription = Prescription::create([
-                    'medical_record_id' => $record->id,
-                ]);
-
-                foreach ($request->prescription_items as $item) {
-                    $prescription->items()->create($item);
-                }
-            }
-
-            // If linked to appointment, update status to completed if not already
-            if ($record->appointment_id) {
-                $appointment = Appointment::find($record->appointment_id);
-                if ($appointment && $appointment->status !== 'completed') {
-                    $appointment->update(['status' => 'completed', 'completed_at' => now()]);
-                }
-            }
-        });
+        try {
+            $this->medicalRecordService->createRecordWithPrescription($validated);
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Error creating medical record: ' . $e->getMessage());
+        }
 
         return redirect()->route('patients.show', $validated['patient_id'])
             ->with('success', 'Medical record created successfully.');
@@ -169,31 +157,11 @@ class MedicalRecordController extends Controller
             'prescription_items.*.duration' => 'required_with:prescription_items|string',
         ]);
 
-        DB::transaction(function () use ($validated, $request, $medicalRecord) {
-            $medicalRecord->update($validated);
-
-            // Handle Prescription Updates (Full Re-sync for simplicity)
-            if ($request->filled('prescription_items')) {
-                // Determine if prescription exists, if not create one
-                $prescription = $medicalRecord->prescription ?? Prescription::create(['medical_record_id' => $medicalRecord->id]);
-                
-                // Remove old items
-                $prescription->items()->delete();
-
-                // Add new items
-                foreach ($request->prescription_items as $item) {
-                    $prescription->items()->create($item);
-                }
-            } elseif ($medicalRecord->prescription) {
-                // If prescription_items is empty but record has prescription, clear items? 
-                // Dependent on business logic. Usually better to keep empty prescription or delete it.
-                // Here we will just calculate if we should delete the items.
-                // If the user sends an empty array, it means they want to clear it.
-                 if ($request->has('prescription_items')) {
-                    $medicalRecord->prescription->items()->delete();
-                 }
-            }
-        });
+        try {
+            $this->medicalRecordService->updateRecordWithPrescription($medicalRecord, $validated);
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Error updating medical record: ' . $e->getMessage());
+        }
 
         return redirect()->route('medical-records.show', $medicalRecord)
             ->with('success', 'Medical record updated successfully.');
