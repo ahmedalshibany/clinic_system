@@ -3,10 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Doctor;
+use App\Services\DoctorService;
+use App\Http\Requests\Doctor\StoreDoctorRequest;
+use App\Http\Requests\Doctor\UpdateDoctorRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class DoctorController extends Controller
 {
+    protected DoctorService $doctorService;
+
+    public function __construct(DoctorService $doctorService)
+    {
+        $this->doctorService = $doctorService;
+    }
+
     /**
      * Display a listing of doctors.
      */
@@ -50,29 +61,19 @@ class DoctorController extends Controller
     /**
      * Store a newly created doctor.
      */
-    public function store(Request $request)
+    public function store(StoreDoctorRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'specialty' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'bio' => 'nullable|string',
-            'working_days' => 'nullable|array',
-            'work_start_time' => 'nullable|string',
-            'work_end_time' => 'nullable|string',
-            'consultation_fee' => 'nullable|numeric|min:0',
-            'is_active' => 'boolean',
-        ]);
+        try {
+            $this->doctorService->createDoctor($request->validated());
 
-        // Set default values
-        $validated['is_active'] = $request->boolean('is_active', true);
-        $validated['working_days'] = $request->input('working_days', []);
-
-        Doctor::create($validated);
-
-        return redirect()->route('doctors.index')
-            ->with('success', __('Doctor added successfully!'));
+            return redirect()->route('doctors.index')
+                ->with('success', __('Doctor added successfully!'));
+        } catch (\Exception $e) {
+            Log::error('Failed to create doctor: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', __('Failed to create doctor. Please try again.'));
+        }
     }
 
     /**
@@ -95,28 +96,19 @@ class DoctorController extends Controller
     /**
      * Update the specified doctor.
      */
-    public function update(Request $request, Doctor $doctor)
+    public function update(UpdateDoctorRequest $request, Doctor $doctor)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'specialty' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'bio' => 'nullable|string',
-            'working_days' => 'nullable|array',
-            'work_start_time' => 'nullable|string',
-            'work_end_time' => 'nullable|string',
-            'consultation_fee' => 'nullable|numeric|min:0',
-            'is_active' => 'boolean',
-        ]);
+        try {
+            $this->doctorService->updateDoctor($doctor, $request->validated());
 
-        $validated['is_active'] = $request->boolean('is_active', true);
-        $validated['working_days'] = $request->input('working_days', []);
-
-        $doctor->update($validated);
-
-        return redirect()->route('doctors.index')
-            ->with('success', __('Doctor updated successfully!'));
+            return redirect()->route('doctors.index')
+                ->with('success', __('Doctor updated successfully!'));
+        } catch (\Exception $e) {
+            Log::error('Failed to update doctor: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', __('Failed to update doctor. Please try again.'));
+        }
     }
 
     /**
@@ -124,9 +116,15 @@ class DoctorController extends Controller
      */
     public function destroy(Doctor $doctor)
     {
-        $doctor->delete();
+        try {
+            $doctor->delete();
 
-        return redirect()->route('doctors.index')
-            ->with('success', __('Doctor deleted successfully!'));
+            return redirect()->route('doctors.index')
+                ->with('success', __('Doctor deleted successfully!'));
+        } catch (\Exception $e) {
+             Log::error('Failed to delete doctor: ' . $e->getMessage());
+             return redirect()->route('doctors.index')
+                 ->with('error', __('Cannot delete. This doctor may have existing records.'));
+        }
     }
 }

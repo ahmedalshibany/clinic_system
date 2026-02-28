@@ -240,7 +240,6 @@
                 const bmi = (weight / (height * height)).toFixed(1);
                 bmiInput.value = bmi;
                 
-                // Optional: Color code BMI
                 if(bmi < 18.5) bmiInput.style.color = '#3b82f6'; // Underweight
                 else if(bmi < 25) bmiInput.style.color = '#10b981'; // Normal
                 else if(bmi < 30) bmiInput.style.color = '#f59e0b'; // Overweight
@@ -250,9 +249,11 @@
             }
         }
 
-        weightInput.addEventListener('input', calculateBMI);
-        heightInput.addEventListener('input', calculateBMI);
-        calculateBMI(); // Run on load
+        if (weightInput && heightInput) {
+            weightInput.addEventListener('input', calculateBMI);
+            heightInput.addEventListener('input', calculateBMI);
+            calculateBMI(); // Run on load
+        }
 
         // --- Dynamic Prescription Rows ---
         const addBtn = document.getElementById('add-medication');
@@ -260,10 +261,9 @@
         const emptyMsg = document.getElementById('empty-prescription-msg');
         let index = {{ isset($record) && $record->prescription ? $record->prescription->items->count() : 0 }};
 
-        });
-
         // --- Select2 Logic for Medicines ---
         function initMedicineSelect(element) {
+            if (typeof $ === 'undefined') return;
             $(element).select2({
                 theme: 'bootstrap-5',
                 width: '100%',
@@ -294,34 +294,56 @@
         }
 
         // Init existing rows
-        $('.medicine-select').each(function() {
-            initMedicineSelect(this);
-        });
+        if (typeof $ !== 'undefined') {
+            $('.medicine-select').each(function() {
+                initMedicineSelect(this);
+            });
+        }
 
-        // Update add button to init select2
-        addBtn.addEventListener('click', function() {
-            const row = document.createElement('tr');
-            row.className = 'prescription-row animate__animated animate__fadeIn';
-            row.innerHTML = `
-                <td>
-                    <select name="prescription_items[${index}][medication_name]" class="form-select form-select-sm medicine-select" required>
-                        <option value="">Search...</option>
-                    </select>
-                </td>
-                <td><input type="text" name="prescription_items[${index}][dosage]" class="form-control form-control-sm" placeholder="e.g. 500mg" required></td>
-                <td><input type="text" name="prescription_items[${index}][frequency]" class="form-control form-control-sm" placeholder="e.g. 1-0-1" required></td>
-                <td><input type="text" name="prescription_items[${index}][duration]" class="form-control form-control-sm" placeholder="e.g. 5 days" required></td>
-                <td><input type="text" name="prescription_items[${index}][instructions]" class="form-control form-control-sm" placeholder="Note..."></td>
-                <td class="text-center"><button type="button" class="btn btn-sm btn-link text-danger remove-row"><i class="fas fa-times"></i></button></td>
-            `;
-            list.appendChild(row);
-            
-            // Init Select2 on new element
-            initMedicineSelect($(row).find('.medicine-select'));
+        // Update add button to append rows
+        if (addBtn) {
+            addBtn.addEventListener('click', function() {
+                const row = document.createElement('tr');
+                row.className = 'prescription-row animate__animated animate__fadeIn';
+                row.innerHTML = `
+                    <td>
+                        <select name="prescription_items[${index}][medication_name]" class="form-select form-select-sm medicine-select" required>
+                            <option value="">Search...</option>
+                        </select>
+                    </td>
+                    <td><input type="text" name="prescription_items[${index}][dosage]" class="form-control form-control-sm" placeholder="e.g. 500mg" required></td>
+                    <td><input type="text" name="prescription_items[${index}][frequency]" class="form-control form-control-sm" placeholder="e.g. 1-0-1" required></td>
+                    <td><input type="text" name="prescription_items[${index}][duration]" class="form-control form-control-sm" placeholder="e.g. 5 days" required></td>
+                    <td><input type="text" name="prescription_items[${index}][instructions]" class="form-control form-control-sm" placeholder="Note..."></td>
+                    <td class="text-center"><button type="button" class="btn btn-sm btn-link text-danger remove-row"><i class="fas fa-times"></i></button></td>
+                `;
+                list.appendChild(row);
+                
+                // Init Select2 on new element
+                if (typeof $ !== 'undefined') {
+                    initMedicineSelect($(row).find('.medicine-select'));
+                }
 
-            emptyMsg.style.display = 'none';
-            index++;
-        });
+                if (emptyMsg) {
+                    emptyMsg.style.display = 'none';
+                }
+                index++;
+            });
+        }
+        
+        // Handle row removal
+        if (list) {
+            list.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-row')) {
+                    const row = e.target.closest('tr');
+                    row.remove();
+                    
+                    if (list.querySelectorAll('tr.prescription-row').length === 0 && emptyMsg) {
+                        emptyMsg.style.display = 'block';
+                    }
+                }
+            });
+        }
     });
 </script>
 
