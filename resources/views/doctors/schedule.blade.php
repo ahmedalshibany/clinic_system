@@ -12,9 +12,7 @@
                 <a href="{{ route('doctors.index') }}" class="btn btn-secondary btn-sm">Back to Doctors</a>
             </div>
             <div class="card-body">
-                @if(session('success'))
-                    <div class="alert alert-success">{{ session('success') }}</div>
-                @endif
+
 
                 <form action="{{ route('doctors.schedule.update', $doctor) }}" method="POST">
                     @csrf

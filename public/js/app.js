@@ -1040,6 +1040,7 @@ class App {
     }
 
     showAlert(message, type) {
+        if (type === 'success') return;
         if (typeof toast !== 'undefined') {
             toast.show(message, type);
         } else {
@@ -1078,6 +1079,7 @@ class ToastSystem {
     }
 
     show(message, type = 'info', title = null) {
+        if (type === 'success') return;
         if (!this.container) this.init();
 
         const icons = {
