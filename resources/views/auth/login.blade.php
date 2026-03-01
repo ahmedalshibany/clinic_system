@@ -36,7 +36,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('auth.attempt') }}" method="POST">
+            <form action="{{ route('auth.attempt') }}" method="POST" id="loginForm">
                 @csrf
                 <div class="mb-3">
                     <label for="username" class="form-label" data-i18n="usernameLabel">Username</label>

@@ -892,7 +892,6 @@ class App {
             $('.sidebar').toggleClass('active');
         });
 
-        $(document).on('submit', '#loginForm', (e) => this.handleLogin(e));
 
         $(document).on('submit', 'form:not(#loginForm):not(#doctorForm):not(#patientForm)', (e) => this.handleFormSubmit(e));
     }
