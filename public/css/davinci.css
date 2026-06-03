@@ -135,11 +135,11 @@
     --radius-2xl: 32px;
     --radius-full: 9999px;
 
-    /* Typography - System Fonts for Offline Use */
-    --font-display: Georgia, 'Times New Roman', serif;
-    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    --font-en: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    --font-ar: 'Segoe UI', Tahoma, 'Arial', sans-serif;
+    /* Typography - Single Sans Family (Product Register) */
+    --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-en: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-ar: 'Tajawal', Tahoma, 'Segoe UI', 'Arial', sans-serif;
 
     /* ═══════════════════════════════════════════════════════════════
        BACKGROUNDS
@@ -211,6 +211,14 @@
     --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 212, 170, 0.03);
     --shadow-medium: 0 8px 40px rgba(0, 0, 0, 0.6), 0 0 60px rgba(0, 212, 170, 0.05);
     --shadow-hover: 0 16px 60px rgba(0, 0, 0, 0.7), 0 0 80px rgba(0, 212, 170, 0.08);
+
+    /* Layout-specific dark tokens */
+    --glass-bg: rgba(15, 15, 26, 0.95);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    --neon-accent: #00d4aa;
+    --primary-gradient: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
+    --sidebar-bg: linear-gradient(180deg, #0f0f1a 0%, #141428 50%, #0f0f1a 100%);
 
     /* Borders with subtle visibility */
     --border-hairline: rgba(255, 255, 255, 0.05);

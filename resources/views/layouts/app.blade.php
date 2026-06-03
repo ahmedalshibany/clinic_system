@@ -12,8 +12,7 @@
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/fontawesome-local.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/davinci.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
+    <!-- davinci.css + layout.css are imported via style.css -->
     @yield('styles')
     
     <!-- jQuery -->

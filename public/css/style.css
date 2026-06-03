@@ -2,76 +2,7 @@
 @import url('davinci.css');
 @import url('layout.css');
 
-/*  CONFLICTING VARIABLES COMMENTED OUT TO USE DAVINCI.CSS
-    :root {
-    --primary: #0d1f2d;
-    --primary-light: #1a3a4a;
-    --secondary: #2d6a4f;
-    --secondary-light: #40916c;
-    --accent: #d4a373;
-    --accent-light: #e9c46a;
-    --white: #fefaf6;
-    --cream: #faf6f0;
-    --sand: #e9e3d8;
-    --stone: #d4cec4;
-    --dark: #1a1a1a;
-    --text-primary: #2d2d2d;
-    --text-secondary: #5c5c5c;
-    --light-text: #8a8a8a;
-    --success: #2d6a4f;
-    --warning: #e9c46a;
-    --danger: #c1574e;
-    --info: #457b9d;
-    --body-bg: linear-gradient(165deg, #fefaf6 0%, #f5ebe0 50%, #e9e3d8 100%);
-    --beige: #fefaf6;
-    --shadow-soft: 0 2px 20px rgba(26, 26, 26, 0.06);
-    --shadow-medium: 0 8px 30px rgba(26, 26, 26, 0.1);
-    --shadow-hover: 0 12px 40px rgba(26, 26, 26, 0.12);
-    --border-light: rgba(26, 26, 26, 0.06);
-    --border-medium: rgba(26, 26, 26, 0.1);
-    --radius: 16px;
-    --radius-lg: 24px;
-    --radius-xl: 32px;
-    --font-en: 'Plus Jakarta Sans', sans-serif;
-    --font-ar: 'Tajawal', sans-serif;
-    --input-bg: #faf6f0;
-} */
 
-/* ═══════════════════════════════════════════════════════════════
-   DARK THEME - "Midnight Aurora" Edition
-   ═══════════════════════════════════════════════════════════════ */
-[data-theme="dark"] {
-    --primary: #e8e4f0;
-    --primary-light: #d4cee6;
-
-    --secondary: #00d4aa;
-    --secondary-light: #33e3bf;
-
-    --accent: #ffd700;
-    --accent-light: #ffe44d;
-
-    --white: #0f0f1a;
-    --cream: #141422;
-    --sand: #1a1a2e;
-    --stone: #22223b;
-
-    --dark: #f0eff4;
-    --text-primary: #e4e3ea;
-    --text-secondary: #9896a8;
-    --light-text: #6b6980;
-
-    --beige: #0f0f1a;
-    --body-bg: #0a0a14;
-
-    --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 212, 170, 0.03);
-    --shadow-medium: 0 8px 40px rgba(0, 0, 0, 0.6), 0 0 60px rgba(0, 212, 170, 0.05);
-    --shadow-hover: 0 16px 60px rgba(0, 0, 0, 0.7), 0 0 80px rgba(0, 212, 170, 0.08);
-
-    --border-light: rgba(255, 255, 255, 0.08);
-    --border-medium: rgba(255, 255, 255, 0.12);
-
-    --input-bg: rgba(255, 255, 255, 0.04);
-}
 
 * {
     margin: 0;
