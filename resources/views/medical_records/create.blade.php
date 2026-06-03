@@ -9,7 +9,21 @@
         <form action="{{ route('medical-records.store') }}" method="POST" id="medicalRecordForm">
             @csrf
             <input type="hidden" name="patient_id" value="{{ $patient->id }}">
-            <input type="hidden" name="doctor_id" value="{{ auth()->user()->doctor->id }}">
+            @if($doctor)
+                <input type="hidden" name="doctor_id" value="{{ $doctor->id }}">
+            @else
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Attending Doctor <span class="text-danger">*</span></label>
+                    <select name="doctor_id" class="form-select" required>
+                        <option value="">Select Doctor</option>
+                        @foreach($doctors as $doc)
+                            <option value="{{ $doc->id }}" {{ old('doctor_id') == $doc->id ? 'selected' : '' }}>
+                                {{ $doc->name }} ({{ $doc->specialty }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
             @if($appointment)
                 <input type="hidden" name="appointment_id" value="{{ $appointment->id }}">
             @endif

@@ -893,7 +893,6 @@ class App {
         });
 
 
-        $(document).on('submit', 'form:not(#loginForm):not(#doctorForm):not(#patientForm)', (e) => this.handleFormSubmit(e));
     }
 
     toggleLanguage() {
@@ -997,37 +996,6 @@ class App {
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1000);
-            }, 1000);
-        } else {
-            this.showAlert(translations[this.lang].validationError, 'danger');
-        }
-    }
-
-    handleFormSubmit(e) {
-        e.preventDefault();
-        const $form = $(e.target);
-        const $inputs = $form.find('input, select, textarea');
-        let isValid = true;
-
-        $inputs.each(function () {
-            const $input = $(this);
-            if ($input.prop('required') && !$input.val()) {
-                isValid = false;
-                $input.addClass('is-invalid');
-            } else {
-                $input.removeClass('is-invalid');
-            }
-        });
-
-        if (isValid) {
-            const $btn = $form.find('button[type="submit"]');
-            const originalText = $btn.text();
-            $btn.html('<span class="spinner-border spinner-border-sm"></span>').prop('disabled', true);
-
-            setTimeout(() => {
-                this.showAlert(translations[this.lang].genericSuccess, 'success');
-                $form[0].reset();
-                $btn.text(originalText).prop('disabled', false);
             }, 1000);
         } else {
             this.showAlert(translations[this.lang].validationError, 'danger');

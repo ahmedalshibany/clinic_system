@@ -70,7 +70,7 @@
                     <span data-i18n="services">Services</span>
                 </a>
             </li>
-            @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('doctor'))
+            @if(in_array(auth()->user()->role, ['admin', 'doctor']))
             <li class="nav-item">
                 <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-chart-line"></i></div>
@@ -78,13 +78,13 @@
                 </a>
             </li>
             @endif
+            @if(auth()->user()->isAdmin())
             <li class="nav-item">
                 <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-cog"></i></div>
                     <span data-i18n="settings">Settings</span>
                 </a>
             </li>
-            @if(auth()->user()->isAdmin())
             <li class="nav-item">
                 <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-users-cog"></i></div>
@@ -175,6 +175,13 @@
         <!-- Main Content -->
         <main class="main-content">
 
+
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
             @if(session('error'))
                 <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">

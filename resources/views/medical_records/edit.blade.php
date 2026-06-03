@@ -12,7 +12,7 @@
             <input type="hidden" name="patient_id" value="{{ $medicalRecord->patient_id }}">
             <input type="hidden" name="doctor_id" value="{{ $medicalRecord->doctor_id }}">
 
-            @include('medical_records.form', ['record' => $medicalRecord])
+            @include('medical_records.form', ['record' => $medicalRecord, 'patient' => $medicalRecord->patient])
 
             <div class="card mt-4 mb-5 border-0 shadow-sm">
                 <div class="card-body p-4 text-end">

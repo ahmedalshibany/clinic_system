@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
 
 class SettingController extends Controller
 {
@@ -13,15 +14,14 @@ class SettingController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Setting::class);
         $settings = Setting::all()->pluck('value', 'key');
         return view('settings.index', compact('settings'));
     }
 
-    /**
-     * Update settings.
-     */
     public function update(Request $request)
     {
+        $this->authorize('update', Setting::class);
         $data = $request->except(['_token', '_method', 'logo']);
 
         // Handle Logo Upload

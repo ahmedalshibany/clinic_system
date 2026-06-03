@@ -8,6 +8,7 @@ use App\Http\Requests\Doctor\StoreDoctorRequest;
 use App\Http\Requests\Doctor\UpdateDoctorRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Gate;
 
 class DoctorController extends Controller
 {
@@ -23,49 +24,22 @@ class DoctorController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Doctor::query();
-
-        // Search
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('specialty', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter by active status
-        if ($request->filled('status')) {
-            $query->where('is_active', $request->status === 'active');
-        }
-
-        // Sort
-        $sortColumn = $request->get('sort', 'id');
-        $sortDirection = $request->get('direction', 'desc');
-        $query->orderBy($sortColumn, $sortDirection);
-
-        $doctors = $query->paginate(8)->withQueryString();
-
+        $this->authorize('viewAny', Doctor::class);
+        $doctors = $this->doctorService->getAllDoctors($request->all());
         return view('doctors.index', compact('doctors'));
     }
 
-    /**
-     * Show the form for creating a new doctor.
-     */
     public function create()
     {
+        $this->authorize('create', Doctor::class);
         return view('doctors.create');
     }
 
-    /**
-     * Store a newly created doctor.
-     */
     public function store(StoreDoctorRequest $request)
     {
+        $this->authorize('create', Doctor::class);
         try {
             $this->doctorService->createDoctor($request->validated());
-
             return redirect()->route('doctors.index')
                 ->with('success', __('Doctor added successfully!'));
         } catch (\Exception $e) {
@@ -76,31 +50,24 @@ class DoctorController extends Controller
         }
     }
 
-    /**
-     * Display the specified doctor.
-     */
     public function show(Doctor $doctor)
     {
+        $this->authorize('view', $doctor);
         $doctor->load('appointments.patient');
         return view('doctors.show', compact('doctor'));
     }
 
-    /**
-     * Show the form for editing the specified doctor.
-     */
     public function edit(Doctor $doctor)
     {
+        $this->authorize('update', $doctor);
         return view('doctors.edit', compact('doctor'));
     }
 
-    /**
-     * Update the specified doctor.
-     */
     public function update(UpdateDoctorRequest $request, Doctor $doctor)
     {
+        $this->authorize('update', $doctor);
         try {
             $this->doctorService->updateDoctor($doctor, $request->validated());
-
             return redirect()->route('doctors.index')
                 ->with('success', __('Doctor updated successfully!'));
         } catch (\Exception $e) {
@@ -111,20 +78,18 @@ class DoctorController extends Controller
         }
     }
 
-    /**
-     * Remove the specified doctor.
-     */
     public function destroy(Doctor $doctor)
     {
+        $this->authorize('delete', $doctor);
         try {
-            $doctor->delete();
-
+            $this->doctorService->deleteDoctor($doctor);
             return redirect()->route('doctors.index')
                 ->with('success', __('Doctor deleted successfully!'));
         } catch (\Exception $e) {
              Log::error('Failed to delete doctor: ' . $e->getMessage());
              return redirect()->route('doctors.index')
-                 ->with('error', __('Cannot delete. This doctor may have existing records.'));
+                 ->with('error', $e->getMessage());
         }
     }
+
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Doctor extends Model
@@ -14,6 +15,7 @@ class Doctor extends Model
      * The attributes that are mass assignable.
      */
     protected $fillable = [
+        'user_id',
         'name',
         'specialty',
         'phone',
@@ -37,6 +39,14 @@ class Doctor extends Model
         'consultation_fee' => 'decimal:2',
         'is_active' => 'boolean',
     ];
+
+    /**
+     * Get the user account associated with the doctor.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Get all appointments for the doctor.

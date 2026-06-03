@@ -5,11 +5,47 @@ namespace App\Services;
 use App\Models\MedicalRecord;
 use App\Models\Prescription;
 use App\Models\Appointment;
+use App\Models\Patient;
+use App\Models\Doctor;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class MedicalRecordService
 {
+    /**
+     * Get paginated, filtered list of medical records.
+     */
+    public function getAllMedicalRecords(array $filters): array
+    {
+        $query = MedicalRecord::with(['patient', 'doctor']);
+
+        if (!empty($filters['patient_id'])) {
+            $query->where('patient_id', $filters['patient_id']);
+        }
+
+        if (!empty($filters['doctor_id'])) {
+            $query->where('doctor_id', $filters['doctor_id']);
+        }
+
+        if (!empty($filters['date'])) {
+            $query->whereDate('visit_date', $filters['date']);
+        }
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('diagnosis', 'like', "%{$search}%")
+                  ->orWhere('diagnosis_code', 'like', "%{$search}%");
+            });
+        }
+
+        $records = $query->latest('visit_date')->paginate(10)->withQueryString();
+        $patients = Patient::orderBy('name')->get();
+        $doctors = Doctor::where('is_active', true)->orderBy('name')->get();
+
+        return compact('records', 'patients', 'doctors');
+    }
+
     /**
      * Create a medical record along with its prescription if provided.
      *
@@ -82,6 +118,26 @@ class MedicalRecordService
             }
 
             return $medicalRecord;
+        });
+    }
+
+    /**
+     * Delete a medical record and its associated prescription data.
+     *
+     * @param MedicalRecord $medicalRecord
+     * @return bool|null
+     * @throws \Exception
+     */
+    public function deleteRecord(MedicalRecord $medicalRecord)
+    {
+        return DB::transaction(function () use ($medicalRecord) {
+            // Delete prescription items and prescription if they exist
+            if ($medicalRecord->prescription) {
+                $medicalRecord->prescription->items()->delete();
+                $medicalRecord->prescription->delete();
+            }
+
+            return $medicalRecord->delete();
         });
     }
 }

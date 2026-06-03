@@ -7,6 +7,7 @@ use App\Models\DoctorSchedule;
 use App\Models\DoctorLeave;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Gate;
 
 class ScheduleController extends Controller
 {
@@ -15,17 +16,16 @@ class ScheduleController extends Controller
      */
     public function show(Doctor $doctor)
     {
+        $this->authorize('view', $doctor);
         $schedules = $doctor->schedules()->get()->keyBy('day_of_week');
         $leaves = $doctor->leaves()->where('end_date', '>=', now())->orderBy('start_date')->get();
         
         return view('doctors.schedule', compact('doctor', 'schedules', 'leaves'));
     }
 
-    /**
-     * Update the doctor's schedule.
-     */
     public function update(Request $request, Doctor $doctor)
     {
+        $this->authorize('update', $doctor);
         $validated = $request->validate([
             'schedules' => 'array',
             'schedules.*.day_of_week' => 'required|integer|min:0|max:6',
@@ -118,6 +118,7 @@ class ScheduleController extends Controller
      */
     public function storeLeave(Request $request, Doctor $doctor)
     {
+        $this->authorize('update', $doctor);
         $validated = $request->validate([
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
@@ -134,6 +135,7 @@ class ScheduleController extends Controller
      */
     public function destroyLeave(Doctor $doctor, DoctorLeave $leave)
     {
+        $this->authorize('update', $doctor);
         if ($leave->doctor_id !== $doctor->id) {
             abort(403);
         }

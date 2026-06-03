@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ServiceController extends Controller
 {
@@ -12,9 +13,9 @@ class ServiceController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Service::class);
         $query = Service::query();
 
-        // Search
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where('name', 'like', "%{$search}%")
@@ -22,7 +23,6 @@ class ServiceController extends Controller
                   ->orWhere('name_ar', 'like', "%{$search}%");
         }
 
-        // Filter by Category
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
@@ -32,11 +32,9 @@ class ServiceController extends Controller
         return view('services.index', compact('services'));
     }
 
-    /**
-     * Store a newly created service.
-     */
     public function store(Request $request)
     {
+        $this->authorize('create', Service::class);
         $validated = $request->validate([
             'code' => 'required|string|unique:services,code|max:20',
             'name' => 'required|string|max:255',
@@ -54,11 +52,9 @@ class ServiceController extends Controller
             ->with('success', 'Service created successfully.');
     }
 
-    /**
-     * Update the specified service.
-     */
     public function update(Request $request, Service $service)
     {
+        $this->authorize('update', $service);
         $validated = $request->validate([
             'code' => 'required|string|max:20|unique:services,code,' . $service->id,
             'name' => 'required|string|max:255',
@@ -76,13 +72,9 @@ class ServiceController extends Controller
             ->with('success', 'Service updated successfully.');
     }
 
-    /**
-     * Remove the specified service.
-     */
     public function destroy(Service $service)
     {
-        // Check for dependencies (e.g. invoices) before deleting?
-        // For now, simple delete or soft delete logic.
+        $this->authorize('delete', $service);
         $service->delete();
 
         return redirect()->route('services.index')

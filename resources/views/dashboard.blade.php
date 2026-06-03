@@ -217,7 +217,7 @@
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-data">
-                <span class="stat-number">{{ $totalPatients }}</span>
+                <span class="stat-number">{{ $totalActivePatients }}</span>
                 <span class="stat-label" data-i18n="totalPatients">Total Patients</span>
                 <span class="stat-badge">+{{ $newPatientsMonth }} new</span>
             </div>
@@ -287,49 +287,37 @@
                     <span class="donut-label" data-i18n="total">Total</span>
                 </div>
             </div>
-            <div class="status-grid">
-                <div class="status-item pending">
+            <div class="status-grid" id="statusGrid">
+                @foreach(['pending', 'confirmed', 'completed', 'cancelled'] as $s)
+                @php $count = $statusBreakdown[$s] ?? 0; @endphp
+                <div class="status-item {{ $s }}">
                     <div class="status-indicator"></div>
-                    <span class="status-name" data-i18n="pending">Pending</span>
-                    <span class="status-count">{{ $pending }}</span>
+                    <span class="status-name" data-i18n="{{ $s }}">{{ ucfirst($s) }}</span>
+                    <span class="status-count">{{ $count }}</span>
                 </div>
-                <div class="status-item confirmed">
-                    <div class="status-indicator"></div>
-                    <span class="status-name" data-i18n="confirmed">Confirmed</span>
-                    <span class="status-count">{{ $confirmed }}</span>
-                </div>
-                <div class="status-item completed">
-                    <div class="status-indicator"></div>
-                    <span class="status-name" data-i18n="completed">Completed</span>
-                    <span class="status-count">{{ $completed }}</span>
-                </div>
-                <div class="status-item cancelled">
-                    <div class="status-indicator"></div>
-                    <span class="status-name" data-i18n="cancelled">Cancelled</span>
-                    <span class="status-count">{{ $cancelled }}</span>
-                </div>
+                @endforeach
             </div>
         </div>
     </div>
 
-    <!-- Weekly Trend -->
+    <!-- Monthly Revenue -->
     <div class="chart-panel trend-panel">
         <div class="panel-header">
             <div class="panel-title">
                 <div class="title-icon"><i class="fas fa-chart-line"></i></div>
                 <div>
-                    <h3 data-i18n="weeklyTrend">Weekly Trend</h3>
-                    <p data-i18n="last7days">Last 7 days performance</p>
+                    <h3 data-i18n="monthlyRevenue">Monthly Revenue</h3>
+                    <p data-i18n="revenueTrend">Revenue trend over last 6 months</p>
                 </div>
             </div>
             <div class="panel-badge">
-                <i class="fas fa-arrow-trend-up"></i>
-                <span data-i18n="live">Live</span>
+                <i class="fas fa-dollar-sign"></i>
+                <span>{{ $monthlyRevenue['revenue'][array_key_last($monthlyRevenue['revenue']) ?? 0] ?? 0 }} this month</span>
             </div>
         </div>
         <div class="panel-body">
             <div class="trend-chart-wrapper">
-                <canvas id="weeklyChart"></canvas>
+                <canvas id="revenueChart"></canvas>
             </div>
         </div>
     </div>
@@ -402,38 +390,58 @@
 <script src="{{ asset('vendor/chartjs/chart.min.js') }}"></script>
 <script>
 // Chart data from server
-const statusData = [{{ $pending }}, {{ $confirmed }}, {{ $completed }}, {{ $cancelled }}];
-const weeklyData = {
-    labels: [@foreach($weeklyData as $day)'{{ $day['day'] }}'@if(!$loop->last),@endif @endforeach],
-    data: [@foreach($weeklyData as $day){{ $day['count'] }}@if(!$loop->last),@endif @endforeach]
+const statusLabels = ['pending', 'confirmed', 'completed', 'cancelled'];
+const statusDataRaw = @json($statusBreakdown);
+const statusData = statusLabels.map(s => statusDataRaw[s] || 0);
+
+const monthlyRevenue = {
+    labels: [@foreach($monthlyRevenue['labels'] as $l)'{{ $l }}'@if(!$loop->last),@endif @endforeach],
+    data: [@foreach($monthlyRevenue['revenue'] as $r){{ $r }}@if(!$loop->last),@endif @endforeach]
 };
 
-// Status Chart
+const t = (key) => {
+    if (typeof window.translations !== 'undefined') {
+        const lang = document.documentElement.lang || 'en';
+        if (window.translations[lang] && window.translations[lang][key]) return window.translations[lang][key];
+    }
+    return key.charAt(0).toUpperCase() + key.slice(1);
+};
+
+function getChartColors() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return {
+        grid: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+        tick: isDark ? '#9896a8' : '#888888',
+        border: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+        tooltipBg: isDark ? '#1a1a2e' : '#ffffff',
+        tooltipText: isDark ? '#e4e3ea' : '#2c2c2c',
+        tooltipBorder: isDark ? 'rgba(0,212,170,0.2)' : 'rgba(0,0,0,0.1)',
+        pointBg: isDark ? '#00d4aa' : '#0f3d3e',
+        pointBorder: isDark ? '#0f0f1a' : '#ffffff',
+        fillGradient: isDark ? 'rgba(0,212,170,0.08)' : 'rgba(15,61,62,0.08)',
+        lineColor: isDark ? '#00d4aa' : '#0f3d3e',
+    };
+}
+
+const cc = getChartColors();
+
+// Status Chart (doughnut)
 const statusCtx = document.getElementById('statusChart');
 if (statusCtx) {
-    const t = (key) => {
-        if (typeof window.translations !== 'undefined') {
-            const lang = document.documentElement.lang || 'en';
-            if (window.translations[lang] && window.translations[lang][key]) {
-                return window.translations[lang][key];
-            }
-        }
-        return key.charAt(0).toUpperCase() + key.slice(1);
-    };
-
     new Chart(statusCtx, {
         type: 'doughnut',
         data: {
-            labels: [t('pending'), t('confirmed'), t('completed'), t('cancelled')],
+            labels: statusLabels.map(t),
             datasets: [{
                 data: statusData,
                 backgroundColor: [
-                    'rgba(255, 193, 7, 0.8)',
-                    'rgba(13, 202, 240, 0.8)',
-                    'rgba(25, 135, 84, 0.8)',
-                    'rgba(220, 53, 69, 0.8)'
+                    'rgba(251, 191, 36, 0.85)',
+                    'rgba(16, 185, 129, 0.85)',
+                    'rgba(59, 130, 246, 0.85)',
+                    'rgba(239, 68, 68, 0.85)'
                 ],
                 borderWidth: 2,
+                borderColor: cc.pointBorder,
                 hoverOffset: 10
             }]
         },
@@ -441,42 +449,91 @@ if (statusCtx) {
             responsive: true,
             maintainAspectRatio: false,
             cutout: '70%',
-            plugins: { legend: { display: false } }
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: cc.tooltipBg,
+                    titleColor: cc.tooltipText,
+                    bodyColor: cc.tooltipText,
+                    borderColor: cc.tooltipBorder,
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    padding: 12,
+                    callbacks: {
+                        label: function(ctx) {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                            return ctx.label + ': ' + ctx.parsed + ' (' + pct + '%)';
+                        }
+                    }
+                }
+            }
         }
     });
 }
 
-// Weekly Chart
-const weeklyCtx = document.getElementById('weeklyChart');
-if (weeklyCtx) {
-    new Chart(weeklyCtx, {
+// Monthly Revenue Chart
+const revenueCtx = document.getElementById('revenueChart');
+if (revenueCtx) {
+    new Chart(revenueCtx, {
         type: 'line',
         data: {
-            labels: weeklyData.labels,
+            labels: monthlyRevenue.labels,
             datasets: [{
-                label: 'Appointments',
-                data: weeklyData.data,
+                label: 'Revenue',
+                data: monthlyRevenue.data,
                 fill: true,
-                backgroundColor: 'rgba(47, 65, 86, 0.1)',
-                borderColor: 'rgba(47, 65, 86, 0.8)',
+                backgroundColor: cc.fillGradient,
+                borderColor: cc.lineColor,
                 borderWidth: 3,
                 tension: 0.4,
-                pointBackgroundColor: 'rgba(47, 65, 86, 1)',
-                pointBorderColor: '#fff',
+                pointBackgroundColor: cc.pointBg,
+                pointBorderColor: cc.pointBorder,
                 pointBorderWidth: 2,
-                pointRadius: 5
+                pointRadius: 5,
+                pointHoverRadius: 7
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: cc.tooltipBg,
+                    titleColor: cc.tooltipText,
+                    bodyColor: cc.tooltipText,
+                    borderColor: cc.tooltipBorder,
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    padding: 12,
+                    callbacks: {
+                        label: function(ctx) {
+                            return '$' + ctx.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            },
             scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                x: {
+                    grid: { display: false },
+                    ticks: { color: cc.tick, font: { size: 11 } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: cc.grid },
+                    ticks: {
+                        color: cc.tick,
+                        font: { size: 11 },
+                        callback: function(value) { return '$' + value.toLocaleString(); }
+                    }
+                }
             }
         }
     });
 }
+
+// On theme toggle, reload to reinitialize charts with correct colors
+// (theme persistence handled by app.js)
 </script>
 @endsection

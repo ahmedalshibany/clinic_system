@@ -18,6 +18,13 @@
                     <a href="{{ route('medical-records.edit', $medicalRecord) }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-edit me-1"></i> {{ __('Edit') }}
                     </a>
+                    <form action="{{ route('medical-records.destroy', $medicalRecord) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this medical record?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash me-1"></i> {{ __('Delete') }}
+                        </button>
+                    </form>
                 </div>
             </div>
             <div class="card-body">

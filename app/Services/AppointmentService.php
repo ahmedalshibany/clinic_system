@@ -6,10 +6,56 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class AppointmentService
 {
+    /**
+     * Get paginated, filtered list of appointments.
+     */
+    public function getAllAppointments(array $filters): LengthAwarePaginator
+    {
+        $query = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name,specialty', 'vital'])
+            ->select('id', 'patient_id', 'doctor_id', 'date', 'time', 'type', 'status', 'fee');
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient', function ($pq) use ($search) {
+                    $pq->where('name', 'like', "%{$search}%");
+                })->orWhereHas('doctor', function ($dq) use ($search) {
+                    $dq->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        if (!empty($filters['status']) && $filters['status'] !== 'all') {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['date'])) {
+            $query->whereDate('date', $filters['date']);
+        }
+
+        $sortColumn = $filters['sort'] ?? 'date';
+        $sortDirection = $filters['direction'] ?? 'desc';
+
+        if ($sortColumn === 'patient') {
+            $query->join('patients', 'appointments.patient_id', '=', 'patients.id')
+                  ->orderBy('patients.name', $sortDirection)
+                  ->select('appointments.*');
+        } elseif ($sortColumn === 'doctor') {
+            $query->join('doctors', 'appointments.doctor_id', '=', 'doctors.id')
+                  ->orderBy('doctors.name', $sortDirection)
+                  ->select('appointments.*');
+        } else {
+            $query->orderBy($sortColumn, $sortDirection);
+        }
+
+        return $query->paginate(10)->withQueryString();
+    }
+
     /**
      * Create a new appointment.
      *

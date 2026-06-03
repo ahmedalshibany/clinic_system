@@ -6,11 +6,35 @@ use App\Models\Patient;
 use App\Models\Prescription;
 use App\Models\PrescriptionItem;
 use App\Models\Vital;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
 class PatientService
 {
+    /**
+     * Get paginated, filtered list of patients.
+     */
+    public function getAllPatients(array $filters): LengthAwarePaginator
+    {
+        $query = Patient::query();
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('address', 'like', "%{$search}%");
+            });
+        }
+
+        $sortColumn = $filters['sort'] ?? 'id';
+        $sortDirection = $filters['direction'] ?? 'desc';
+        $query->orderBy($sortColumn, $sortDirection);
+
+        return $query->paginate(10)->withQueryString();
+    }
+
     /**
      * Create a new patient.
      *

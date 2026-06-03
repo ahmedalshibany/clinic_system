@@ -4,11 +4,48 @@ namespace App\Services;
 
 use App\Models\Invoice;
 use App\Models\Payment;
-use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceService
 {
+    /**
+     * Get paginated, filtered list of invoices.
+     */
+    public function getAllInvoices(array $filters): LengthAwarePaginator
+    {
+        $query = Invoice::query()
+            ->with(['patient:id,name,patient_code', 'appointment:id,date,type'])
+            ->select('id', 'invoice_number', 'patient_id', 'appointment_id', 'total', 'amount_paid', 'status', 'created_at', 'due_date');
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['patient_id'])) {
+            $query->where('patient_id', $filters['patient_id']);
+        }
+
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
+        }
+
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
+        }
+
+        if (!empty($filters['search'])) {
+            $query->where('invoice_number', 'like', "%{$filters['search']}%");
+        }
+
+        $sortColumn = $filters['sort'] ?? 'created_at';
+        $sortDirection = $filters['direction'] ?? 'desc';
+        $query->orderBy($sortColumn, $sortDirection);
+
+        return $query->paginate(10)->withQueryString();
+    }
+
     /**
      * Create a new invoice.
      *
