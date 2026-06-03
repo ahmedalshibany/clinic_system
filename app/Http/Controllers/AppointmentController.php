@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Patient;
 use App\Models\Doctor;
+use App\Models\User;
 use App\Services\AppointmentService;
 use Illuminate\Http\Request;
 use App\Http\Requests\Appointment\StoreAppointmentRequest;
 use App\Http\Requests\Appointment\UpdateAppointmentRequest;
+use Illuminate\Support\Facades\Gate;
 
 class AppointmentController extends Controller
 {
@@ -24,69 +26,24 @@ class AppointmentController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name,specialty', 'vital'])
-            ->select('id', 'patient_id', 'doctor_id', 'date', 'time', 'type', 'status', 'fee');
-
-        // Search
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->whereHas('patient', function ($pq) use ($search) {
-                    $pq->where('name', 'like', "%{$search}%");
-                })->orWhereHas('doctor', function ($dq) use ($search) {
-                    $dq->where('name', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        // Filter by status
-        if ($request->filled('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by date
-        if ($request->filled('date')) {
-            $query->whereDate('date', $request->date);
-        }
-
-        // Sort
-        $sortColumn = $request->get('sort', 'date');
-        $sortDirection = $request->get('direction', 'desc');
-        
-        if ($sortColumn === 'patient') {
-            $query->join('patients', 'appointments.patient_id', '=', 'patients.id')
-                  ->orderBy('patients.name', $sortDirection)
-                  ->select('appointments.*');
-        } elseif ($sortColumn === 'doctor') {
-            $query->join('doctors', 'appointments.doctor_id', '=', 'doctors.id')
-                  ->orderBy('doctors.name', $sortDirection)
-                  ->select('appointments.*');
-        } else {
-            $query->orderBy($sortColumn, $sortDirection);
-        }
-
-        $appointments = $query->paginate(10)->withQueryString();
-        $patients = Patient::select('id', 'name')->orderBy('name')->get();
+        $this->authorize('viewAny', Appointment::class);
+        $appointments = $this->appointmentService->getAllAppointments($request->all());
         $doctors = Doctor::select('id', 'name')->where('is_active', true)->orderBy('name')->get();
 
-        return view('appointments.index', compact('appointments', 'patients', 'doctors'));
+        return view('appointments.index', compact('appointments', 'doctors'));
     }
 
-    /**
-     * Show the form for creating a new appointment.
-     */
     public function create()
     {
+        $this->authorize('create', Appointment::class);
         $patients = Patient::orderBy('name')->get();
         $doctors = Doctor::where('is_active', true)->orderBy('name')->get();
         return view('appointments.create', compact('patients', 'doctors'));
     }
 
-    /**
-     * Store a newly created appointment.
-     */
     public function store(StoreAppointmentRequest $request)
     {
+        $this->authorize('create', Appointment::class);
         $validated = $request->validated();
 
         try {
@@ -98,30 +55,24 @@ class AppointmentController extends Controller
         }
     }
 
-    /**
-     * Display the specified appointment.
-     */
     public function show(Appointment $appointment)
     {
+        $this->authorize('view', $appointment);
         $appointment->load(['patient', 'doctor']);
         return view('appointments.show', compact('appointment'));
     }
 
-    /**
-     * Show the form for editing the specified appointment.
-     */
     public function edit(Appointment $appointment)
     {
+        $this->authorize('update', $appointment);
         $patients = Patient::orderBy('name')->get();
         $doctors = Doctor::where('is_active', true)->orderBy('name')->get();
         return view('appointments.edit', compact('appointment', 'patients', 'doctors'));
     }
 
-    /**
-     * Update the specified appointment.
-     */
     public function update(UpdateAppointmentRequest $request, Appointment $appointment)
     {
+        $this->authorize('update', $appointment);
         $validated = $request->validated();
 
         try {
@@ -133,11 +84,9 @@ class AppointmentController extends Controller
         }
     }
 
-    /**
-     * Remove the specified appointment.
-     */
     public function destroy(Appointment $appointment)
     {
+        $this->authorize('delete', $appointment);
         try {
             $this->appointmentService->deleteAppointment($appointment);
             return redirect()->route('appointments.index')
@@ -151,18 +100,21 @@ class AppointmentController extends Controller
 
     public function checkIn(Appointment $appointment)
     {
+        $this->authorize('checkIn', $appointment);
         $this->appointmentService->updateStatus($appointment, 'checked_in');
         return back()->with('success', 'Patient checked in successfully.');
     }
 
     public function startVisit(Appointment $appointment)
     {
+        $this->authorize('startVisit', $appointment);
         $this->appointmentService->updateStatus($appointment, 'in_progress');
         return back()->with('success', 'Visit started.');
     }
 
     public function complete(Request $request, Appointment $appointment)
     {
+        $this->authorize('complete', $appointment);
         $request->validate([
             'diagnosis' => 'nullable|string',
         ]);
@@ -173,8 +125,19 @@ class AppointmentController extends Controller
 
     public function markNoShow(Appointment $appointment)
     {
+        $this->authorize('markNoShow', $appointment);
         $this->appointmentService->updateStatus($appointment, 'no_show');
         return back()->with('success', 'Marked as No Show.');
+    }
+
+    public function reopenVitals(Appointment $appointment)
+    {
+        Gate::authorize('reopenVitals', User::class);
+        $appointment->update([
+            'vitals_unlocked' => true,
+            'status' => 'pending',
+        ]);
+        return back()->with('success', 'Vitals re-opened for nurse triage.');
     }
 
     /**
@@ -182,6 +145,7 @@ class AppointmentController extends Controller
      */
     public function calendar()
     {
+        $this->authorize('viewAny', Appointment::class);
         $doctors = Doctor::where('is_active', true)->orderBy('name')->get();
         return view('appointments.calendar', compact('doctors'));
     }
@@ -191,6 +155,7 @@ class AppointmentController extends Controller
      */
     public function events(Request $request)
     {
+        $this->authorize('viewAny', Appointment::class);
         $query = Appointment::with(['patient', 'doctor']);
 
         if ($request->filled('doctor_id')) {
@@ -237,6 +202,7 @@ class AppointmentController extends Controller
      */
     public function queue(Request $request)
     {
+        $this->authorize('viewAny', Appointment::class);
         $query = Appointment::with(['patient', 'doctor', 'vital'])
             ->whereDate('date', now()->today());
 

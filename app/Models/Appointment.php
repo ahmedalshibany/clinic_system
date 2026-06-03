@@ -28,6 +28,7 @@ class Appointment extends Model
         'diagnosis',
         'prescription',
         'fee',
+        'vitals_unlocked',
     ];
 
     /**
@@ -40,6 +41,7 @@ class Appointment extends Model
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
         'fee' => 'decimal:2',
+        'vitals_unlocked' => 'boolean',
     ];
 
     /**

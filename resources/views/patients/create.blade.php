@@ -7,7 +7,7 @@
 @section('content')
 <div class="row justify-content-center">
     <div class="col-xl-9">
-        <form action="{{ route('patients.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('patients.store') }}" method="POST">
             @csrf
             
             <!-- Personal Information -->
@@ -17,10 +17,6 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-12 mb-3">
-                            <label class="form-label">Patient Photo</label>
-                            <input type="file" class="form-control" name="photo" accept="image/*">
-                        </div>
                         <div class="col-md-6">
                             <label class="form-label">Full Name (Primary) <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="name" value="{{ old('name') }}" required placeholder="e.g. John Doe">

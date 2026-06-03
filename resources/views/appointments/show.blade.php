@@ -6,23 +6,23 @@
 <div class="row">
     <div class="col-md-8 mx-auto">
         <div class="card mb-4">
-            <div class="card-header pb-0 d-flex justify-content-between">
-                <h6>{{ __('Appointment Details') }}</h6>
-                <div>
-                   @if(!$appointment->vital && $appointment->status != 'cancelled')
-                       <a href="{{ route('nurse.vitals.create', $appointment) }}" class="btn btn-sm btn-success">
-                           <i class="fas fa-heartbeat me-1"></i> {{ __('Record Vitals') }}
-                       </a>
-                   @endif
+            <div class="card-header py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h6 class="mb-0">{{ __('Appointment Details') }}</h6>
+                <div class="d-flex gap-2 flex-wrap">
+                    @if(!$appointment->vital && $appointment->status != 'cancelled')
+                        <a href="{{ route('nurse.vitals.create', $appointment) }}" class="btn btn-sm btn-success">
+                            <i class="fas fa-heartbeat me-1"></i> {{ __('Record Vitals') }}
+                        </a>
+                    @endif
 
                    @if($appointment->status == 'pending' || $appointment->status == 'confirmed')
-                       <form action="{{ route('appointments.no-show', $appointment) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('Are you sure you want to mark this as No-Show?') }}')">
-                           @csrf
-                           <button type="submit" class="btn btn-sm btn-outline-danger">
-                               <i class="fas fa-user-slash me-1"></i> {{ __('Mark No-Show') }}
-                           </button>
-                       </form>
-                   @endif
+                        <form action="{{ route('appointments.no-show', $appointment) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('Are you sure you want to mark this as No-Show?') }}')">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-user-slash me-1"></i> {{ __('Mark No-Show') }}
+                            </button>
+                        </form>
+                    @endif
 
                    <a href="{{ route('appointments.edit', $appointment->id) }}" class="btn btn-sm btn-info">{{ __('Edit') }}</a>
                    <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-secondary">{{ __('Back') }}</a>
@@ -82,6 +82,30 @@
                         </div>
                         @endif
                     </div>
+                    @if(in_array(auth()->user()->role, ['admin', 'doctor']) && !in_array($appointment->status, ['pending', 'cancelled']))
+                    <div class="card-footer border-top d-flex justify-content-end">
+                        <form action="{{ route('appointments.reopen-vitals', $appointment) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('Re-open vitals for nurse update? Appointment will revert to pending.') }}')">
+                            @csrf
+                            <button type="submit" class="btn btn-warning fw-bold px-4">
+                                <i class="fas fa-unlock me-2"></i> {{ __('Re-open Vitals for Nurse Update') }}
+                            </button>
+                        </form>
+                    </div>
+                    @endif
+                </div>
+                @elseif(in_array(auth()->user()->role, ['admin', 'doctor']) && !in_array($appointment->status, ['pending', 'cancelled']))
+                <div class="alert alert-warning d-flex align-items-center gap-3 mb-3">
+                    <i class="fas fa-info-circle fa-lg"></i>
+                    <div class="flex-grow-1">
+                        <strong>{{ __('No vitals recorded yet.') }}</strong>
+                        <span class="ms-1">{{ __('This appointment is') }} <strong>{{ $appointment->status }}</strong>.</span>
+                    </div>
+                    <form action="{{ route('appointments.reopen-vitals', $appointment) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('Re-open vitals for nurse update? Appointment will revert to pending.') }}')">
+                        @csrf
+                        <button type="submit" class="btn btn-warning fw-bold btn-sm">
+                            <i class="fas fa-unlock me-1"></i> {{ __('Re-open Vitals') }}
+                        </button>
+                    </form>
                 </div>
                 @endif
 
@@ -105,6 +129,15 @@
                             <span class="badge bg-danger">{{ __('Cancelled') }}</span>
                         @elseif($appointment->status == 'completed')
                             <span class="badge bg-info">{{ __('Completed') }}</span>
+                        @endif
+
+                        @if(in_array(auth()->user()->role, ['admin', 'doctor']) && !in_array($appointment->status, ['pending', 'cancelled']))
+                            <form action="{{ route('appointments.reopen-vitals', $appointment) }}" method="POST" class="d-inline ms-2" onsubmit="return confirm('{{ __('Re-open vitals for nurse update? Appointment will revert to pending.') }}')">
+                                @csrf
+                                <button type="submit" class="btn btn-warning btn-sm fw-bold">
+                                    <i class="fas fa-unlock me-1"></i> {{ __('Re-open Vitals') }}
+                                </button>
+                            </form>
                         @endif
                     </div>
                 </div>

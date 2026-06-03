@@ -18,7 +18,7 @@ use App\Http\Controllers\UserController;
 Route::middleware('guest')->group(function () {
     Route::get('/', [AuthController::class, 'showLogin'])->name('login');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
-    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('auth.attempt');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:30,1')->name('auth.attempt');
 });
 
 // Logout (authenticated users only)
@@ -29,42 +29,61 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Resource Routes
-    Route::resource('patients', PatientController::class);
-    Route::post('patients/{patient}/files', [PatientController::class, 'uploadFile'])->name('patients.upload-file');
-    Route::get('patients/{patient}/files/{file}', [PatientController::class, 'downloadFile'])->name('patients.download-file');
-    Route::delete('patients/{patient}/files/{file}', [PatientController::class, 'deleteFile'])->name('patients.delete-file');
-    Route::get('doctors/{doctor}/schedule', [App\Http\Controllers\ScheduleController::class, 'show'])->name('doctors.schedule');
-    Route::put('doctors/{doctor}/schedule', [App\Http\Controllers\ScheduleController::class, 'update'])->name('doctors.schedule.update');
-    Route::post('doctors/{doctor}/leaves', [App\Http\Controllers\ScheduleController::class, 'storeLeave'])->name('doctors.leaves.store');
-    Route::delete('doctors/{doctor}/leaves/{leave}', [App\Http\Controllers\ScheduleController::class, 'destroyLeave'])->name('doctors.leaves.destroy');
-    Route::get('doctors/{doctor}/available-slots/{date}', [App\Http\Controllers\ScheduleController::class, 'getAvailableSlots'])->name('doctors.available-slots');
-    Route::resource('doctors', DoctorController::class);
-    Route::get('appointments/calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
-    Route::get('appointments/events', [AppointmentController::class, 'events'])->name('appointments.events');
-    Route::get('appointments/queue', [AppointmentController::class, 'queue'])->name('appointments.queue');
-    Route::resource('appointments', AppointmentController::class);
-    Route::post('appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn'])->name('appointments.check-in');
-    Route::post('appointments/{appointment}/start', [AppointmentController::class, 'startVisit'])->name('appointments.start');
-    Route::post('appointments/{appointment}/complete', [AppointmentController::class, 'complete'])->name('appointments.complete');
-    Route::post('appointments/{appointment}/no-show', [AppointmentController::class, 'markNoShow'])->name('appointments.no-show');
-    // Medical Records & Prescriptions
-    Route::get('medicalrecords-/create/{patient}', [App\Http\Controllers\MedicalRecordController::class, 'create'])->name('medical-records.create');
-    Route::get('medical-records/{medical_record}/print-prescription', [App\Http\Controllers\MedicalRecordController::class, 'printPrescription'])->name('medical-records.print-prescription');
-    Route::get('medical-records/{medical_record}/print-report', [App\Http\Controllers\MedicalRecordController::class, 'printReport'])->name('medical-records.print-report');
-    Route::resource('medical-records', App\Http\Controllers\MedicalRecordController::class);
+    // Patients (all roles can access, policy gates fine-grained)
+    Route::middleware('role:admin,doctor,receptionist,nurse')->group(function () {
+        Route::resource('patients', PatientController::class);
+        Route::post('patients/{patient}/files', [PatientController::class, 'uploadFile'])->name('patients.upload-file');
+        Route::get('patients/{patient}/files/{file}', [PatientController::class, 'downloadFile'])->name('patients.download-file');
+        Route::delete('patients/{patient}/files/{file}', [PatientController::class, 'deleteFile'])->name('patients.delete-file');
+    });
 
-    Route::resource('services', App\Http\Controllers\ServiceController::class);
+    // Doctors (all roles can view, admin manages)
+    Route::middleware('role:admin,doctor,receptionist,nurse')->group(function () {
+        Route::resource('doctors', DoctorController::class);
+        Route::get('doctors/{doctor}/schedule', [App\Http\Controllers\ScheduleController::class, 'show'])->name('doctors.schedule');
+        Route::put('doctors/{doctor}/schedule', [App\Http\Controllers\ScheduleController::class, 'update'])->name('doctors.schedule.update');
+        Route::post('doctors/{doctor}/leaves', [App\Http\Controllers\ScheduleController::class, 'storeLeave'])->name('doctors.leaves.store');
+        Route::delete('doctors/{doctor}/leaves/{leave}', [App\Http\Controllers\ScheduleController::class, 'destroyLeave'])->name('doctors.leaves.destroy');
+        Route::get('doctors/{doctor}/available-slots/{date}', [App\Http\Controllers\ScheduleController::class, 'getAvailableSlots'])->name('doctors.available-slots');
+    });
 
-    // Invoices
-    Route::get('invoices/{appointment}/create', [App\Http\Controllers\InvoiceController::class, 'createFromAppointment'])->name('invoices.create-from-appointment');
-    Route::post('invoices/{invoice}/payment', [App\Http\Controllers\InvoiceController::class, 'recordPayment'])->name('invoices.payment');
-    Route::post('invoices/{invoice}/send', [App\Http\Controllers\InvoiceController::class, 'send'])->name('invoices.send');
-    Route::get('invoices/{invoice}/print', [App\Http\Controllers\InvoiceController::class, 'print'])->name('invoices.print');
-    Route::get('invoices/{invoice}/pdf', [App\Http\Controllers\InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
-    Route::resource('invoices', App\Http\Controllers\InvoiceController::class);
+    // Appointments (all roles can view, policy gates lifecycle actions)
+    Route::middleware('role:admin,doctor,receptionist,nurse')->group(function () {
+        Route::get('appointments/calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
+        Route::get('appointments/events', [AppointmentController::class, 'events'])->name('appointments.events');
+        Route::get('appointments/queue', [AppointmentController::class, 'queue'])->name('appointments.queue');
+        Route::resource('appointments', AppointmentController::class);
+        Route::post('appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn'])->name('appointments.check-in');
+        Route::post('appointments/{appointment}/start', [AppointmentController::class, 'startVisit'])->name('appointments.start');
+        Route::post('appointments/{appointment}/complete', [AppointmentController::class, 'complete'])->name('appointments.complete');
+        Route::post('appointments/{appointment}/no-show', [AppointmentController::class, 'markNoShow'])->name('appointments.no-show');
+        Route::post('appointments/{appointment}/reopen-vitals', [AppointmentController::class, 'reopenVitals'])->name('appointments.reopen-vitals');
+    });
 
-    // Reports
+    // Medical Records & Prescriptions (admin & doctor only — strictly blocks receptionist/nurse)
+    Route::middleware('role:admin,doctor')->group(function () {
+        Route::get('medical-records/create/{patient}', [App\Http\Controllers\MedicalRecordController::class, 'create'])->name('medical-records.create');
+        Route::get('medical-records/{medical_record}/print-prescription', [App\Http\Controllers\MedicalRecordController::class, 'printPrescription'])->name('medical-records.print-prescription');
+        Route::get('medical-records/{medical_record}/print-report', [App\Http\Controllers\MedicalRecordController::class, 'printReport'])->name('medical-records.print-report');
+        Route::resource('medical-records', App\Http\Controllers\MedicalRecordController::class);
+    });
+
+    // Services (all roles can view, admin manages)
+    Route::middleware('role:admin,doctor,receptionist,nurse')->group(function () {
+        Route::resource('services', App\Http\Controllers\ServiceController::class);
+    });
+
+    // Invoices (admin & receptionist manage, doctor view-only)
+    Route::middleware('role:admin,receptionist,doctor')->group(function () {
+        Route::get('invoices/{appointment}/create', [App\Http\Controllers\InvoiceController::class, 'createFromAppointment'])->name('invoices.create-from-appointment');
+        Route::post('invoices/{invoice}/payment', [App\Http\Controllers\InvoiceController::class, 'recordPayment'])->name('invoices.payment');
+        Route::post('invoices/{invoice}/send', [App\Http\Controllers\InvoiceController::class, 'send'])->name('invoices.send');
+        Route::get('invoices/{invoice}/print', [App\Http\Controllers\InvoiceController::class, 'print'])->name('invoices.print');
+        Route::get('invoices/{invoice}/pdf', [App\Http\Controllers\InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
+        Route::resource('invoices', App\Http\Controllers\InvoiceController::class);
+    });
+
+    // Reports (admin & doctor only)
     Route::middleware(['role:admin,doctor'])->prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [App\Http\Controllers\ReportController::class, 'index'])->name('index');
         Route::get('/revenue', [App\Http\Controllers\ReportController::class, 'revenue'])->name('revenue');
@@ -77,11 +96,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/export/pdf/{report}', [App\Http\Controllers\ReportController::class, 'exportPdf'])->name('export.pdf');
     });
 
-    // Settings
-    Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+    // Settings (admin only)
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+    });
 
-    // Notifications
+    // Notifications (all authenticated users)
     Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/latest', [\App\Http\Controllers\NotificationController::class, 'getLatest'])->name('notifications.latest');
     Route::get('/notifications/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
@@ -103,7 +124,7 @@ Route::middleware('auth')->group(function () {
         Route::post('appointments/{appointment}/vitals', [App\Http\Controllers\NurseController::class, 'storeVitals'])->name('nurse.vitals.store');
     });
 
-    // API Internal Routes (AJAX)
+    // API Internal Routes (AJAX) — session-authenticated
     Route::get('/api/patients/search', [App\Http\Controllers\Api\PatientApiController::class, 'search'])->name('api.patients.search');
     Route::get('/api/medicines/search', [App\Http\Controllers\Api\MedicineApiController::class, 'search'])->name('api.medicines.search');
 });

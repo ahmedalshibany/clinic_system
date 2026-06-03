@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\Vital;
 use App\Services\VitalService;
 use App\Http\Requests\Vitals\StoreVitalRequest;
 use Illuminate\Support\Facades\Log;
@@ -21,22 +22,18 @@ class NurseController extends Controller
      */
     public function createVitals(Appointment $appointment)
     {
-        // Ensure appointment is in a state that allows vitals (e.g., not cancelled)
-        if ($appointment->status === 'cancelled') {
-            return back()->with('error', __('Cannot add vitals to a cancelled appointment.'));
+        $this->authorize('create', Vital::class);
+        if ($appointment->status !== 'pending' && !$appointment->vitals_unlocked) {
+            return back()->with('error', __('Cannot add vitals. Appointment must be pending or vitals must be unlocked by a doctor.'));
         }
-
         return view('nurse.vitals.create', compact('appointment'));
     }
 
-    /**
-     * Store newly created vitals.
-     */
     public function storeVitals(StoreVitalRequest $request, Appointment $appointment)
     {
+        $this->authorize('create', Vital::class);
         try {
             $this->vitalService->recordVitals($appointment, $request->validated());
-
             return redirect()->route('dashboard')
                 ->with('success', __('Vitals recorded successfully.'));
         } catch (\Exception $e) {
@@ -46,4 +43,5 @@ class NurseController extends Controller
                 ->with('error', __('Failed to record vitals. Please try again.'));
         }
     }
+
 }

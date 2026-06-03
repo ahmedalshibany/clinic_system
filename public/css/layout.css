@@ -48,9 +48,21 @@ body {
     display: flex;
     flex-direction: column;
     padding: 30px 15px;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     min-height: auto;
     clip-path: inset(0 round 30px);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.1) transparent;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.1);
+    border-radius: 2px;
 }
 
 .sidebar:hover {

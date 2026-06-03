@@ -33,4 +33,14 @@ class StoreVitalRequest extends FormRequest
             'notes' => 'nullable|string',
         ];
     }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $appointment = $this->route('appointment');
+            if ($appointment && $appointment->status !== 'pending' && !$appointment->vitals_unlocked) {
+                $validator->errors()->add('appointment', 'Cannot record vitals. Appointment must be pending or vitals must be unlocked by a doctor.');
+            }
+        });
+    }
 }

@@ -42,7 +42,6 @@ class StorePatientRequest extends FormRequest
             'insurance_number' => 'nullable|string|max:50',
             'insurance_expiry' => 'nullable|date',
             'status' => 'nullable|in:active,inactive,deceased',
-            'photo' => 'nullable|image|max:2048',
         ];
     }
 }

@@ -29,9 +29,15 @@ class VitalService
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            // Optional: Update appointment status to 'waiting' if it was pending/confirmed
+            $appointmentUpdate = [];
             if (in_array($appointment->status, ['pending', 'confirmed', 'checked_in'])) {
-                $appointment->update(['status' => 'waiting']);
+                $appointmentUpdate['status'] = 'waiting';
+            }
+            if ($appointment->vitals_unlocked) {
+                $appointmentUpdate['vitals_unlocked'] = false;
+            }
+            if (!empty($appointmentUpdate)) {
+                $appointment->update($appointmentUpdate);
             }
 
             return $vital;

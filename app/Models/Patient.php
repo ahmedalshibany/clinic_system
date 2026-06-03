@@ -43,7 +43,6 @@ class Patient extends Model
         'insurance_provider',
         'insurance_number',
         'insurance_expiry',
-        'photo',
         'notes',
         'status',
     ];
