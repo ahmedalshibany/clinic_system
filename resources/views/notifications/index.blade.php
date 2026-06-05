@@ -1,23 +1,24 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Notifications')
+@section('title', __('messages.notifications'))
+@section('page-title', __('messages.notifications'))
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0">Notifications</h4>
+    <h4 class="fw-bold mb-0">{{ __('messages.notifications') }}</h4>
     <div class="d-flex gap-2">
         @if($notifications->count() > 0)
         <form action="{{ route('notifications.mark-all-read') }}" method="POST">
             @csrf
             <button type="submit" class="btn btn-outline-primary shadow-sm">
-                <i class="fas fa-check-double me-2"></i> Mark all read
+                <i class="fas fa-check-double me-2"></i> {{ __('messages.markAllRead') }}
             </button>
         </form>
-        <form action="{{ route('notifications.clear-all') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete all notifications?');">
+        <form action="{{ route('notifications.clear-all') }}" method="POST" onsubmit="return confirm('{{ __("Are you sure you want to delete all notifications?") }}');">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-outline-danger shadow-sm">
-                <i class="fas fa-trash me-2"></i> Clear All
+                <i class="fas fa-trash me-2"></i> {{ __('Clear All') }}
             </button>
         </form>
         @endif
@@ -52,7 +53,7 @@
                             <div class="d-flex gap-3 align-items-center">
                                 @if($notification->link)
                                     <a href="{{ $notification->link }}" class="text-decoration-none small fw-bold text-primary">
-                                        View Details <i class="fas fa-arrow-right ms-1"></i>
+                                        {{ __('messages.viewDetails') }} <i class="fas fa-arrow-right ms-1"></i>
                                     </a>
                                 @endif
 
@@ -60,16 +61,16 @@
                                     <form action="{{ route('notifications.mark-as-read', $notification) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn btn-link btn-sm text-decoration-none p-0 text-muted small">Mark as read</button>
+                                        <button type="submit" class="btn btn-link btn-sm text-decoration-none p-0 text-muted small">{{ __('Mark as read') }}</button>
                                     </form>
                                 @else
-                                    <span class="text-success small"><i class="fas fa-check me-1"></i> Read</span>
+                                    <span class="text-success small"><i class="fas fa-check me-1"></i> {{ __('Read') }}</span>
                                 @endif
 
-                                <form action="{{ route('notifications.destroy', $notification) }}" method="POST" class="d-inline ms-auto" onsubmit="return confirm('Delete this notification?');">
+                                <form action="{{ route('notifications.destroy', $notification) }}" method="POST" class="d-inline ms-auto" onsubmit="return confirm('{{ __("Delete this notification?") }}');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-link btn-sm text-decoration-none p-0 text-danger" title="Delete">
+                                    <button type="submit" class="btn btn-link btn-sm text-decoration-none p-0 text-danger" title="{{ __('Delete') }}">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </form>
@@ -83,8 +84,8 @@
                 <div class="mb-3">
                     <i class="far fa-bell-slash fa-4x text-muted opacity-50"></i>
                 </div>
-                <h5 class="text-muted">No notifications found</h5>
-                <p class="text-muted small">You're all caught up!</p>
+                <h5 class="text-muted">{{ __('No notifications found') }}</h5>
+                <p class="text-muted small">{{ __("You're all caught up!") }}</p>
             </div>
         @endif
     </div>

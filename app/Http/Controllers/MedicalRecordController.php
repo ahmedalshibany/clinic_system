@@ -11,6 +11,7 @@ use App\Services\MedicalRecordService;
 use App\Http\Requests\MedicalRecord\StoreMedicalRecordRequest;
 use App\Http\Requests\MedicalRecord\UpdateMedicalRecordRequest;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 
 class MedicalRecordController extends Controller
 {
@@ -37,7 +38,7 @@ class MedicalRecordController extends Controller
         if ($request->filled('appointment_id')) {
             $appointment = Appointment::find($request->appointment_id);
         }
-        $doctor = $user->doctor;
+        $doctor = Auth::user()->doctor;
         $doctors = collect();
         if (!$doctor) {
             $doctors = Doctor::where('is_active', true)->orderBy('name')->get();

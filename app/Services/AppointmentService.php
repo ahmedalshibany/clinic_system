@@ -75,7 +75,7 @@ class AppointmentService
                 ->exists();
 
             if ($isOnLeave) {
-                throw new Exception(__('Doctor is on leave on this date.'));
+                throw new Exception(__('messages.doctorOnLeave'));
             }
 
             // 2. Check doctor's schedule
@@ -83,7 +83,7 @@ class AppointmentService
             $schedule = $doctor->schedules()->where('day_of_week', $dayOfWeek)->where('is_active', true)->first();
 
             if (!$schedule) {
-                throw new Exception(__('Doctor is not available on this day.'));
+                throw new Exception(__('messages.doctorUnavailable'));
             }
 
             // 3. Check time slot validity (within working hours)
@@ -92,25 +92,40 @@ class AppointmentService
             $endTime = Carbon::parse($data['date'] . ' ' . $schedule->end_time);
 
             if ($apptTime->lt($startTime) || $apptTime->gte($endTime)) {
-                throw new Exception(__('Selected time is outside doctor\'s working hours.'));
+                throw new Exception(__('messages.timeOutsideHours'));
+            }
+
+            // 3a. Validate slot alignment (must be on 15-minute increments)
+            if ($apptTime->minute % 15 !== 0) {
+                throw new Exception(__('messages.slotMustBe15min'));
             }
         }
 
-        // 4. Check for conflicts
-        $conflict = Appointment::where('doctor_id', $data['doctor_id'])
-            ->where('date', $data['date'])
-            ->where('time', $data['time'])
-            ->whereNotIn('status', ['cancelled'])
-            ->exists();
+        DB::beginTransaction();
 
-        if ($conflict) {
-            throw new Exception(__('This time slot is already booked for this doctor.'));
+        try {
+            // 4. Check for conflicts
+            $conflict = Appointment::where('doctor_id', $data['doctor_id'])
+                ->where('date', $data['date'])
+                ->where('time', $data['time'])
+                ->whereNotIn('status', ['cancelled'])
+                ->lockForUpdate()
+                ->exists();
+
+            if ($conflict) {
+                throw new Exception(__('messages.timeSlotBooked'));
+            }
+
+            // Force initial status to 'waiting' according to business rules
+            $data['status'] = 'waiting';
+
+            $appointment = Appointment::create($data);
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
-
-        // Force initial status to 'waiting' according to business rules
-        $data['status'] = 'waiting';
-
-        $appointment = Appointment::create($data);
 
         // Notify Doctor
         try {
@@ -155,7 +170,7 @@ class AppointmentService
                 ->exists();
 
             if ($isOnLeave) {
-                throw new Exception(__('Doctor is on leave on this date.'));
+                throw new Exception(__('messages.doctorOnLeave'));
             }
             
             // 2. Check schedule 
@@ -163,7 +178,7 @@ class AppointmentService
             $schedule = $doctor->schedules()->where('day_of_week', $dayOfWeek)->where('is_active', true)->first();
 
             if (!$schedule) {
-                throw new Exception(__('Doctor is not available on this day.'));
+                throw new Exception(__('messages.doctorUnavailable'));
             }
 
              // 3. Check time slot validity (within working hours)
@@ -172,7 +187,12 @@ class AppointmentService
             $endTime = Carbon::parse($data['date'] . ' ' . $schedule->end_time);
 
             if ($apptTime->lt($startTime) || $apptTime->gte($endTime)) {
-                throw new Exception(__('Selected time is outside doctor\'s working hours.'));
+                throw new Exception(__('messages.timeOutsideHours'));
+            }
+
+            // 3a. Validate slot alignment (must be on 15-minute increments)
+            if ($apptTime->minute % 15 !== 0) {
+                throw new Exception(__('messages.slotMustBe15min'));
             }
         }
 
@@ -186,7 +206,7 @@ class AppointmentService
                 ->exists();
 
             if ($conflict) {
-               throw new Exception(__('This time slot is already booked for this doctor.'));
+               throw new Exception(__('messages.timeSlotBooked'));
             }
         }
 

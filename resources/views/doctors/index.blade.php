@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Doctors')
-@section('page-title', 'Doctors')
+@section('title', __('messages.doctors'))
+@section('page-title', __('messages.doctors'))
 @section('page-i18n', 'doctors')
 
 @section('content')

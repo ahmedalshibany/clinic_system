@@ -189,6 +189,20 @@ if (typeof DashboardManager === 'undefined') {
 
                 const { labels, data } = response.data;
 
+                const lang = document.documentElement.lang || 'en';
+                const t = (key) => {
+                    if (typeof window.translations !== 'undefined' && window.translations[lang] && window.translations[lang][key]) {
+                        return window.translations[lang][key];
+                    }
+                    return key;
+                };
+
+                const dayMap = { sun:'sun',mon:'mon',tue:'tue',wed:'wed',thu:'thu',fri:'fri',sat:'sat' };
+                const translatedLabels = labels.map(l => {
+                    const key = dayMap[l.toLowerCase().substring(0,3)];
+                    return key ? t(key) : l;
+                });
+
                 if (this.weeklyChart) {
                     this.weeklyChart.destroy();
                 }
@@ -196,9 +210,9 @@ if (typeof DashboardManager === 'undefined') {
                 this.weeklyChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: labels,
+                        labels: translatedLabels,
                         datasets: [{
-                            label: 'Appointments',
+                            label: t('appointmentsChart'),
                             data: data,
                             fill: true,
                             backgroundColor: 'rgba(47, 65, 86, 0.1)',
@@ -228,7 +242,7 @@ if (typeof DashboardManager === 'undefined') {
                         scales: {
                             x: {
                                 grid: { display: false },
-                                ticks: { font: { size: 12 } }
+                                ticks: { font: { size: 12, family: lang === 'ar' ? 'Tajawal' : undefined } }
                             },
                             y: {
                                 beginAtZero: true,
@@ -247,7 +261,18 @@ if (typeof DashboardManager === 'undefined') {
             try {
                 const response = await API.dashboard.weeklyTrend();
                 if (response.success && this.weeklyChart) {
-                    this.weeklyChart.data.labels = response.data.labels;
+                    const lang = document.documentElement.lang || 'en';
+                    const t = (key) => {
+                        if (typeof window.translations !== 'undefined' && window.translations[lang] && window.translations[lang][key]) {
+                            return window.translations[lang][key];
+                        }
+                        return key;
+                    };
+                    const dayMap = { sun:'sun',mon:'mon',tue:'tue',wed:'wed',thu:'thu',fri:'fri',sat:'sat' };
+                    this.weeklyChart.data.labels = response.data.labels.map(l => {
+                        const key = dayMap[l.toLowerCase().substring(0,3)];
+                        return key ? t(key) : l;
+                    });
                     this.weeklyChart.data.datasets[0].data = response.data.data;
                     this.weeklyChart.update('active');
                 }
@@ -301,7 +326,7 @@ if (typeof DashboardManager === 'undefined') {
                 const html = recent.map(appt => {
                     const statusColor = statusColors[appt.status] || 'secondary';
                     const statusIcon = statusIcons[appt.status] || 'fa-calendar';
-                    const detailUrl = appt.id ? `/appointments/${appt.id}` : '#';
+                    const detailUrl = appt.id ? `/appointments/${appt.id}?from=dashboard` : '#';
 
                     return `
                         <a href="${detailUrl}" class="activity-item text-decoration-none">

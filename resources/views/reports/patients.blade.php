@@ -1,5 +1,6 @@
 @extends('layouts.dashboard')
-@section('title', 'Patient Demographics')
+@section('title', 'Reports / Patients')
+@section('page-title', 'Reports / Patients')
 @section('content')
 <div class="row">
     <div class="col-md-6">

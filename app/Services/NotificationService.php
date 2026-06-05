@@ -63,8 +63,7 @@ class NotificationService
      */
     public function notifyDoctor(Doctor $doctor, string $type, string $title, string $message, array $data = [], ?string $link = null)
     {
-        // Try to find a user account associated with the doctor's email
-        $user = User::where('email', $doctor->email)->first();
+        $user = $doctor->user;
 
         if ($user) {
             $this->notifyUser($user, $type, $title, $message, $data, $link);

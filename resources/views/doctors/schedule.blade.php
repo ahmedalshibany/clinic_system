@@ -1,14 +1,14 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Manage Schedule - ' . $doctor->name)
-@section('page-title', 'Manage Schedule')
+@section('title', 'Doctors / Schedule - ' . $doctor->name)
+@section('page-title', 'Doctors / Schedule')
 
 @section('content')
 <div class="row">
     <div class="col-md-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Weekly Schedule for {{ $doctor->name }}</h5>
+                <h5 class="mb-0">Doctors / Schedule: {{ $doctor->name }}</h5>
                 <a href="{{ route('doctors.index') }}" class="btn btn-secondary btn-sm">Back to Doctors</a>
             </div>
             <div class="card-body">

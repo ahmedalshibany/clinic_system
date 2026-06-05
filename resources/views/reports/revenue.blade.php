@@ -1,10 +1,11 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Detailed Revenue Report')
+@section('title', 'Reports / Revenue')
+@section('page-title', 'Reports / Revenue')
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0 fw-bold">Revenue Report</h4>
+    <h4 class="mb-0 fw-bold">Reports / Revenue</h4>
     <div>
         <button onclick="window.print()" class="btn btn-outline-secondary me-2">
             <i class="fas fa-print me-1"></i> Print

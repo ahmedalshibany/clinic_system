@@ -1,12 +1,13 @@
 @extends('layouts.dashboard')
 
-@section('title', 'System Settings')
+@section('title', 'Settings')
+@section('page-title', 'Settings')
 
 @section('content')
 <div class="row mb-4">
     <div class="col-12">
     <div class="col-12">
-        <h4 class="mb-0 fw-bold" data-i18n="settingsTitle">Settings & Configuration</h4>
+        <h4 class="mb-0 fw-bold" data-i18n="settingsTitle">Settings</h4>
         <p class="text-muted small" data-i18n="settingsSubtitle">Manage clinic details, system preferences, and other configurations.</p>
     </div>
     </div>

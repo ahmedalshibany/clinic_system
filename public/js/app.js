@@ -48,6 +48,7 @@ window.translations = {
         genericSuccess: "Action completed successfully!",
         langBtn: "العربية",
         welcomeDr: "Welcome, Dr. Smith",
+        calendar: "Calendar",
         recentPatients: "Recent Patients",
         patientName: "Patient Name",
         actions: "Actions",
@@ -107,6 +108,8 @@ window.translations = {
         searchDoctors: "Search doctors...",
         noDoctors: "No doctors yet",
         all: "All Status",
+        allStatus: "All Status",
+        vitals: "Vitals",
         cancelled: "Cancelled",
         type: "Type",
         noData: "No appointments found",
@@ -120,7 +123,10 @@ window.translations = {
         appointmentCancelled: "Appointment cancelled successfully!",
         selectPatientDoctor: "Please select a valid patient and doctor from the list.",
         deleteAppointmentConfirmation: "Do you really want to cancel this appointment?",
+        editAppt: "Edit Appointment",
         editAppointment: "Edit Appointment",
+        patientProfile: "Patient Profile",
+        doctorProfile: "Doctor Profile",
         noAppointments: "No appointments yet",
         unknownPatient: "Unknown Patient",
         unknownDoctor: "Unknown Doctor",
@@ -150,7 +156,6 @@ window.translations = {
         thisWeek: "This Week",
         today: "Today",
         // Patient history translations
-        patientHistory: "Patient History",
         patientHistory: "Patient History",
         noAppointmentsForPatient: "No appointment history for this patient",
 
@@ -183,7 +188,6 @@ window.translations = {
         catLab: "Lab",
         catImaging: "Imaging",
         catOther: "Other",
-        catOther: "Other",
         serviceCode: "Service Code",
         name: "Name",
         category: "Category",
@@ -193,7 +197,7 @@ window.translations = {
         activeService: "Active Service",
         noServices: "No services found",
 
-        settingsTitle: "Settings & Configuration",
+        settingsTitle: "Settings",
         settingsSubtitle: "Manage clinic details, system preferences, and other configurations.",
         clinicInfo: "Clinic Info",
         clinicInfoDesc: "Logo, Address, Contacts",
@@ -285,14 +289,6 @@ window.translations = {
         appointmentsReport: "Appointments",
         appointmentsReportDesc: "Status summaries and no-show rates.",
 
-        // Missing Keys Added via Audit
-        showing: "Showing",
-        of: "of",
-        patientsLabel: "patients",
-        doctorsLabel: "doctors",
-        usersLabel: "users",
-        servicesLabel: "services",
-        invoicesLabel: "invoices",
         pendingInvoices: "Pending Invoices",
 
         clickToAddPatient: "Click 'Add Patient' to get started!",
@@ -306,8 +302,22 @@ window.translations = {
         resetPassword: "Reset Password",
         activate: "Activate",
         deactivate: "Deactivate",
+        editProfile: "Edit Profile",
+        contactInfo: "Contact Info",
+        practiceInfo: "Practice Info",
+        feeLabel: "Fee:",
+        biography: "Biography",
+        noBiography: "No biography provided.",
+        workingHours: "Working Hours",
+        noWorkingDays: "No working days configured.",
+        shiftsLabel: "Shifts:",
+        overview: "Overview",
+        recentAppointments: "Recent Appointments",
 
         // Confirmations
+        diagnosisPlaceholder: "Enter findings, diagnosis, or notes for the patient record...",
+        diagnosisHint: "This will be saved to the patient's medical history.",
+
         confirmDeleteDoctor: "Are you sure you want to delete this doctor?",
         confirmDeletePatient: "Are you sure you want to delete this patient?",
         confirmDeleteUser: "Are you sure you want to delete this user?",
@@ -346,13 +356,36 @@ window.translations = {
         confirmed: "Confirmed",
         completed: "Completed",
         cancelled: "Cancelled",
+        no_show: "No Show",
         consultation: "Consultation",
         procedure: "Procedure",
         lab: "Lab",
         imaging: "Imaging",
         noAppointments: "No appointments found",
+        revenue: "Revenue",
+        appointmentsChart: "Appointments",
+        patientsChart: "Patients",
+        viewDetails: "View Details",
+        checkIn: "Check In",
+        startVisit: "Start Visit",
+        completeVisit: "Complete Visit",
+        createInvoice: "Create Invoice",
+        notes: "Notes",
+        finalDiagnosis: "Final Diagnosis / Notes",
+        confirmCloseVisit: "Confirm & Close Visit",
+        visitOf: "Visit:",
+        toastSuccess: "Success",
+        toastError: "Error",
+        toastWarning: "Warning",
+        toastInfo: "Information",
+
+        // Month names for charts
+        month_jan: "January", month_feb: "February", month_mar: "March",
+        month_apr: "April", month_may: "May", month_jun: "June",
+        month_jul: "July", month_aug: "August", month_sep: "September",
+        month_oct: "October", month_nov: "November", month_dec: "December",
         // Settings Keys
-        settingsTitle: "Settings & Configuration",
+        settingsTitle: "Settings",
         settingsSubtitle: "Manage clinic details, system preferences, and other configurations.",
         clinicInfo: "Clinic Info",
         clinicInfoDesc: "Logo, Address, Contacts",
@@ -404,6 +437,11 @@ window.translations = {
         enterPassword: "Enter your password",
         login: "Login",
         logout: "Logout",
+
+        // Notification keys
+        notifications: "Notifications",
+        markAllRead: "Mark all read",
+        loading: "Loading...",
     },
     ar: {
         appTitle: "نظام العيادة",
@@ -454,6 +492,7 @@ window.translations = {
         genericSuccess: "تم تنفيذ الإجراء بنجاح!",
         langBtn: "English",
         welcomeDr: "مرحباً، د. سميث",
+        calendar: "التقويم",
         recentPatients: "المرضى الجدد",
         patientName: "اسم المريض",
         actions: "الإجراءات",
@@ -513,6 +552,8 @@ window.translations = {
         searchDoctors: "البحث عن الأطباء...",
         noDoctors: "لا يوجد أطباء بعد",
         all: "جميع الحالات",
+        allStatus: "جميع الحالات",
+        vitals: "العلامات الحيوية",
         cancelled: "ملغي",
         type: "النوع",
         noData: "لا توجد مواعيد",
@@ -527,6 +568,8 @@ window.translations = {
         selectPatientDoctor: "يرجى اختيار مريض وطبيب صالحين من القائمة.",
         deleteAppointmentConfirmation: "هل تريد حقاً إلغاء هذا الموعد؟",
         editAppointment: "تعديل الموعد",
+        patientProfile: "ملف المريض",
+        doctorProfile: "ملف الطبيب",
         noAppointments: "لا توجد مواعيد بعد",
         unknownPatient: "مريض غير معروف",
         unknownDoctor: "طبيب غير معروف",
@@ -556,7 +599,6 @@ window.translations = {
         thisWeek: "هذا الأسبوع",
         today: "اليوم",
         // Patient history translations
-        patientHistory: "سجل المريض",
         patientHistory: "سجل المريض",
         noAppointmentsForPatient: "لا يوجد سجل مواعيد لهذا المريض",
 
@@ -599,7 +641,7 @@ window.translations = {
         activeService: "خدمة نشطة",
         noServices: "لا توجد خدمات",
 
-        settingsTitle: "الإعدادات والتكوين",
+        settingsTitle: "الإعدادات",
         settingsSubtitle: "إدارة تفاصيل العيادة، تفضيلات النظام، وتكوينات أخرى.",
         clinicInfo: "معلومات العيادة",
         clinicInfoDesc: "الشعار، العنوان، جهات الاتصال",
@@ -691,14 +733,6 @@ window.translations = {
         appointmentsReport: "المواعيد",
         appointmentsReportDesc: "ملخصات الحالة ومعدلات التغيب.",
 
-        // Missing Keys Added via Audit
-        showing: "عرض",
-        of: "من",
-        patientsLabel: "مرضى",
-        doctorsLabel: "أطباء",
-        usersLabel: "مستخدمين",
-        servicesLabel: "خدمات",
-        invoicesLabel: "فواتير",
         pendingInvoices: "الفواتير المعلقة",
 
         clickToAddPatient: "انقر على 'إضافة مريض' للبدء!",
@@ -712,8 +746,22 @@ window.translations = {
         resetPassword: "إعادة تعيين كلمة المرور",
         activate: "تفعيل",
         deactivate: "تعطيل",
+        editProfile: "تعديل الملف الشخصي",
+        contactInfo: "معلومات الاتصال",
+        practiceInfo: "معلومات الممارسة",
+        feeLabel: "الرسوم:",
+        biography: "السيرة الذاتية",
+        noBiography: "لا توجد سيرة ذاتية.",
+        workingHours: "ساعات العمل",
+        noWorkingDays: "لم يتم تكوين أيام عمل.",
+        shiftsLabel: "المناوبات:",
+        overview: "نظرة عامة",
+        recentAppointments: "المواعيد الأخيرة",
 
         // Confirmations
+        diagnosisPlaceholder: "أدخل النتائج أو التشخيص أو الملاحظات لسجل المريض...",
+        diagnosisHint: "سيتم حفظ هذا في السجل الطبي للمريض.",
+
         confirmDeleteDoctor: "هل أنت متأكد من حذف هذا الطبيب؟",
         confirmDeletePatient: "هل أنت متأكد من حذف هذا المريض؟",
         confirmDeleteUser: "هل أنت متأكد من حذف هذا المستخدم؟",
@@ -748,17 +796,40 @@ window.translations = {
         appointmentsReportDesc: "ملخصات الحالة ومعدلات التغيب.",
 
         // Status & Chart Labels
-        pending: "قيد الانتظار",
+        pending: "مستحق / معلق",
         confirmed: "مؤكد",
         completed: "مكتمل",
-        cancelled: "ملغى",
+        cancelled: "ملغي",
+        no_show: "لم يحضر",
         consultation: "استشارة",
         procedure: "إجراء",
         lab: "مختبر",
         imaging: "تصوير",
         noAppointments: "لا توجد مواعيد",
+        revenue: "الإيرادات",
+        appointmentsChart: "المواعيد",
+        patientsChart: "المرضى",
+        viewDetails: "عرض التفاصيل",
+        checkIn: "تسجيل الدخول",
+        startVisit: "بدء الزيارة",
+        completeVisit: "إكمال الزيارة",
+        createInvoice: "إنشاء فاتورة",
+        notes: "ملاحظات",
+        finalDiagnosis: "التشخيص النهائي / الملاحظات",
+        confirmCloseVisit: "تأكيد وإغلاق الزيارة",
+        visitOf: "زيارة:",
+        toastSuccess: "نجاح",
+        toastError: "خطأ",
+        toastWarning: "تحذير",
+        toastInfo: "معلومات",
+
+        // Month names for charts
+        month_jan: "يناير", month_feb: "فبراير", month_mar: "مارس",
+        month_apr: "أبريل", month_may: "مايو", month_jun: "يونيو",
+        month_jul: "يوليو", month_aug: "أغسطس", month_sep: "سبتمبر",
+        month_oct: "أكتوبر", month_nov: "نوفمبر", month_dec: "ديسمبر",
         // Settings Keys
-        settingsTitle: "الإعدادات والتهيئة",
+        settingsTitle: "الإعدادات",
         settingsSubtitle: "إدارة تفاصيل العيادة، تفضيلات النظام، وتكوينات أخرى.",
         clinicInfo: "معلومات العيادة",
         clinicInfoDesc: "الشعار، العنوان، جهات الاتصال",
@@ -810,12 +881,17 @@ window.translations = {
         enterPassword: "أدخل كلمة المرور",
         login: "تسجيل الدخول",
         logout: "تسجيل الخروج",
+
+        // Notification keys
+        notifications: "الإشعارات",
+        markAllRead: "تحديد الكل كمقروء",
+        loading: "جارٍ التحميل...",
     }
 };
 
 class App {
     constructor() {
-        this.lang = localStorage.getItem('clinic_lang') || 'en';
+        this.lang = localStorage.getItem('clinic_lang') || document.documentElement.lang || 'en';
         this.theme = localStorage.getItem('clinic_theme') || 'light';
     }
 
@@ -852,12 +928,16 @@ class App {
             const s = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
             const barColor = isDark ? s('--secondary') || '#2aa88a' : '#2dd4bf';
             const hoverColor = isDark ? '#34c4a3' : '#00f2fe';
+            const lang = this.lang;
+            const t = (key) => (translations[lang] && translations[lang][key]) ? translations[lang][key] : key;
+            const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+            const labels = dayKeys.map(k => t(k));
             new Chart($ctx[0], {
                 type: 'bar',
                 data: {
-                    labels: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
+                    labels: labels,
                     datasets: [{
-                        label: 'Patients',
+                        label: t('patientsChart'),
                         data: [30, 45, 40, 50, 42, 85, 25],
                         backgroundColor: barColor,
                         borderRadius: 50,
@@ -874,7 +954,7 @@ class App {
                     },
                     scales: {
                         y: { display: false, grid: { display: false } },
-                        x: { grid: { display: false }, ticks: { color: isDark ? s('--text-secondary') || '#9896a8' : '#94a3b8', font: { family: "'Plus Jakarta Sans', sans-serif" } } }
+                        x: { grid: { display: false }, ticks: { color: isDark ? s('--text-secondary') || '#9896a8' : '#94a3b8', font: { family: lang === 'ar' ? "'Tajawal', sans-serif" : "'Plus Jakarta Sans', sans-serif" } } }
                     },
                     animation: { duration: 2000, easing: 'easeOutQuart' }
                 }
@@ -906,6 +986,7 @@ class App {
     toggleLanguage() {
         this.lang = this.lang === 'en' ? 'ar' : 'en';
         localStorage.setItem('clinic_lang', this.lang);
+        document.cookie = 'clinic_lang=' + this.lang + '; path=/; max-age=' + (60*60*24*365);
         this.applyLanguage(this.lang);
     }
 
@@ -1097,11 +1178,15 @@ class ToastSystem {
             info: 'Information'
         };
 
+        let displayTitle = title || titles[type] || 'Notification';
         if (typeof translations !== 'undefined' && app && app.lang) {
+            const toastKey = 'toast' + type.charAt(0).toUpperCase() + type.slice(1);
+            if (translations[app.lang] && translations[app.lang][toastKey]) {
+                displayTitle = translations[app.lang][toastKey];
+            }
         }
 
         const icon = icons[type] || icons.info;
-        const displayTitle = title || titles[type] || 'Notification';
 
         const toast = document.createElement('div');
         toast.className = `toast-notification ${type}`;

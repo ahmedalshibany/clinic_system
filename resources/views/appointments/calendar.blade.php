@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Appointment Calendar')
-@section('page-title', 'Appointment Calendar')
+@section('title', 'Appointments / Calendar')
+@section('page-title', 'Appointments / Calendar')
 
 @section('styles')
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>

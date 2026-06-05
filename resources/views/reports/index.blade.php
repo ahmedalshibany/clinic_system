@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Reports Dashboard')
-@section('page-title', 'Reports & Analytics')
+@section('title', 'Reports')
+@section('page-title', 'Reports')
 
 @section('content')
 <div class="row g-4 mb-4">

@@ -9,6 +9,7 @@ use App\Services\PatientService;
 use App\Http\Requests\Patient\StorePatientRequest;
 use App\Http\Requests\Patient\UpdatePatientRequest;
 use App\Http\Requests\Patient\UploadPatientFileRequest;
+use Illuminate\Support\Facades\Storage;
 
 class PatientController extends Controller
 {
@@ -45,7 +46,7 @@ class PatientController extends Controller
                  ], 201);
             }
             return redirect()->route('patients.show', $patient)
-                ->with('success', __('Patient added successfully!'));
+                ->with('success', __('messages.patientAdded'));
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {
@@ -83,14 +84,14 @@ class PatientController extends Controller
         \Illuminate\Support\Facades\Log::info('Updating Patient ID: ' . $patient->id, $request->validated());
         $this->patientService->updatePatient($patient, $request->validated());
         return redirect()->route('patients.index')
-            ->with('success', __('Patient updated successfully!'));
+            ->with('success', __('messages.patientUpdated'));
     }
 
-    public function destroy($id)
+    public function destroy(Patient $patient)
     {
-        $this->authorize('delete', Patient::class);
+        $this->authorize('delete', $patient);
         try {
-            $this->patientService->deletePatient($id);
+            $this->patientService->deletePatient($patient);
             return back()->with('success', 'Patient deleted successfully.');
         } catch (\Exception $e) {
             return back()->with('error', 'Error: ' . $e->getMessage());
@@ -116,7 +117,7 @@ class PatientController extends Controller
             'description' => $request->description,
         ]);
 
-        return back()->with('success', __('File uploaded successfully!'));
+        return back()->with('success', __('messages.fileUploaded'));
     }
 
     public function downloadFile(Patient $patient, PatientFile $file)
@@ -140,6 +141,6 @@ class PatientController extends Controller
         }
 
         $file->delete();
-        return back()->with('success', __('File deleted successfully!'));
+        return back()->with('success', __('messages.fileDeleted'));
     }
 }

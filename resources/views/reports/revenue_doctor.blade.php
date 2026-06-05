@@ -1,5 +1,6 @@
 @extends('layouts.dashboard')
-@section('title', 'Revenue by Doctor')
+@section('title', 'Reports / Revenue by Doctor')
+@section('page-title', 'Reports / Revenue by Doctor')
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-header   py-3">

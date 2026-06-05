@@ -71,7 +71,7 @@ class DashboardController extends Controller
                 ->orderBy('time')
                 ->get();
         } elseif ($user->role === 'doctor') {
-            $doctor = Doctor::where('email', $user->email)->first();
+            $doctor = Doctor::where('user_id', $user->id)->first();
 
             if ($doctor) {
                 $counts = $this->analytics->getAppointmentCountsForDoctor($doctor->id);

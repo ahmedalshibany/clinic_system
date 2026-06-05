@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', $patient->name . ' - Patient Profile')
-@section('page-title', 'Patient Profile')
+@section('title', $patient->name . ' - ' . __('messages.patientProfile'))
+@section('page-title', __('messages.patientProfile'))
 @section('page-i18n', 'patientProfile')
 
 @section('styles')

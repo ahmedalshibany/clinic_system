@@ -49,7 +49,7 @@ class AppointmentController extends Controller
         try {
             $this->appointmentService->createAppointment($validated);
             return redirect()->route('appointments.index')
-                ->with('success', __('Appointment booked successfully!'));
+                ->with('success', __('messages.appointmentBooked'));
         } catch (\Exception $e) {
             return back()->withErrors(['time' => $e->getMessage()])->withInput();
         }
@@ -78,7 +78,7 @@ class AppointmentController extends Controller
         try {
             $this->appointmentService->updateAppointment($appointment, $validated);
             return redirect()->route('appointments.index')
-                ->with('success', __('Appointment updated successfully!'));
+                ->with('success', __('messages.appointmentUpdated'));
         } catch (\Exception $e) {
             return back()->withErrors(['time' => $e->getMessage()])->withInput();
         }
@@ -90,7 +90,7 @@ class AppointmentController extends Controller
         try {
             $this->appointmentService->deleteAppointment($appointment);
             return redirect()->route('appointments.index')
-                ->with('success', __('Appointment deleted successfully!'));
+                ->with('success', __('messages.appointmentDeleted'));
         } catch (\Exception $e) {
             return back()->with('error', 'Error deleting appointment: ' . $e->getMessage());
         }
@@ -133,6 +133,11 @@ class AppointmentController extends Controller
     public function reopenVitals(Appointment $appointment)
     {
         Gate::authorize('reopenVitals', User::class);
+
+        if (in_array($appointment->status, ['cancelled', 'no_show'])) {
+            return back()->with('error', __('messages.reopenVitalsError'));
+        }
+
         $appointment->update([
             'vitals_unlocked' => true,
             'status' => 'pending',
@@ -171,6 +176,7 @@ class AppointmentController extends Controller
                 'scheduled' => '#3b82f6', // blue
                 'confirmed' => '#10b981', // green
                 'waiting' => '#f59e0b',   // orange
+                'checked_in' => '#06b6d4', // cyan
                 'in_progress' => '#8b5cf6', // purple
                 'completed' => '#6b7280', // gray
                 'cancelled' => '#ef4444', // red
@@ -190,7 +196,7 @@ class AppointmentController extends Controller
                     'status' => ucfirst(str_replace('_', ' ', $appt->status)),
                     'type' => $appt->type,
                 ],
-                'url' => route('appointments.show', $appt->id)
+                'url' => route('appointments.show', $appt->id) . '?from=calendar'
             ];
         });
 

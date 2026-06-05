@@ -51,4 +51,9 @@ class AppointmentPolicy
     {
         return in_array($user->role, ['admin', 'receptionist']);
     }
+
+    public function reopenVitals(User $user): bool
+    {
+        return in_array($user->role, ['admin', 'doctor']);
+    }
 }

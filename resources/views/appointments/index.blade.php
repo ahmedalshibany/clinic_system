@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Appointments')
-@section('page-title', 'Appointments')
+@section('title', __('messages.appointments'))
+@section('page-title', __('messages.appointments'))
 @section('page-i18n', 'appointments')
 
 @section('styles')
@@ -42,11 +42,11 @@
         </div>
 
         <select name="status" class="form-select" style="width: auto;" onchange="this.form.submit()">
-            <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status</option>
-            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+            <option value="all" {{ request('status') == 'all' ? 'selected' : '' }} data-i18n="allStatus">All Status</option>
+            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }} data-i18n="pending">Pending</option>
+            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }} data-i18n="confirmed">Confirmed</option>
+            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }} data-i18n="completed">Completed</option>
+            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }} data-i18n="cancelled">Cancelled</option>
         </select>
 
         <input type="date" name="date" class="form-control" style="width: auto;" value="{{ request('date') }}" onchange="this.form.submit()">
@@ -267,22 +267,22 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-info bg-opacity-10 border-0">
-                <h5 class="modal-title fw-bold text-info" id="completionModalTitle">Complete Visit</h5>
+                <h5 class="modal-title fw-bold text-info" id="completionModalTitle" data-i18n="completeVisit">Complete Visit</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
                 <form id="completionForm" action="" method="POST">
                     @csrf
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Final Diagnosis / Notes</label>
-                        <textarea class="form-control" name="diagnosis" rows="3" placeholder="Enter findings, diagnosis, or notes for the patient record..." required></textarea>
-                        <div class="form-text">This will be saved to the patient's medical history.</div>
+                        <label class="form-label fw-bold" data-i18n="finalDiagnosis">Final Diagnosis / Notes</label>
+                        <textarea class="form-control" name="diagnosis" rows="3" placeholder="Enter findings, diagnosis, or notes for the patient record..." data-i18n-placeholder="diagnosisPlaceholder" required></textarea>
+                        <div class="form-text" data-i18n="diagnosisHint">This will be saved to the patient's medical history.</div>
                     </div>
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-info text-white fw-bold">
-                            <i class="fas fa-check-circle me-1"></i> Confirm & Close Visit
+                            <i class="fas fa-check-circle me-1"></i> <span data-i18n="confirmCloseVisit">Confirm & Close Visit</span>
                         </button>
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal" data-i18n="cancel">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -346,7 +346,7 @@ $(document).ready(function() {
             },
             cache: true
         },
-        placeholder: 'Search for patient...',
+        placeholder: (typeof translations !== 'undefined' && app && app.lang && translations[app.lang] && translations[app.lang]['searchPatientPlaceholder']) ? translations[app.lang]['searchPatientPlaceholder'] : 'Search for patient...',
         minimumInputLength: 1
     });
 });

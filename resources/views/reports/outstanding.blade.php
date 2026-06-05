@@ -1,5 +1,6 @@
 @extends('layouts.dashboard')
-@section('title', 'Outstanding Invoices')
+@section('title', 'Reports / Outstanding')
+@section('page-title', 'Reports / Outstanding')
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-header   d-flex justify-content-between">

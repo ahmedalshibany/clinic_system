@@ -8,7 +8,7 @@
     <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-header   py-3 d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0" data-i18n="billingAndInvoices">Billing & Invoices</h5>
+                <h5 class="card-title mb-0" data-i18n="billingAndInvoices">Invoices</h5>
                 <a href="{{ route('invoices.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i> <span data-i18n="createInvoice">Create Invoice</span>
                 </a>

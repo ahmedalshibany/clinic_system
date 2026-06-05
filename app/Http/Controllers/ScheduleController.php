@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\DoctorSchedule;
 use App\Models\DoctorLeave;
@@ -49,7 +50,7 @@ class ScheduleController extends Controller
             );
         }
 
-        return back()->with('success', __('Schedule updated successfully!'));
+        return back()->with('success', __('messages.scheduleUpdated'));
     }
 
     /**
@@ -125,9 +126,19 @@ class ScheduleController extends Controller
             'reason' => 'nullable|string|max:255',
         ]);
 
+        // Check for active appointments in the leave period
+        $hasActive = Appointment::where('doctor_id', $doctor->id)
+            ->whereBetween('date', [$validated['start_date'], $validated['end_date']])
+            ->whereNotIn('status', ['cancelled', 'completed', 'no_show'])
+            ->exists();
+
+        if ($hasActive) {
+            return back()->withErrors(['error' => __('messages.leaveConflict')]);
+        }
+
         $doctor->leaves()->create($validated);
 
-        return back()->with('success', __('Leave added successfully!'));
+        return back()->with('success', __('messages.leaveAdded'));
     }
 
     /**
@@ -142,6 +153,6 @@ class ScheduleController extends Controller
 
         $leave->delete();
 
-        return back()->with('success', __('Leave deleted successfully!'));
+        return back()->with('success', __('messages.leaveDeleted'));
     }
 }

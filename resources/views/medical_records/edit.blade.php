@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Edit Medical Record')
-@section('page-title', 'Edit Medical Record')
+@section('title', 'Medical Records / Edit')
+@section('page-title', 'Medical Records / Edit')
 
 @section('content')
 <div class="row">

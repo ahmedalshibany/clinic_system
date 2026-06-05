@@ -41,12 +41,12 @@ class DoctorController extends Controller
         try {
             $this->doctorService->createDoctor($request->validated());
             return redirect()->route('doctors.index')
-                ->with('success', __('Doctor added successfully!'));
+                ->with('success', __('messages.doctorAdded'));
         } catch (\Exception $e) {
             Log::error('Failed to create doctor: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
-                ->with('error', __('Failed to create doctor. Please try again.'));
+                ->with('error', __('messages.doctorCreateFailed'));
         }
     }
 
@@ -69,12 +69,12 @@ class DoctorController extends Controller
         try {
             $this->doctorService->updateDoctor($doctor, $request->validated());
             return redirect()->route('doctors.index')
-                ->with('success', __('Doctor updated successfully!'));
+                ->with('success', __('messages.doctorUpdated'));
         } catch (\Exception $e) {
             Log::error('Failed to update doctor: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
-                ->with('error', __('Failed to update doctor. Please try again.'));
+                ->with('error', __('messages.doctorUpdateFailed'));
         }
     }
 
@@ -84,7 +84,7 @@ class DoctorController extends Controller
         try {
             $this->doctorService->deleteDoctor($doctor);
             return redirect()->route('doctors.index')
-                ->with('success', __('Doctor deleted successfully!'));
+                ->with('success', __('messages.doctorDeleted'));
         } catch (\Exception $e) {
              Log::error('Failed to delete doctor: ' . $e->getMessage());
              return redirect()->route('doctors.index')

@@ -59,7 +59,7 @@ class NotificationController extends Controller
 
         $notification->markAsRead();
 
-        return back()->with('success', __('Notification marked as read.'));
+        return back()->with('success', __('messages.notificationMarkedRead'));
     }
 
     /**
@@ -71,7 +71,7 @@ class NotificationController extends Controller
             ->unread()
             ->update(['read_at' => now()]);
 
-        return back()->with('success', __('All notifications marked as read.'));
+        return back()->with('success', __('messages.allNotificationsMarkedRead'));
     }
 
     /**
@@ -85,7 +85,7 @@ class NotificationController extends Controller
 
         $notification->delete();
 
-        return back()->with('success', __('Notification removed.'));
+        return back()->with('success', __('messages.notificationRemoved'));
     }
 
     /**
@@ -95,6 +95,6 @@ class NotificationController extends Controller
     {
         Notification::where('user_id', auth()->id())->delete();
 
-        return back()->with('success', __('All notifications cleared.'));
+        return back()->with('success', __('messages.allNotificationsCleared'));
     }
 }

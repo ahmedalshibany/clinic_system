@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Edit User')
-@section('page-title', 'Edit User')
+@section('title', 'Users / Edit')
+@section('page-title', 'Users / Edit')
 
 @section('content')
 <div class="row">

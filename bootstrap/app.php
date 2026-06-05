@@ -18,8 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
 
-        // Add active check to all web requests
+        // Add locale detection and active check to all web requests
         $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
     })

@@ -53,7 +53,8 @@ class DoctorService
                 'email' => $data['email'] ?? $username . '@clinic.local',
                 'phone' => $data['phone'],
                 'role' => 'doctor',
-                'password' => Hash::make('password123'), // Default password, they should change on first login
+                'password' => Hash::make('password123'),
+                'password_change_required' => true,
                 'is_active' => $data['is_active'] ?? true,
             ]);
 

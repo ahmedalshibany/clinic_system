@@ -24,7 +24,7 @@ class NurseController extends Controller
     {
         $this->authorize('create', Vital::class);
         if ($appointment->status !== 'pending' && !$appointment->vitals_unlocked) {
-            return back()->with('error', __('Cannot add vitals. Appointment must be pending or vitals must be unlocked by a doctor.'));
+            return back()->with('error', __('messages.vitalsNotAllowed'));
         }
         return view('nurse.vitals.create', compact('appointment'));
     }
@@ -35,12 +35,12 @@ class NurseController extends Controller
         try {
             $this->vitalService->recordVitals($appointment, $request->validated());
             return redirect()->route('dashboard')
-                ->with('success', __('Vitals recorded successfully.'));
+                ->with('success', __('messages.vitalsRecorded'));
         } catch (\Exception $e) {
             Log::error('Failed to record vitals: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
-                ->with('error', __('Failed to record vitals. Please try again.'));
+                ->with('error', __('messages.vitalsFailed'));
         }
     }
 

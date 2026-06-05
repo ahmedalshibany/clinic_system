@@ -46,6 +46,6 @@ class SettingController extends Controller
             Setting::set($key, $value, $group);
         }
 
-        return back()->with('success', __('Settings updated successfully.'));
+        return back()->with('success', __('messages.settingsUpdated'));
     }
 }

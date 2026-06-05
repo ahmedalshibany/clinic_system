@@ -1,14 +1,14 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Add Doctor')
-@section('page-title', 'Add Doctor')
+@section('title', 'Doctors / Create')
+@section('page-title', 'Doctors / Create')
 
 @section('content')
 <div class="row justify-content-center">
     <div class="col-lg-10">
         <div class="card border-0 shadow-sm">
             <div class="card-header   py-3">
-                <h5 class="card-title mb-0">New Doctor</h5>
+                <h5 class="card-title mb-0">Doctors / Create</h5>
             </div>
             <div class="card-body">
                 <form action="{{ route('doctors.store') }}" method="POST">
