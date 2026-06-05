@@ -78,6 +78,7 @@
                             <td><span dir="ltr">{{ $patient->phone }}</span></td>
                             <td>{{ $patient->address ?? '-' }}</td>
                             <td class="pe-4">
+                                <div class="d-flex justify-content-center gap-2">
                                     <a href="{{ route('patients.show', $patient->id) }}" class="btn btn-soft-info btn-sm" title="View Profile" data-i18n-title="viewProfile">
                                         <i class="fas fa-eye"></i>
                                     </a>
@@ -91,6 +92,7 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

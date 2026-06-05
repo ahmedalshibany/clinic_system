@@ -51,6 +51,9 @@
                     <p class="text-muted small mb-3" dir="ltr">{{ $doctor->phone }}</p>
 
                     <div class="action-buttons d-flex justify-content-center gap-3">
+                        <a href="{{ route('doctors.show', $doctor) }}" class="btn btn-soft-info btn-sm" title="View Profile" data-i18n-title="viewProfile">
+                            <i class="fas fa-eye"></i>
+                        </a>
                         <a href="{{ route('doctors.schedule', $doctor) }}" class="btn btn-soft-info btn-sm" title="Manage Schedule" data-i18n-title="manageSchedule">
                             <i class="fas fa-calendar-alt"></i>
                         </a>

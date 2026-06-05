@@ -60,7 +60,9 @@ window.translations = {
         inProgress: "IN PROGRESS",
         inReview: "IN REVIEW",
         inPending: "IN PENDING",
-        goodMorning: "Good Morning!",
+        goodMorning: "Good Morning",
+        goodAfternoon: "Good Afternoon",
+        goodEvening: "Good Evening",
         doctorName2: "Dr. John Jacob",
         specialization: "Orthopedical",
         bookingRate: "Booking Rate",
@@ -464,7 +466,9 @@ window.translations = {
         inProgress: "قيد التنفيذ",
         inReview: "قيد المراجعة",
         inPending: "قيد الانتظار",
-        goodMorning: "صباح الخير!",
+        goodMorning: "صباح الخير",
+        goodAfternoon: "مساء الخير",
+        goodEvening: "مساء الخير",
         doctorName2: "د. جون جاكوب",
         specialization: "جراحة العظام",
         bookingRate: "معدل الحجز",
@@ -844,6 +848,10 @@ class App {
     initCharts() {
         const $ctx = $('#bookingChart');
         if ($ctx.length && typeof Chart !== 'undefined') {
+            const isDark = $('html').attr('data-theme') === 'dark';
+            const s = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+            const barColor = isDark ? s('--secondary') || '#2aa88a' : '#2dd4bf';
+            const hoverColor = isDark ? '#34c4a3' : '#00f2fe';
             new Chart($ctx[0], {
                 type: 'bar',
                 data: {
@@ -851,10 +859,10 @@ class App {
                     datasets: [{
                         label: 'Patients',
                         data: [30, 45, 40, 50, 42, 85, 25],
-                        backgroundColor: '#2dd4bf',
+                        backgroundColor: barColor,
                         borderRadius: 50,
                         barThickness: 12,
-                        hoverBackgroundColor: '#00f2fe'
+                        hoverBackgroundColor: hoverColor
                     }]
                 },
                 options: {
@@ -862,11 +870,11 @@ class App {
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        tooltip: { backgroundColor: 'rgba(47, 65, 86, 0.9)', padding: 12, cornerRadius: 8 }
+                        tooltip: { backgroundColor: isDark ? s('--white') || '#1a1a2e' : 'rgba(47, 65, 86, 0.9)', padding: 12, cornerRadius: 8 }
                     },
                     scales: {
                         y: { display: false, grid: { display: false } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { family: "'Inter', sans-serif" } } }
+                        x: { grid: { display: false }, ticks: { color: isDark ? s('--text-secondary') || '#9896a8' : '#94a3b8', font: { family: "'Plus Jakarta Sans', sans-serif" } } }
                     },
                     animation: { duration: 2000, easing: 'easeOutQuart' }
                 }
@@ -979,6 +987,34 @@ class App {
         });
 
         $('#langToggleText').text(translations[lang].langBtn);
+        this.updateDynamicGreeting();
+    }
+
+    updateDynamicGreeting() {
+        const $greeting = $('#dashboard-greeting');
+        if (!$greeting.length) return;
+
+        const hour = new Date().getHours();
+        const lang = this.lang;
+
+        let key, icon;
+        if (hour >= 5 && hour < 12) {
+            key = 'goodMorning';
+            icon = 'fa-sun';
+        } else if (hour >= 12 && hour < 17) {
+            key = 'goodAfternoon';
+            icon = 'fa-cloud';
+        } else if ((hour >= 17 && hour <= 23) || (hour >= 0 && hour <= 4)) {
+            key = 'goodEvening';
+            icon = 'fa-moon';
+        } else {
+            key = 'goodEvening';
+            icon = 'fa-moon';
+        }
+
+        const text = translations[lang]?.[key] || translations['en']?.[key] || key;
+        $greeting.text(text);
+        $('#greeting-icon').attr('class', 'fas ' + icon);
     }
 
     handleLogin(e) {
@@ -1007,7 +1043,6 @@ class App {
     }
 
     showAlert(message, type) {
-        if (type === 'success') return;
         if (typeof toast !== 'undefined') {
             toast.show(message, type);
         } else {
@@ -1046,7 +1081,6 @@ class ToastSystem {
     }
 
     show(message, type = 'info', title = null) {
-        if (type === 'success') return;
         if (!this.container) this.init();
 
         const icons = {

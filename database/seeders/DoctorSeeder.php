@@ -3,86 +3,83 @@
 namespace Database\Seeders;
 
 use App\Models\Doctor;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DoctorSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $doctors = [
             [
+                'user_id' => User::where('username', 'ahmed.qadhi')->first()->id,
                 'name' => 'Dr. Ahmed Al-Qadhi',
                 'specialty' => 'Cardiology',
                 'phone' => '+967 711 111 111',
                 'email' => 'ahmed.qadhi@clinic.com',
+                'bio' => 'Senior cardiologist with 15+ years of experience in interventional cardiology. Specializes in hypertension management and heart disease prevention.',
                 'working_days' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
                 'work_start_time' => '08:00',
                 'work_end_time' => '16:00',
-                'consultation_fee' => 5000,
+                'consultation_fee' => 5000.00,
                 'is_active' => true,
             ],
             [
+                'user_id' => User::where('username', 'fatima.sharif')->first()->id,
                 'name' => 'Dr. Fatima Al-Sharif',
                 'specialty' => 'Dermatology',
                 'phone' => '+967 711 222 222',
                 'email' => 'fatima.sharif@clinic.com',
+                'bio' => 'Board-certified dermatologist. Expertise in medical and cosmetic dermatology, skin cancer screening, and pediatric dermatology.',
                 'working_days' => ['Sunday', 'Monday', 'Wednesday', 'Thursday'],
                 'work_start_time' => '09:00',
                 'work_end_time' => '17:00',
-                'consultation_fee' => 4000,
+                'consultation_fee' => 4000.00,
                 'is_active' => true,
             ],
             [
+                'user_id' => User::where('username', 'mohammed.hamdani')->first()->id,
                 'name' => 'Dr. Mohammed Al-Hamdani',
                 'specialty' => 'Pediatrics',
                 'phone' => '+967 711 333 333',
                 'email' => 'mohammed.hamdani@clinic.com',
+                'bio' => 'Experienced pediatrician specialized in neonatal care and childhood developmental disorders. Compassionate care for children of all ages.',
                 'working_days' => ['Sunday', 'Tuesday', 'Thursday'],
                 'work_start_time' => '08:00',
                 'work_end_time' => '14:00',
-                'consultation_fee' => 3500,
+                'consultation_fee' => 3500.00,
                 'is_active' => true,
             ],
             [
+                'user_id' => User::where('username', 'aisha.maqtari')->first()->id,
                 'name' => 'Dr. Aisha Al-Maqtari',
                 'specialty' => 'Orthopedics',
                 'phone' => '+967 711 444 444',
                 'email' => 'aisha.maqtari@clinic.com',
+                'bio' => 'Orthopedic surgeon specializing in sports medicine, joint replacements, and fracture management. Dedicated to restoring mobility.',
                 'working_days' => ['Monday', 'Wednesday', 'Thursday'],
                 'work_start_time' => '10:00',
                 'work_end_time' => '18:00',
-                'consultation_fee' => 6000,
+                'consultation_fee' => 6000.00,
                 'is_active' => true,
             ],
             [
+                'user_id' => User::where('username', 'yusuf.nahdi')->first()->id,
                 'name' => 'Dr. Yusuf Al-Nahdi',
                 'specialty' => 'Neurology',
                 'phone' => '+967 711 555 555',
                 'email' => 'yusuf.nahdi@clinic.com',
+                'bio' => 'Consultant neurologist with expertise in stroke management, epilepsy, headache disorders, and neurodegenerative diseases.',
                 'working_days' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday'],
                 'work_start_time' => '08:00',
                 'work_end_time' => '15:00',
-                'consultation_fee' => 7000,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Dr. Mariam Al-Zubaydi',
-                'specialty' => 'General Practice',
-                'phone' => '+967 711 666 666',
-                'email' => 'mariam.zubaydi@clinic.com',
-                'working_days' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
-                'work_start_time' => '08:00',
-                'work_end_time' => '20:00',
-                'consultation_fee' => 2500,
+                'consultation_fee' => 7000.00,
                 'is_active' => true,
             ],
         ];
 
-        foreach ($doctors as $doctor) {
-            Doctor::create($doctor);
+        foreach ($doctors as $data) {
+            Doctor::create($data);
         }
     }
 }

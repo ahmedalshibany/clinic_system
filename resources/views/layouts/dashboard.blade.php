@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') - Clinic System</title>
+
+    <!-- Theme Init: prevent flash -->
+    <script>!function(){try{var t=localStorage.getItem('clinic_theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}}();</script>
+    <!-- Greeting Init: set greeting before render -->
+    <script>!function(){var g=document.getElementById('dashboard-greeting'),h=(new Date).getHours(),k='goodEvening',i='fa-moon';if(h>=5&&h<12){k='goodMorning';i='fa-sun'}else if(h>=12&&h<17){k='goodAfternoon';i='fa-cloud'}else if((h>=17&&h<=23)||(h>=0&&h<=4)){k='goodEvening';i='fa-moon'}var t=document.getElementById('greeting-icon');if(t)t.className='fas '+i;if(g)g.textContent=k}();</script>
     
     <!-- CSS -->
     <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">

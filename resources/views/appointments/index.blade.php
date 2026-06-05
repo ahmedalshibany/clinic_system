@@ -116,28 +116,9 @@
                             </td>
                             <td class="pe-4">
                                 <div class="d-flex justify-content-center gap-2">
-                                    @if($appointment->status === 'confirmed')
-                                        <form action="{{ route('appointments.check-in', $appointment) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3" title="Check In" data-i18n-title="checkIn">
-                                                <i class="fas fa-check-square me-1"></i> Check In
-                                            </button>
-                                        </form>
-                                    @elseif($appointment->status === 'waiting')
-                                        <form action="{{ route('appointments.start', $appointment) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-bold" title="Start Visit">
-                                                <i class="fas fa-play me-1"></i> Start Visit
-                                            </button>
-                                        </form>
-                                    @elseif($appointment->status === 'in_progress')
-                                        <button class="btn btn-info text-white btn-sm rounded-pill px-3 fw-bold" 
-                                            onclick="openCompletionModal({{ $appointment->id }}, '{{ addslashes($appointment->patient->name ?? 'Unknown') }}')" 
-                                            title="Complete Visit">
-                                            <i class="fas fa-check-double me-1"></i> Complete
-                                        </button>
-                                    @endif
-                                    
+                                    <a href="{{ route('appointments.show', $appointment) }}" class="btn btn-soft-info btn-sm" title="View Details" data-i18n-title="viewDetails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                     <button class="btn btn-soft-primary btn-sm" onclick="editAppointment({{ json_encode($appointment) }})" title="Edit" data-i18n-title="edit">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -149,13 +130,33 @@
                                         </button>
                                     </form>
                                 </div>
-                                @if($appointment->status === 'completed' && !$appointment->invoice)
-                                    <div class="mt-2 text-center">
+                                <div class="mt-2 d-flex flex-column gap-1">
+                                    @if($appointment->status === 'confirmed')
+                                        <form action="{{ route('appointments.check-in', $appointment) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-primary btn-sm w-100" title="Check In" data-i18n-title="checkIn">
+                                                <i class="fas fa-check-square me-1"></i> Check In
+                                            </button>
+                                        </form>
+                                    @elseif($appointment->status === 'waiting')
+                                        <form action="{{ route('appointments.start', $appointment) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-success btn-sm w-100" title="Start Visit">
+                                                <i class="fas fa-play me-1"></i> Start Visit
+                                            </button>
+                                        </form>
+                                    @elseif($appointment->status === 'in_progress')
+                                        <button class="btn btn-info text-white btn-sm w-100" 
+                                            onclick="openCompletionModal({{ $appointment->id }}, '{{ addslashes($appointment->patient->name ?? 'Unknown') }}')" 
+                                            title="Complete Visit">
+                                            <i class="fas fa-check-double me-1"></i> Complete
+                                        </button>
+                                    @elseif($appointment->status === 'completed' && !$appointment->invoice)
                                         <a href="{{ route('invoices.create-from-appointment', $appointment->id) }}" class="btn btn-warning btn-sm w-100 text-dark">
                                             <i class="fas fa-file-invoice-dollar me-1"></i> <span data-i18n="createInvoice">Create Invoice</span>
                                         </a>
-                                    </div>
-                                @endif
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

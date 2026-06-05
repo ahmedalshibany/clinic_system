@@ -301,9 +301,10 @@ if (typeof DashboardManager === 'undefined') {
                 const html = recent.map(appt => {
                     const statusColor = statusColors[appt.status] || 'secondary';
                     const statusIcon = statusIcons[appt.status] || 'fa-calendar';
+                    const detailUrl = appt.id ? `/appointments/${appt.id}` : '#';
 
                     return `
-                        <div class="activity-item">
+                        <a href="${detailUrl}" class="activity-item text-decoration-none">
                             <div class="activity-icon bg-${statusColor}-subtle text-${statusColor}">
                                 <i class="fas ${statusIcon}"></i>
                             </div>
@@ -319,7 +320,7 @@ if (typeof DashboardManager === 'undefined') {
                                     <span class="badge bg-${statusColor}-subtle text-${statusColor}" data-i18n="${appt.status}">${t(appt.status)}</span>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     `;
                 }).join('');
 

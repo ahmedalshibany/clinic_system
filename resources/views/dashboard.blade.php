@@ -12,11 +12,11 @@
 <div class="welcome-banner">
     <div class="welcome-content">
         <div class="welcome-text">
-            <span class="welcome-badge">
-                <i class="fas fa-sun"></i>
-                <span data-i18n="goodMorning">Good Morning</span>
+            <span class="welcome-badge" id="greeting-badge">
+                <i class="fas fa-sun" id="greeting-icon"></i>
+                <span id="dashboard-greeting">Good Morning</span>
             </span>
-            <h1 data-i18n="welcomeBack">Welcome Back, <span class="gradient-text" data-i18n="doctor">Doctor</span></h1>
+            <h1><span data-i18n="welcomeBack">Welcome Back,</span> <span class="gradient-text" data-i18n="doctor">Doctor</span></h1>
             <p data-i18n="dashboardSubtitle">Here's what's happening with your clinic today</p>
         </div>
         <div class="welcome-illustration">
@@ -358,7 +358,7 @@
                         $color = $statusColors[$appt->status] ?? 'secondary';
                         $icon = $statusIcons[$appt->status] ?? 'fa-calendar';
                     @endphp
-                    <div class="activity-item">
+                    <a href="{{ route('appointments.show', $appt) }}" class="activity-item text-decoration-none">
                         <div class="activity-icon bg-{{ $color }}-subtle text-{{ $color }}">
                             <i class="fas {{ $icon }}"></i>
                         </div>
@@ -368,12 +368,13 @@
                                 <span class="activity-time">{{ \Carbon\Carbon::parse($appt->date)->format('M d') }} • {{ \Carbon\Carbon::parse($appt->time)->format('H:i') }}</span>
                             </div>
                             <div class="activity-details">
+                                <span class="activity-doctor">
                                     <i class="fas fa-user-md me-1"></i>{{ $appt->doctor->name ?? 'Unknown' }}
                                 </span>
                                 <span class="badge bg-{{ $color }}-subtle text-{{ $color }}" data-i18n="{{ strtolower($appt->status) }}">{{ ucfirst($appt->status) }}</span>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 @empty
                     <div class="empty-activity text-center py-4">
                         <i class="fas fa-calendar-day text-muted mb-3" style="font-size: 2.5rem;"></i>
@@ -409,17 +410,24 @@ const t = (key) => {
 
 function getChartColors() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const s = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
     return {
         grid: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-        tick: isDark ? '#9896a8' : '#888888',
+        tick: isDark ? s('--text-secondary') : '#888888',
         border: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-        tooltipBg: isDark ? '#1a1a2e' : '#ffffff',
-        tooltipText: isDark ? '#e4e3ea' : '#2c2c2c',
-        tooltipBorder: isDark ? 'rgba(0,212,170,0.2)' : 'rgba(0,0,0,0.1)',
-        pointBg: isDark ? '#00d4aa' : '#0f3d3e',
-        pointBorder: isDark ? '#0f0f1a' : '#ffffff',
-        fillGradient: isDark ? 'rgba(0,212,170,0.08)' : 'rgba(15,61,62,0.08)',
-        lineColor: isDark ? '#00d4aa' : '#0f3d3e',
+        tooltipBg: isDark ? s('--white') : '#ffffff',
+        tooltipText: isDark ? s('--text-primary') : '#2c2c2c',
+        tooltipBorder: isDark ? 'rgba(42,168,138,0.2)' : 'rgba(0,0,0,0.1)',
+        pointBg: isDark ? s('--secondary') : '#0f3d3e',
+        pointBorder: isDark ? s('--body-bg') : '#ffffff',
+        fillGradient: isDark ? 'rgba(42,168,138,0.08)' : 'rgba(15,61,62,0.08)',
+        lineColor: isDark ? s('--secondary') : '#0f3d3e',
+        pending: isDark ? '#f0ad4e' : 'rgba(191,140,48,0.85)',
+        confirmed: isDark ? '#2ecc71' : 'rgba(46,93,52,0.85)',
+        completed: isDark ? '#5dade2' : 'rgba(61,90,128,0.85)',
+        cancelled: isDark ? '#e74c3c' : 'rgba(139,58,58,0.85)',
+        chartBar: isDark ? s('--secondary') : '#2dd4bf',
+        chartBarHover: isDark ? '#34c4a3' : '#00f2fe',
     };
 }
 
@@ -434,12 +442,7 @@ if (statusCtx) {
             labels: statusLabels.map(t),
             datasets: [{
                 data: statusData,
-                backgroundColor: [
-                    'rgba(251, 191, 36, 0.85)',
-                    'rgba(16, 185, 129, 0.85)',
-                    'rgba(59, 130, 246, 0.85)',
-                    'rgba(239, 68, 68, 0.85)'
-                ],
+                backgroundColor: [cc.pending, cc.confirmed, cc.completed, cc.cancelled],
                 borderWidth: 2,
                 borderColor: cc.pointBorder,
                 hoverOffset: 10

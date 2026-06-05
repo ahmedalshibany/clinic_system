@@ -4,26 +4,21 @@ namespace Database\Seeders;
 
 use App\Models\Doctor;
 use App\Models\DoctorLeave;
-use Illuminate\Database\Seeder;
-use Faker\Factory as Faker;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class DoctorLeaveSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = Faker::create();
-        $doctors = Doctor::all();
-        if ($doctors->isEmpty()) return;
+        $leaves = [
+            ['doctor_id' => 1, 'start_date' => Carbon::now()->addDays(20), 'end_date' => Carbon::now()->addDays(22), 'reason' => 'Annual leave'],
+            ['doctor_id' => 3, 'start_date' => Carbon::now()->addDays(15), 'end_date' => Carbon::now()->addDays(17), 'reason' => 'Conference attendance'],
+            ['doctor_id' => 5, 'start_date' => Carbon::now()->addDays(25), 'end_date' => Carbon::now()->addDays(28), 'reason' => 'Personal leave'],
+        ];
 
-        foreach ($doctors->random(min(3, $doctors->count())) as $doctor) {
-            $startDate = Carbon::now()->addDays($faker->numberBetween(1, 30));
-            DoctorLeave::create([
-                'doctor_id' => $doctor->id,
-                'start_date' => $startDate,
-                'end_date' => (clone $startDate)->addDays($faker->numberBetween(1, 5)),
-                'reason' => $faker->sentence,
-            ]);
+        foreach ($leaves as $data) {
+            DoctorLeave::create($data);
         }
     }
 }
