@@ -93,7 +93,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="{{ route('appointments.show', $appointment) }}" class="btn btn-secondary">{{ __('messages.cancel') }}</a>
+                            <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('appointments.show', $appointment) }}" class="btn btn-secondary">{{ __('messages.cancel') }}</a>
                             <button type="submit" class="btn btn-primary">{{ __('messages.saveVitals') }}</button>
                         </div>
                     </form>

@@ -166,15 +166,15 @@
                 <h2>{{ $patient->name }}</h2>
                 <span class="patient-code">{{ $patient->patient_code ?? 'PAT-' . str_pad($patient->id, 4, '0', STR_PAD_LEFT) }}</span>
                 @if($patient->status === 'active')
-                    <span class="badge bg-success">Active</span>
+                    <span class="badge bg-success" data-i18n="active">{{ __('messages.active') }}</span>
                 @elseif($patient->status === 'inactive')
-                    <span class="badge bg-warning">Inactive</span>
+                    <span class="badge bg-warning" data-i18n="inactive">{{ __('messages.inactive') }}</span>
                 @else
-                    <span class="badge bg-secondary">{{ ucfirst($patient->status ?? 'Unknown') }}</span>
+                    <span class="badge bg-secondary" data-i18n="unknown">{{ ucfirst($patient->status ?? __('messages.unknown')) }}</span>
                 @endif
             </div>
             <div class="patient-badges">
-                <span class="badge   text-dark"><i class="fas fa-birthday-cake me-1"></i>{{ $patient->age ?? $patient->calculated_age ?? '-' }} years</span>
+                <span class="badge   text-dark"><i class="fas fa-birthday-cake me-1"></i>{{ $patient->age ?? $patient->calculated_age ?? '-' }} {{ __('messages.yearsShort') }}</span>
                 <span class="badge   text-dark"><i class="fas fa-venus-mars me-1"></i>{{ ucfirst($patient->gender) }}</span>
                 @if($patient->blood_type)
                     <span class="badge bg-danger"><i class="fas fa-tint me-1"></i>{{ $patient->blood_type }}</span>
@@ -187,10 +187,10 @@
         <div class="col-auto">
             <div class="d-flex gap-2">
                 <a href="{{ route('patients.edit', $patient) }}" class="btn btn-light">
-                    <i class="fas fa-edit me-1"></i> Edit
+                    <i class="fas fa-edit me-1"></i> {{ __('messages.edit') }}
                 </a>
                 <a href="{{ route('appointments.create') }}?patient_id={{ $patient->id }}" class="btn btn-light">
-                    <i class="fas fa-calendar-plus me-1"></i> Book Appointment
+                    <i class="fas fa-calendar-plus me-1"></i> {{ __('messages.bookAppt') }}
                 </a>
             </div>
         </div>
@@ -203,7 +203,7 @@
         <div class="card h-100">
             <div class="card-body stat-mini">
                 <div class="number">{{ $appointmentStats['total'] }}</div>
-                <div class="label">Total Visits</div>
+                <div class="label" data-i18n="totalVisits">{{ __('messages.totalVisits') }}</div>
             </div>
         </div>
     </div>
@@ -211,7 +211,7 @@
         <div class="card h-100">
             <div class="card-body stat-mini">
                 <div class="number text-success">{{ $appointmentStats['completed'] }}</div>
-                <div class="label">Completed</div>
+                <div class="label" data-i18n="completed">{{ __('messages.completed') }}</div>
             </div>
         </div>
     </div>
@@ -219,7 +219,7 @@
         <div class="card h-100">
             <div class="card-body stat-mini">
                 <div class="number text-info">{{ $appointmentStats['upcoming'] }}</div>
-                <div class="label">Upcoming</div>
+                <div class="label" data-i18n="upcoming">{{ __('messages.upcoming') }}</div>
             </div>
         </div>
     </div>
@@ -227,7 +227,7 @@
         <div class="card h-100">
             <div class="card-body stat-mini">
                 <div class="number text-primary">{{ $patient->files->count() }}</div>
-                <div class="label">Documents</div>
+                <div class="label" data-i18n="documentsLabel">{{ __('messages.documentsLabel') }}</div>
             </div>
         </div>
     </div>
@@ -237,28 +237,28 @@
 <ul class="nav nav-tabs-custom fade-in" id="patientTabs" role="tablist">
     <li class="nav-item">
         <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#overview" type="button">
-            <i class="fas fa-user me-1"></i> Overview
-        </button>
+                            <i class="fas fa-user me-1"></i> <span data-i18n="overview">{{ __('messages.overview') }}</span>
+                        </button>
     </li>
     <li class="nav-item">
         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#appointments" type="button">
-            <i class="fas fa-calendar me-1"></i> Appointments
-        </button>
+                            <i class="fas fa-calendar me-1"></i> <span data-i18n="appointments">{{ __('messages.appointments') }}</span>
+                        </button>
     </li>
     <li class="nav-item">
         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#medical" type="button">
-            <i class="fas fa-notes-medical me-1"></i> Medical Records
-        </button>
+                            <i class="fas fa-notes-medical me-1"></i> <span data-i18n="medicalRecords">{{ __('messages.medicalRecords') }}</span>
+                        </button>
     </li>
     <li class="nav-item">
         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#documents" type="button">
-            <i class="fas fa-folder me-1"></i> Documents
-        </button>
+                            <i class="fas fa-folder me-1"></i> <span data-i18n="documentsLabel">{{ __('messages.documentsLabel') }}</span>
+                        </button>
     </li>
     <li class="nav-item">
         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#invoices" type="button">
-            <i class="fas fa-file-invoice-dollar me-1"></i> Invoices
-        </button>
+                            <i class="fas fa-file-invoice-dollar me-1"></i> <span data-i18n="invoices">{{ __('messages.invoicesShort') }}</span>
+                        </button>
     </li>
 </ul>
 
@@ -271,37 +271,37 @@
             <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-address-card me-2"></i>Contact Information</h5>
+                        <h5 class="mb-0"><i class="fas fa-address-card me-2"></i>{{ __('messages.contactInformation') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Phone (Primary)</h6>
+                                    <h6 data-i18n="phonePrimary">{{ __('messages.phonePrimary') }}</h6>
                                     <p><span dir="ltr">{{ $patient->phone ?? '-' }}</span></p>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Phone (Secondary)</h6>
+                                    <h6 data-i18n="phoneSecondary">{{ __('messages.phoneSecondary') }}</h6>
                                     <p><span dir="ltr">{{ $patient->phone_secondary ?? '-' }}</span></p>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Email</h6>
+                                    <h6 data-i18n="email">{{ __('messages.email') }}</h6>
                                     <p>{{ $patient->email ?? '-' }}</p>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>City</h6>
+                                    <h6 data-i18n="city">{{ __('messages.city') }}</h6>
                                     <p>{{ $patient->city ?? '-' }}</p>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="info-card">
-                                    <h6>Address</h6>
+                                    <h6 data-i18n="address">{{ __('messages.address') }}</h6>
                                     <p>{{ $patient->address ?? '-' }}</p>
                                 </div>
                             </div>
@@ -314,37 +314,37 @@
             <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Personal Information</h5>
+                        <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>{{ __('messages.personalInfo') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Date of Birth</h6>
+                                    <h6 data-i18n="dateOfBirth">{{ __('messages.dateOfBirth') }}</h6>
                                     <p>{{ $patient->date_of_birth ? $patient->date_of_birth->format('M d, Y') : '-' }}</p>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Nationality</h6>
+                                    <h6 data-i18n="nationality">{{ __('messages.nationality') }}</h6>
                                     <p>{{ $patient->nationality ?? '-' }}</p>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>ID Number</h6>
+                                    <h6 data-i18n="idNumber">{{ __('messages.idNumber') }}</h6>
                                     <p>{{ $patient->id_number ?? '-' }}</p>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Marital Status</h6>
+                                    <h6 data-i18n="maritalStatus">{{ __('messages.maritalStatus') }}</h6>
                                     <p>{{ ucfirst($patient->marital_status ?? '-') }}</p>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="info-card">
-                                    <h6>Occupation</h6>
+                                    <h6 data-i18n="occupation">{{ __('messages.occupation') }}</h6>
                                     <p>{{ $patient->occupation ?? '-' }}</p>
                                 </div>
                             </div>
@@ -357,32 +357,32 @@
             <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Medical Summary</h5>
+                        <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>{{ __('messages.medicalSummary') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Blood Type</h6>
+                                    <h6 data-i18n="bloodType">{{ __('messages.bloodType') }}</h6>
                                     <p class="text-danger fw-bold">{{ $patient->blood_type ?? '-' }}</p>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Allergies</h6>
-                                    <p>{{ $patient->allergies ?? 'None reported' }}</p>
+                                    <h6 data-i18n="knownAllergies">{{ __('messages.knownAllergies') }}</h6>
+                                    <p>{{ $patient->allergies ?? __('messages.noneReported') }}</p>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="info-card">
-                                    <h6>Chronic Diseases</h6>
-                                    <p>{{ $patient->chronic_diseases ?? 'None reported' }}</p>
+                                    <h6 data-i18n="chronicDiseases">{{ __('messages.chronicDiseases') }}</h6>
+                                    <p>{{ $patient->chronic_diseases ?? __('messages.noneReported') }}</p>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="info-card">
-                                    <h6>Current Medications</h6>
-                                    <p>{{ $patient->current_medications ?? 'None' }}</p>
+                                    <h6 data-i18n="currentMedications">{{ __('messages.currentMedications') }}</h6>
+                                    <p>{{ $patient->current_medications ?? __('messages.noneReported') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -394,31 +394,31 @@
             <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Emergency & Insurance</h5>
+                        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('messages.emergencyInsurance') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Emergency Contact</h6>
+                                    <h6 data-i18n="emergencyContact">{{ __('messages.emergencyContact') }}</h6>
                                     <p>{{ $patient->emergency_contact ?? '-' }}</p>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Emergency Phone</h6>
+                                    <h6 data-i18n="emergencyPhone">{{ __('messages.emergencyPhone') }}</h6>
                                     <p><span dir="ltr">{{ $patient->emergency_phone ?? '-' }}</span></p>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Insurance Provider</h6>
+                                    <h6 data-i18n="insuranceProvider">{{ __('messages.insuranceProvider') }}</h6>
                                     <p>{{ $patient->insurance_provider ?? '-' }}</p>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="info-card">
-                                    <h6>Insurance Number</h6>
+                                    <h6 data-i18n="insuranceNumberShort">{{ __('messages.insuranceNumberShort') }}</h6>
                                     <p>{{ $patient->insurance_number ?? '-' }}</p>
                                 </div>
                             </div>
@@ -433,9 +433,9 @@
     <div class="tab-pane fade" id="appointments">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-calendar me-2"></i>Appointment History</h5>
+                <h5 class="mb-0"><i class="fas fa-calendar me-2"></i>{{ __('messages.appointmentHistory') }}</h5>
                 <a href="{{ route('appointments.create') }}?patient_id={{ $patient->id }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus me-1"></i> Book New
+                    <i class="fas fa-plus me-1"></i> {{ __('messages.bookNew') }}
                 </a>
             </div>
             <div class="card-body p-0">
@@ -443,12 +443,12 @@
                     <table class="table table-hover mb-0">
                         <thead class="">
                             <tr>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Doctor</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th data-i18n="date">{{ __('messages.date') }}</th>
+                                <th data-i18n="time">{{ __('messages.time') }}</th>
+                                <th data-i18n="doctor">{{ __('messages.doctor') }}</th>
+                                <th data-i18n="type">{{ __('messages.type') }}</th>
+                                <th data-i18n="status">{{ __('messages.status') }}</th>
+                                <th data-i18n="actions">{{ __('messages.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -481,7 +481,7 @@
                                 <tr>
                                     <td colspan="6" class="text-center py-4 text-muted">
                                         <i class="fas fa-calendar-times fa-2x mb-2"></i>
-                                        <p class="mb-0">No appointments found</p>
+                                        <p class="mb-0" data-i18n="noAppointmentsFound">{{ __('messages.noAppointmentsFound') }}</p>
                                     </td>
                                 </tr>
                             @endforelse
@@ -496,26 +496,26 @@
     <div class="tab-pane fade" id="medical">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-notes-medical me-2"></i>Medical History</h5>
+                <h5 class="mb-0"><i class="fas fa-notes-medical me-2"></i>{{ __('messages.medicalHistory') }}</h5>
             </div>
             <div class="card-body">
                 @if($patient->medical_history || $patient->previous_surgeries || $patient->family_history)
                     <div class="row g-4">
                         @if($patient->medical_history)
                             <div class="col-12">
-                                <h6 class="text-muted mb-2">General Medical History</h6>
+                                <h6 class="text-muted mb-2" data-i18n="generalMedicalHistory">{{ __('messages.generalMedicalHistory') }}</h6>
                                 <p>{{ $patient->medical_history }}</p>
                             </div>
                         @endif
                         @if($patient->previous_surgeries)
                             <div class="col-12">
-                                <h6 class="text-muted mb-2">Previous Surgeries</h6>
+                                <h6 class="text-muted mb-2" data-i18n="previousSurgeries">{{ __('messages.previousSurgeries') }}</h6>
                                 <p>{{ $patient->previous_surgeries }}</p>
                             </div>
                         @endif
                         @if($patient->family_history)
                             <div class="col-12">
-                                <h6 class="text-muted mb-2">Family History</h6>
+                                <h6 class="text-muted mb-2" data-i18n="familyHistory">{{ __('messages.familyHistory') }}</h6>
                                 <p>{{ $patient->family_history }}</p>
                             </div>
                         @endif
@@ -523,7 +523,7 @@
                 @else
                     <div class="text-center py-5 text-muted">
                         <i class="fas fa-file-medical fa-3x mb-3"></i>
-                        <p>No medical records available yet.</p>
+                        <p data-i18n="noMedicalRecordsYet">{{ __('messages.noMedicalRecordsYet') }}</p>
                     </div>
                 @endif
             </div>
@@ -534,9 +534,9 @@
     <div class="tab-pane fade" id="documents">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-folder me-2"></i>Documents</h5>
+                <h5 class="mb-0"><i class="fas fa-folder me-2"></i>{{ __('messages.documentsLabel') }}</h5>
                 <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadModal">
-                    <i class="fas fa-upload me-1"></i> Upload File
+                    <i class="fas fa-upload me-1"></i> {{ __('messages.uploadFile') }}
                 </button>
             </div>
             <div class="card-body">
@@ -553,13 +553,13 @@
                                         <small class="text-muted">{{ $file->formatted_size }} • {{ $file->category_label }}</small>
                                     </div>
                                     <div class="d-flex gap-1">
-                                        <a href="{{ route('patients.download-file', [$patient, $file]) }}" class="btn btn-soft-primary btn-sm" title="Download">
+                                        <a href="{{ route('patients.download-file', [$patient, $file]) }}" class="btn btn-soft-primary btn-sm" title="{{ __('messages.download') }}">
                                             <i class="fas fa-download"></i>
                                         </a>
                                         <form action="{{ route('patients.delete-file', [$patient, $file]) }}" method="POST" class="d-inline" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteFile)">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete">
+                                            <button type="submit" class="btn btn-soft-danger btn-sm" title="{{ __('messages.delete') }}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -571,9 +571,9 @@
                 @else
                     <div class="text-center py-5 text-muted">
                         <i class="fas fa-folder-open fa-3x mb-3"></i>
-                        <p>No documents uploaded yet.</p>
+                        <p data-i18n="noDocumentsUploaded">{{ __('messages.noDocumentsUploaded') }}</p>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
-                            <i class="fas fa-upload me-1"></i> Upload First Document
+                            <i class="fas fa-upload me-1"></i> {{ __('messages.uploadFirstDocument') }}
                         </button>
                     </div>
                 @endif
@@ -585,7 +585,7 @@
     <div class="tab-pane fade" id="invoices">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Billing History</h5>
+                <h5 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>{{ __('messages.billingHistory') }}</h5>
             </div>
             <div class="card-body">
                 @if($patient->invoices && $patient->invoices->count() > 0)
@@ -593,13 +593,13 @@
                         <table class="table table-hover align-middle">
                             <thead class="">
                                 <tr>
-                                    <th>Invoice #</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Total</th>
-                                    <th>Paid</th>
-                                    <th>Balance</th>
-                                    <th>Action</th>
+                                    <th data-i18n="invoiceNumber">{{ __('messages.invoiceNumber') }}</th>
+                                    <th data-i18n="date">{{ __('messages.date') }}</th>
+                                    <th data-i18n="status">{{ __('messages.status') }}</th>
+                                    <th data-i18n="total">{{ __('messages.total') }}</th>
+                                    <th data-i18n="paid">{{ __('messages.paid') }}</th>
+                                    <th data-i18n="balance">{{ __('messages.balance') }}</th>
+                                    <th data-i18n="actions">{{ __('messages.actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -625,7 +625,7 @@
                                         <td class="text-danger fw-bold">${{ number_format($invoice->total - $invoice->amount_paid, 2) }}</td>
                                         <td>
                                             <a href="{{ route('invoices.show', $invoice) }}" class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-eye"></i> View
+                                                <i class="fas fa-eye"></i> {{ __('messages.view') }}
                                             </a>
                                         </td>
                                     </tr>
@@ -636,9 +636,9 @@
                 @else
                     <div class="text-center py-5 text-muted">
                         <i class="fas fa-file-invoice fa-3x mb-3"></i>
-                        <p>No invoices found for this patient.</p>
+                        <p data-i18n="noInvoicesFound">{{ __('messages.noInvoicesFound') }}</p>
                         <a href="{{ route('invoices.create', ['patient_id' => $patient->id]) }}" class="btn btn-primary mt-2">
-                            <i class="fas fa-plus me-1"></i> Create Invoice
+                            <i class="fas fa-plus me-1"></i> {{ __('messages.createInvoice') }}
                         </a>
                     </div>
                 @endif
@@ -652,7 +652,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-glass border-0">
             <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">Upload Document</h5>
+                <h5 class="modal-title fw-bold" data-i18n="uploadDocument">{{ __('messages.uploadDocument') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -661,31 +661,31 @@
                     <input type="hidden" name="patient_id" value="{{ $patient->id }}">
                     
                     <div class="mb-3">
-                        <label class="form-label">File <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('messages.fileLabel') }} <span class="text-danger">*</span></label>
                         <input type="file" class="form-control" name="file" required accept=".pdf,.jpg,.jpeg,.png">
-                        <small class="text-muted">Allowed: PDF, JPG, PNG (Max 10MB)</small>
+                        <small class="text-muted" data-i18n="allowedFileTypes">{{ __('messages.allowedFileTypes') }}</small>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Category <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('messages.category') }} <span class="text-danger">*</span></label>
                         <select class="form-select" name="category" required>
-                            <option value="lab_result">Lab Result</option>
-                            <option value="xray">X-Ray</option>
-                            <option value="mri">MRI</option>
-                            <option value="prescription">Prescription</option>
-                            <option value="report">Report</option>
-                            <option value="other">Other</option>
+                            <option value="lab_result">{{ __('messages.labResult') }}</option>
+                            <option value="xray">{{ __('messages.xray') }}</option>
+                            <option value="mri">{{ __('messages.mri') }}</option>
+                            <option value="prescription">{{ __('messages.prescription') }}</option>
+                            <option value="report">{{ __('messages.report') }}</option>
+                            <option value="other">{{ __('messages.other') }}</option>
                         </select>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control" name="description" rows="2" placeholder="Optional description..."></textarea>
+                        <label class="form-label">{{ __('messages.description') }}</label>
+                        <textarea class="form-control" name="description" rows="2" placeholder="{{ __('messages.optionalDescription') }}"></textarea>
                     </div>
                     
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-upload me-1"></i> Upload
+                            <i class="fas fa-upload me-1"></i> {{ __('messages.upload') }}
                         </button>
                     </div>
                 </form>
@@ -696,8 +696,7 @@
 
 <!-- Back Button -->
 <div class="mt-4">
-    <a href="{{ route('patients.index') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i> Back to Patients
+    <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('patients.index') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> {{ __('messages.backToPatients') }}
     </a>
-</div>
 @endsection

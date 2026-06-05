@@ -59,7 +59,7 @@
                     </div>
 
                     <div class="d-flex gap-2">
-                        <a href="{{ route('users.index') }}" class="btn btn-light">Cancel</a>
+                        <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('users.index') }}" class="btn btn-light">Cancel</a>
                         <button type="submit" class="btn btn-primary px-4">Update User</button>
                     </div>
                 </form>

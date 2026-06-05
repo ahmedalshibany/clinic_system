@@ -106,7 +106,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 mt-4">
-                        <a href="{{ route('doctors.index') }}" class="btn btn-light">Cancel</a>
+                        <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('doctors.index') }}" class="btn btn-light">Cancel</a>
                         <button type="submit" class="btn btn-primary">Update Doctor</button>
                     </div>
                 </form>

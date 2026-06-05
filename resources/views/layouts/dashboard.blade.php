@@ -85,6 +85,14 @@
                 </a>
             </li>
             @endif
+            @if(in_array(auth()->user()->role, ['admin', 'doctor', 'receptionist']))
+            <li class="nav-item">
+                <a href="{{ route('invoices.index') }}" class="nav-link {{ request()->routeIs('invoices.*') ? 'active' : '' }}">
+                    <div class="icon-box"><i class="fas fa-file-invoice-dollar"></i></div>
+                    <span data-i18n="invoices">{{ __('messages.invoices') }}</span>
+                </a>
+            </li>
+            @endif
             @if(auth()->user()->isAdmin())
             <li class="nav-item">
                 <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">

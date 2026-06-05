@@ -17,4 +17,10 @@ Route::middleware('auth')->group(function () {
     // Internal AJAX search endpoints
     Route::get('/patients/search', [App\Http\Controllers\Api\PatientApiController::class, 'search']);
     Route::get('/medicines/search', [App\Http\Controllers\Api\MedicineApiController::class, 'search']);
+
+    // Dashboard API endpoints
+    Route::get('/dashboard/stats', [App\Http\Controllers\Api\DashboardApiController::class, 'stats']);
+    Route::get('/dashboard/weekly-trend', [App\Http\Controllers\Api\DashboardApiController::class, 'weeklyTrend']);
+    Route::get('/dashboard/recent-appointments', [App\Http\Controllers\Api\DashboardApiController::class, 'recentAppointments']);
+    Route::get('/dashboard/status-distribution', [App\Http\Controllers\Api\DashboardApiController::class, 'statusDistribution']);
 });

@@ -9,7 +9,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Doctors / Schedule: {{ $doctor->name }}</h5>
-                <a href="{{ route('doctors.index') }}" class="btn btn-secondary btn-sm">Back to Doctors</a>
+                <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('doctors.index') }}" class="btn btn-secondary btn-sm">Back to Doctors</a>
             </div>
             <div class="card-body">
 

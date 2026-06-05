@@ -111,7 +111,7 @@
 
     <!-- Actions -->
     <div class="col-12 mt-4 text-end">
-        <a href="{{ route('invoices.index') }}" class="btn btn-light me-2">Cancel</a>
+        <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('invoices.index') }}" class="btn btn-light me-2">Cancel</a>
         <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Invoice</button>
     </div>
 </div>

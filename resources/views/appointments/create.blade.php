@@ -106,7 +106,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end">
-                        <a href="{{ route('appointments.index') }}" class="btn btn-secondary me-2">{{ __('messages.cancel') }}</a>
+                        <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('appointments.index') }}" class="btn btn-secondary me-2">{{ __('messages.cancel') }}</a>
                         <button type="submit" class="btn btn-primary">{{ __('messages.createAppt') }}</button>
                     </div>
                 </form>
