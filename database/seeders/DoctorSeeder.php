@@ -12,7 +12,7 @@ class DoctorSeeder extends Seeder
     {
         $doctors = [
             [
-                'user_id' => User::where('username', 'ahmed.qadhi')->first()->id,
+                'username' => 'ahmed.qadhi',
                 'name' => 'Dr. Ahmed Al-Qadhi',
                 'specialty' => 'Cardiology',
                 'phone' => '+967 711 111 111',
@@ -25,7 +25,7 @@ class DoctorSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'user_id' => User::where('username', 'fatima.sharif')->first()->id,
+                'username' => 'fatima.sharif',
                 'name' => 'Dr. Fatima Al-Sharif',
                 'specialty' => 'Dermatology',
                 'phone' => '+967 711 222 222',
@@ -38,7 +38,7 @@ class DoctorSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'user_id' => User::where('username', 'mohammed.hamdani')->first()->id,
+                'username' => 'mohammed.hamdani',
                 'name' => 'Dr. Mohammed Al-Hamdani',
                 'specialty' => 'Pediatrics',
                 'phone' => '+967 711 333 333',
@@ -51,7 +51,7 @@ class DoctorSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'user_id' => User::where('username', 'aisha.maqtari')->first()->id,
+                'username' => 'aisha.maqtari',
                 'name' => 'Dr. Aisha Al-Maqtari',
                 'specialty' => 'Orthopedics',
                 'phone' => '+967 711 444 444',
@@ -64,7 +64,7 @@ class DoctorSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'user_id' => User::where('username', 'yusuf.nahdi')->first()->id,
+                'username' => 'yusuf.nahdi',
                 'name' => 'Dr. Yusuf Al-Nahdi',
                 'specialty' => 'Neurology',
                 'phone' => '+967 711 555 555',
@@ -76,9 +76,28 @@ class DoctorSeeder extends Seeder
                 'consultation_fee' => 7000.00,
                 'is_active' => true,
             ],
+            [
+                'username' => 'mariam.zubaydi',
+                'name' => 'Dr. Mariam Al-Zubaydi',
+                'specialty' => 'General Practice',
+                'phone' => '+967 711 666 666',
+                'email' => 'mariam.zubaydi@clinic.com',
+                'bio' => 'Compassionate general practitioner with broad experience in family medicine, preventive care, and chronic disease management for all age groups.',
+                'working_days' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+                'work_start_time' => '08:00',
+                'work_end_time' => '20:00',
+                'consultation_fee' => 2500.00,
+                'is_active' => true,
+            ],
         ];
 
         foreach ($doctors as $data) {
+            $username = $data['username'];
+            unset($data['username']);
+            $user = User::where('username', $username)->first();
+            if ($user) {
+                $data['user_id'] = $user->id;
+            }
             Doctor::create($data);
         }
     }
