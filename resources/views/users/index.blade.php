@@ -72,7 +72,7 @@
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     @if(auth()->id() !== $user->id)
-                                    <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                    <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteUser)">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete">

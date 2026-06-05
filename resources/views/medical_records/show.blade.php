@@ -19,7 +19,7 @@
                     <a href="{{ route('medical-records.edit', $medicalRecord) }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-edit me-1"></i> {{ __('messages.edit') }}
                     </a>
-                    <form action="{{ route('medical-records.destroy', $medicalRecord) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this medical record?')">
+                    <form action="{{ route('medical-records.destroy', $medicalRecord) }}" method="POST" class="d-inline" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteMedicalRecord)">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger btn-sm">

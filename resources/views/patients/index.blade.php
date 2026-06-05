@@ -85,7 +85,7 @@
                                     <a href="{{ route('patients.edit', $patient->id) }}" class="btn btn-soft-primary btn-sm" title="Edit" data-i18n-title="edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="{{ route('patients.destroy', $patient->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this patient?')">
+                                    <form action="{{ route('patients.destroy', $patient->id) }}" method="POST" class="d-inline" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeletePatient)">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete" data-i18n-title="delete">

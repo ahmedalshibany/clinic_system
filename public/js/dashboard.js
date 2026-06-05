@@ -362,6 +362,7 @@ if (typeof DashboardManager === 'undefined') {
 
     window.dashboardManager = new DashboardManager();
     $(document).ready(() => {
+        if ($('#dashboard-greeting').length === 0) return;
         if (typeof API !== 'undefined') {
             window.dashboardManager.init();
         } else {

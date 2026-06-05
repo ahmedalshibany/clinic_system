@@ -14,7 +14,7 @@
         <div class="welcome-text">
             <span class="welcome-badge" id="greeting-badge">
                 <i class="fas fa-sun" id="greeting-icon"></i>
-                <span id="dashboard-greeting">{{ __('Good Morning') }}</span>
+                <span id="dashboard-greeting" data-i18n="goodMorning">{{ __('Good Morning') }}</span>
             </span>
             <h1><span data-i18n="welcomeBack">{{ __('Welcome Back,') }}</span> <span class="gradient-text" data-i18n="doctor">{{ __('Doctor') }}</span></h1>
             <p data-i18n="dashboardSubtitle">{{ __("Here's what's happening with your clinic today") }}</p>
@@ -46,7 +46,7 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ $todayAppointments }}</span>
-                <span class="stat-label">{{ __('Appointments Today') }}</span>
+                <span class="stat-label" data-i18n="appointmentsToday">{{ __('Appointments Today') }}</span>
             </div>
             <div class="stat-decoration"></div>
         </div>
@@ -59,7 +59,7 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ $waitingPatients }}</span>
-                <span class="stat-label">{{ __('Waiting Room') }}</span>
+                <span class="stat-label" data-i18n="waitingRoom">{{ __('Waiting Room') }}</span>
             </div>
             <div class="stat-decoration"></div>
         </div>
@@ -72,7 +72,7 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ $weekAppointments }}</span>
-                <span class="stat-label">{{ __('This Week') }}</span>
+                <span class="stat-label" data-i18n="thisWeek">{{ __('This Week') }}</span>
             </div>
             <div class="stat-decoration"></div>
         </div>
@@ -85,7 +85,7 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ $monthAppointments }}</span>
-                <span class="stat-label">{{ __('This Month') }}</span>
+                <span class="stat-label" data-i18n="thisMonth">{{ __('This Month') }}</span>
             </div>
             <div class="stat-decoration"></div>
         </div>
@@ -98,10 +98,10 @@
             <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center" role="alert">
                 <i class="fas fa-file-invoice-dollar fa-2x me-3"></i>
                 <div class="flex-grow-1">
-<h5 class="alert-heading mb-1">{{ __('Billing Action Required') }}</h5>
-                                    <p class="mb-0">{{ __('There are') }} <strong>{{ $readyToBillCount }}</strong> {{ __('completed appointments ready for invoicing.') }}</p>
+<h5 class="alert-heading mb-1" data-i18n="billingActionRequired">{{ __('Billing Action Required') }}</h5>
+                                    <p class="mb-0"><span data-i18n="thereAre">{{ __('There are') }}</span> <strong>{{ $readyToBillCount }}</strong> <span data-i18n="completedAppointmentsReady">{{ __('completed appointments ready for invoicing.') }}</span></p>
                 </div>
-                <a href="{{ route('appointments.index', ['status' => 'completed']) }}" class="btn btn-warning text-dark fw-bold">
+                <a href="{{ route('appointments.index', ['status' => 'completed']) }}" class="btn btn-warning text-dark fw-bold" data-i18n="goToBilling">
                     {{ __('Go to Billing') }} <i class="fas fa-arrow-right ms-2"></i>
                 </a>
             </div>
@@ -109,8 +109,8 @@
             <div class="alert alert-success border-0 shadow-sm d-flex align-items-center" role="alert">
                 <i class="fas fa-check-circle fa-2x me-3"></i>
                 <div>
-<h5 class="alert-heading mb-1">{{ __('All Caught Up!') }}</h5>
-                                     <p class="mb-0">{{ __('No pending billing actions required at this time.') }}</p>
+<h5 class="alert-heading mb-1" data-i18n="allCaughtUp">{{ __('All Caught Up!') }}</h5>
+                                     <p class="mb-0" data-i18n="noPendingBilling">{{ __('No pending billing actions required at this time.') }}</p>
                 </div>
             </div>
             @endif
@@ -125,7 +125,7 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ $todayAppointments }}</span>
-                <span class="stat-label">{{ __("Today's Appointments") }}</span>
+                    <span class="stat-label" data-i18n="todayAppts">{{ __("Today's Appointments") }}</span>
             </div>
         </div>
     @elseif(auth()->user()->hasRole('nurse'))
@@ -133,19 +133,19 @@
         <div class="col-12 mb-4">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-user-nurse me-2"></i>{{ __('Triage Queue (To Vitals)') }}</h5>
-                    <span class="badge   text-primary">{{ $triageQueue->count() }} {{ __('Pending') }}</span>
+                    <h5 class="mb-0"><i class="fas fa-user-nurse me-2"></i><span data-i18n="triageQueue">{{ __('Triage Queue (To Vitals)') }}</span></h5>
+                    <span class="badge   text-primary">{{ $triageQueue->count() }} <span data-i18n="pending">{{ __('Pending') }}</span></span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>{{ __('Time') }}</th>
-                                    <th>{{ __('Patient Name') }}</th>
-                                    <th>{{ __('Doctor') }}</th>
-                                    <th>{{ __('Status') }}</th>
-                                    <th>{{ __('Action') }}</th>
+                                    <th data-i18n="timeTable">{{ __('Time') }}</th>
+                                    <th data-i18n="patientName">{{ __('Patient Name') }}</th>
+                                    <th data-i18n="doctor">{{ __('Doctor') }}</th>
+                                    <th data-i18n="status">{{ __('Status') }}</th>
+                                    <th data-i18n="action">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -154,16 +154,16 @@
                                     <td>{{ $appt->time->format('H:i') }}</td>
                                     <td class="fw-bold">{{ $appt->patient->name }}</td>
                                     <td>{{ $appt->doctor->name }}</td>
-                                    <td><span class="badge bg-info">{{ __('Confirmed') }}</span></td>
+                                    <td><span class="badge bg-info" data-i18n="confirmed">{{ __('Confirmed') }}</span></td>
                                     <td>
-                                        <a href="{{ route('nurse.vitals.create', $appt->id) }}" class="btn btn-success btn-sm text-white">
+                                        <a href="{{ route('nurse.vitals.create', $appt->id) }}" class="btn btn-success btn-sm text-white" data-i18n="recordVitals">
                                             <i class="fas fa-heartbeat me-1"></i> {{ __('Record Vitals') }}
                                         </a>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">{{ __('Thinking... No patients in triage queue.') }}</td>
+                                    <td colspan="5" class="text-center py-4 text-muted" data-i18n="noPatientsInTriage">{{ __('Thinking... No patients in triage queue.') }}</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -176,18 +176,18 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-chair me-2"></i>{{ __('Waiting Room (Ready for Doctor)') }}</h5>
-                    <span class="badge bg-dark text-white">{{ $waitingList->count() }} {{ __('Waiting') }}</span>
+                    <h5 class="mb-0" data-i18n="waitingRoomReady"><i class="fas fa-chair me-2"></i>{{ __('Waiting Room (Ready for Doctor)') }}</h5>
+                    <span class="badge bg-dark text-white" data-i18n="waiting">{{ $waitingList->count() }} {{ __('Waiting') }}</span>
                 </div>
                 <div class="card-body p-0">
                      <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>{{ __('Time') }}</th>
-                                    <th>{{ __('Patient Name') }}</th>
-                                    <th>{{ __('Doctor') }}</th>
-                                    <th>{{ __('Status') }}</th>
+                                    <th data-i18n="timeTable">{{ __('Time') }}</th>
+                                    <th data-i18n="patientName">{{ __('Patient Name') }}</th>
+                                    <th data-i18n="doctor">{{ __('Doctor') }}</th>
+                                    <th data-i18n="status">{{ __('Status') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -196,11 +196,11 @@
                                     <td>{{ $appt->time->format('H:i') }}</td>
                                     <td class="fw-bold">{{ $appt->patient->name }}</td>
                                     <td>{{ $appt->doctor->name }}</td>
-                                    <td><span class="badge bg-warning text-dark">{{ __('Waiting') }}</span></td>
+                                    <td><span class="badge bg-warning text-dark" data-i18n="waiting">{{ __('Waiting') }}</span></td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">{{ __('No patients waiting.') }}</td>
+                                    <td colspan="4" class="text-center py-4 text-muted" data-i18n="noPatientsWaiting">{{ __('No patients waiting.') }}</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -219,7 +219,7 @@
             <div class="stat-data">
                 <span class="stat-number">{{ $totalActivePatients }}</span>
 <span class="stat-label" data-i18n="totalPatients">{{ __('Total Patients') }}</span>
-                                <span class="stat-badge">+{{ $newPatientsMonth }} {{ __('new') }}</span>
+                                <span class="stat-badge" data-i18n="newLabel">+{{ $newPatientsMonth }} {{ __('new') }}</span>
             </div>
             <div class="stat-decoration"></div>
         </div>
@@ -312,7 +312,7 @@
             </div>
             <div class="panel-badge">
                 <i class="fas fa-dollar-sign"></i>
-                <span>{{ $monthlyRevenue['revenue'][array_key_last($monthlyRevenue['revenue']) ?? 0] ?? 0 }} {{ __('this month') }}</span>
+                <span data-i18n="thisMonth">{{ $monthlyRevenue['revenue'][array_key_last($monthlyRevenue['revenue']) ?? 0] ?? 0 }} {{ __('this month') }}</span>
             </div>
         </div>
         <div class="panel-body">

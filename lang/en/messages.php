@@ -5,6 +5,7 @@ return [
     'appTitle' => 'Clinic System',
     'dashboard' => 'Dashboard',
     'calendar' => 'Calendar',
+    'all_doctors' => 'All Doctors',
     'allRightsReserved' => 'All rights reserved.',
 
     // Sidebar
@@ -142,6 +143,7 @@ return [
     'notificationRemoved' => 'Notification removed.',
 
     // Statuses
+    'scheduled' => 'Scheduled',
     'pending' => 'Pending',
     'confirmed' => 'Confirmed',
     'completed' => 'Completed',

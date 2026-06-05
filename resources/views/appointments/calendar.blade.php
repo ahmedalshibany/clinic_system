@@ -1,10 +1,11 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Appointments / Calendar')
-@section('page-title', 'Appointments / Calendar')
+@section('title', __('messages.calendar'))
+@section('page-title', __('messages.calendar'))
 
 @section('styles')
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales-all.global.min.js'></script>
 <style>
     .fc-event {
         cursor: pointer;
@@ -67,7 +68,7 @@
                 <div class="row mb-4 align-items-center">
                     <div class="col-md-4">
                         <select id="doctorFilter" class="form-select">
-                            <option value="">All Doctors</option>
+                            <option value="" data-i18n="allDoctors">{{ __('messages.all_doctors') }}</option>
                             @foreach($doctors as $doctor)
                                 <option value="{{ $doctor->id }}">{{ $doctor->name }}</option>
                             @endforeach
@@ -76,19 +77,19 @@
                     <div class="col-md-8">
                         <div class="d-flex flex-wrap gap-3 justify-content-md-end mt-3 mt-md-0">
                             <div class="legend-item">
-                                <span class="legend-color" style="background: #3b82f6"></span> Scheduled
+                                <span class="legend-color" style="background: #3b82f6"></span><span data-i18n="scheduled">Scheduled</span>
                             </div>
                             <div class="legend-item">
-                                <span class="legend-color" style="background: #10b981"></span> Confirmed
+                                <span class="legend-color" style="background: #10b981"></span><span data-i18n="confirmed">Confirmed</span>
                             </div>
                             <div class="legend-item">
-                                <span class="legend-color" style="background: #f59e0b"></span> Waiting
+                                <span class="legend-color" style="background: #f59e0b"></span><span data-i18n="waiting">Waiting</span>
                             </div>
                             <div class="legend-item">
-                                <span class="legend-color" style="background: #8b5cf6"></span> In Progress
+                                <span class="legend-color" style="background: #8b5cf6"></span><span data-i18n="inProgress">In Progress</span>
                             </div>
                             <div class="legend-item">
-                                <span class="legend-color" style="background: #6b7280"></span> Completed
+                                <span class="legend-color" style="background: #6b7280"></span><span data-i18n="completed">Completed</span>
                             </div>
                         </div>
                     </div>
@@ -108,13 +109,21 @@
         var calendarEl = document.getElementById('calendar');
         var doctorFilter = document.getElementById('doctorFilter');
 
+        var isAr = (typeof app !== 'undefined' && app.lang === 'ar') || document.documentElement.lang === 'ar';
         var calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: isAr ? 'ar' : 'en',
             initialView: 'dayGridMonth',
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
+            buttonText: isAr ? {
+                today: 'اليوم',
+                month: 'شهر',
+                week: 'أسبوع',
+                day: 'يوم'
+            } : undefined,
             themeSystem: 'bootstrap5',
             events: {
                 url: '{{ route("appointments.events") }}',

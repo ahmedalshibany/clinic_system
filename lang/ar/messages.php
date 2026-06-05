@@ -5,6 +5,7 @@ return [
     'appTitle' => 'نظام العيادة',
     'dashboard' => 'لوحة التحكم',
     'calendar' => 'التقويم',
+    'all_doctors' => 'جميع الأطباء',
     'allRightsReserved' => 'جميع الحقوق محفوظة.',
 
     // Sidebar
@@ -142,6 +143,7 @@ return [
     'notificationRemoved' => 'تم حذف الإشعار.',
 
     // Statuses
+    'scheduled' => 'مجدول',
     'pending' => 'قيد الانتظار',
     'confirmed' => 'مؤكد',
     'completed' => 'مكتمل',

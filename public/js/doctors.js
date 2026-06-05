@@ -167,8 +167,10 @@ if (typeof DoctorsManager === 'undefined') {
             const start = this.totalItems > 0 ? (this.currentPage - 1) * this.itemsPerPage + 1 : 0;
             const end = Math.min(this.currentPage * this.itemsPerPage, this.totalItems);
 
+            const lang = (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
+            const t = (k) => window.translations?.[lang]?.[k] || k;
             $pagination.find('.pagination-info').html(`
-                Showing <strong>${start}-${end}</strong> of <strong>${this.totalItems}</strong> doctors
+                ${t('showing')} <strong>${start}-${end}</strong> ${t('of')} <strong>${this.totalItems}</strong> ${t('doctorsLabel')}
             `);
 
             $pagination.find('[data-action="prev-page"]').prop('disabled', this.currentPage === 1);
@@ -291,7 +293,7 @@ if (typeof DoctorsManager === 'undefined') {
             if (window.app && window.app.showAlert) {
                 window.app.showAlert(message, 'success');
             } else {
-                alert(message);
+                console.log(message);
             }
         }
 
@@ -299,13 +301,15 @@ if (typeof DoctorsManager === 'undefined') {
             if (window.app && window.app.showAlert) {
                 window.app.showAlert(message, 'danger');
             } else {
-                alert(message);
+                console.error(message);
             }
         }
     }
 
     window.doctorsManager = new DoctorsManager();
     $(document).ready(() => {
+        if ($('#doctorsGrid').length === 0) return;
+        if ($('#doctorsGrid').children().length > 0) return;
         if (typeof API !== 'undefined') {
             window.doctorsManager.init();
         } else {

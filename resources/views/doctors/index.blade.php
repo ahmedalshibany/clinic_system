@@ -60,7 +60,7 @@
                         <button class="btn btn-soft-primary btn-sm" onclick="editDoctor({{ $doctor->id }}, '{{ addslashes($doctor->name) }}', '{{ addslashes($doctor->specialty) }}', '{{ addslashes($doctor->phone) }}')" title="Edit" data-i18n-title="edit">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <form action="{{ route('doctors.destroy', $doctor) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this doctor?')">
+                        <form action="{{ route('doctors.destroy', $doctor) }}" method="POST" class="d-inline" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteDoctor)">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete" data-i18n-title="delete">

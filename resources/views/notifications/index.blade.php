@@ -14,7 +14,7 @@
                 <i class="fas fa-check-double me-2"></i> {{ __('messages.markAllRead') }}
             </button>
         </form>
-        <form action="{{ route('notifications.clear-all') }}" method="POST" onsubmit="return confirm('{{ __("Are you sure you want to delete all notifications?") }}');">
+        <form action="{{ route('notifications.clear-all') }}" method="POST" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteNotification);">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-outline-danger shadow-sm">
@@ -67,7 +67,7 @@
                                     <span class="text-success small"><i class="fas fa-check me-1"></i> {{ __('Read') }}</span>
                                 @endif
 
-                                <form action="{{ route('notifications.destroy', $notification) }}" method="POST" class="d-inline ms-auto" onsubmit="return confirm('{{ __("Delete this notification?") }}');">
+                                <form action="{{ route('notifications.destroy', $notification) }}" method="POST" class="d-inline ms-auto" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteSingleNotification);">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-link btn-sm text-decoration-none p-0 text-danger" title="{{ __('Delete') }}">

@@ -112,7 +112,7 @@
                                                 <td>{{ $leave->end_date->format('M d, Y') }}</td>
                                                 <td>{{ $leave->reason ?? '-' }}</td>
                                                 <td>
-                                                    <form action="{{ route('doctors.leaves.destroy', [$doctor, $leave]) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                                                    <form action="{{ route('doctors.leaves.destroy', [$doctor, $leave]) }}" method="POST" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteLeave)">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="btn btn-sm btn-outline-danger">

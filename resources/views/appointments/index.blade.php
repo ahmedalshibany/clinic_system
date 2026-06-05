@@ -122,7 +122,7 @@
                                     <button class="btn btn-soft-primary btn-sm" onclick="editAppointment({{ json_encode($appointment) }})" title="Edit" data-i18n-title="edit">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <form action="{{ route('appointments.destroy', $appointment) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this appointment?')">
+                                    <form action="{{ route('appointments.destroy', $appointment) }}" method="POST" class="d-inline" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmCancelAppt)">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete" data-i18n-title="delete">

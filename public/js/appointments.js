@@ -309,7 +309,7 @@ if (typeof AppointmentsManager === 'undefined') {
             const end = Math.min(this.currentPage * this.itemsPerPage, this.totalItems);
 
             $('.pagination-info').html(`
-                Showing <strong>${start}-${end}</strong> of <strong>${this.totalItems}</strong> appointments
+                ${this.t('showing')} <strong>${start}-${end}</strong> ${this.t('of')} <strong>${this.totalItems}</strong> ${this.t('appointmentsLabel')}
             `);
 
             $('[data-action="prev-page"]').prop('disabled', this.currentPage === 1);
@@ -467,7 +467,7 @@ if (typeof AppointmentsManager === 'undefined') {
             if (window.app && window.app.showAlert) {
                 window.app.showAlert(message, 'success');
             } else {
-                alert(message);
+                console.log(message);
             }
         }
 
@@ -475,13 +475,14 @@ if (typeof AppointmentsManager === 'undefined') {
             if (window.app && window.app.showAlert) {
                 window.app.showAlert(message, 'danger');
             } else {
-                alert(message);
+                console.error(message);
             }
         }
     }
 
     window.appointmentsManager = new AppointmentsManager();
     $(document).ready(() => {
+        if ($('#appointmentsTableBody').length === 0) return;
         if (typeof API !== 'undefined') {
             window.appointmentsManager.init();
         } else {

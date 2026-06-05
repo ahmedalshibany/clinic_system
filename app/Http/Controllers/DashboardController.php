@@ -88,7 +88,7 @@ class DashboardController extends Controller
                 $cancelled = (clone $apptQuery)->where('status', 'cancelled')->count();
 
                 $recentAppointments = (clone $apptQuery)
-                    ->with(['patient'])
+                    ->with(['patient', 'doctor'])
                     ->orderBy('date', 'desc')
                     ->orderBy('time', 'desc')
                     ->limit(5)
