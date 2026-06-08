@@ -185,7 +185,7 @@
 
             <!-- Form Actions -->
             <div class="d-flex justify-content-end gap-3 mb-5">
-                <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('patients.index') }}" class="btn btn-light">{{ __('messages.cancel') }}</a>
+                <a href="{{ smartBack('patients.index') }}" class="btn btn-light">{{ __('messages.cancel') }}</a>
                 <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>{{ __('messages.savePatient') }}</button>
             </div>
         </form>

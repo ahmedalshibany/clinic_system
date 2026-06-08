@@ -696,7 +696,7 @@
 
 <!-- Back Button -->
 <div class="mt-4">
-    <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('patients.index') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i> {{ __('messages.backToPatients') }}
+    <a href="{{ smartBack('patients.index') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToPatients') }}
     </a>
 @endsection

@@ -111,7 +111,7 @@
 
     <!-- Actions -->
     <div class="col-12 mt-4 text-end">
-        <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('invoices.index') }}" class="btn btn-light me-2" data-i18n="cancel">{{ __('messages.cancel') }}</a>
+        <a href="{{ smartBack('invoices.index') }}" class="btn btn-light me-2" data-i18n="cancel">{{ __('messages.cancel') }}</a>
         <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> <span data-i18n="saveInvoice">{{ __('messages.saveInvoice') }}</span></button>
     </div>
 </div>

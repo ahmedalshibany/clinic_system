@@ -100,11 +100,13 @@
                         <div class="col-12">
                             <label class="form-label d-block">{{ __('messages.workingDays') }}</label>
                             <div class="btn-group flex-wrap" role="group">
-                                @php $dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; @endphp
-                                @foreach($dayNames as $index => $day)
+                                @php
+                                    $dayKeys = ['day_sunday', 'day_monday', 'day_tuesday', 'day_wednesday', 'day_thursday', 'day_friday', 'day_saturday'];
+                                @endphp
+                                @foreach($dayKeys as $index => $key)
                                     <input type="checkbox" class="btn-check" id="day_{{ $index }}" name="working_days[]" value="{{ $index }}"
                                         {{ in_array($index, old('working_days', [])) ? 'checked' : '' }}>
-                                    <label class="btn btn-outline-primary" for="day_{{ $index }}">{{ substr($day, 0, 3) }}</label>
+                                    <label class="btn btn-outline-primary" for="day_{{ $index }}">{{ __('messages.' . $key) }}</label>
                                 @endforeach
                             </div>
                             @error('working_days') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
@@ -137,7 +139,7 @@
             </div>
 
             <div class="d-flex justify-content-end gap-3 mb-5">
-                <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('doctors.index') }}" class="btn btn-light">{{ __('messages.cancel') }}</a>
+                <a href="{{ route('doctors.index') }}" class="btn btn-light">{{ __('messages.cancel') }}</a>
                 <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>{{ __('messages.saveDoctor') }}</button>
             </div>
         </form>

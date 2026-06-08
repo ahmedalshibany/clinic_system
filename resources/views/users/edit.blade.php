@@ -59,8 +59,8 @@
                     </div>
 
                     <div class="d-flex gap-2">
-                        <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('users.index') }}" class="btn btn-light">Cancel</a>
-                        <button type="submit" class="btn btn-primary px-4">Update User</button>
+                        <a href="{{ smartBack('users.index') }}" class="btn btn-light">{{ __('messages.cancel') }}</a>
+                        <button type="submit" class="btn btn-primary px-4">{{ __('messages.updateUser') }}</button>
                     </div>
                 </form>
             </div>

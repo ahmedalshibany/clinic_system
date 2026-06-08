@@ -32,9 +32,9 @@
             
             <div class="card mt-4 mb-5 border-0 shadow-sm">
                 <div class="card-body p-4 text-end">
-                    <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('patients.show', $patient) }}" class="btn btn-light me-2">Cancel</a>
+                    <a href="{{ smartBack('patients.show', $patient) }}" class="btn btn-light me-2">{{ __('messages.cancel') }}</a>
                     <button type="submit" class="btn btn-primary px-4">
-                        <i class="fas fa-save me-2"></i> Save Record
+                        <i class="fas fa-save me-2"></i> {{ __('messages.saveRecord') }}
                     </button>
                     <!-- <button type="submit" name="print" value="1" class="btn btn-outline-primary ms-2">
                         <i class="fas fa-print me-2"></i> Save & Print

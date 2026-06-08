@@ -207,8 +207,8 @@
 <body>
 
     <div class="print-controls no-print">
-        <a href="{{ url()->previous() }}" class="btn btn-secondary">Back</a>
-        <button onclick="window.print()" class="btn btn-primary">Print Prescription</button>
+        <a href="{{ smartBack('medical-records.index') }}" class="btn btn-secondary">{{ __('messages.back') }}</a>
+        <button onclick="window.print()" class="btn btn-primary">{{ __('messages.printPrescription') }}</button>
     </div>
 
     <div class="container">

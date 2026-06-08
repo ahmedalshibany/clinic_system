@@ -25,9 +25,15 @@ class SettingSeeder extends Seeder
             ['key' => 'tax_rate', 'value' => 0, 'type' => 'integer', 'group' => 'invoice'],
             ['key' => 'default_due_days', 'value' => 30, 'type' => 'integer', 'group' => 'invoice'],
             ['key' => 'appointment_slot_duration', 'value' => 30, 'type' => 'integer', 'group' => 'appointment'],
+            ['key' => 'buffer_time', 'value' => 0, 'type' => 'integer', 'group' => 'appointment'],
             ['key' => 'advance_booking_days', 'value' => 30, 'type' => 'integer', 'group' => 'appointment'],
+            ['key' => 'allow_same_day', 'value' => '1', 'type' => 'boolean', 'group' => 'appointment'],
             ['key' => 'start_hour', 'value' => '09:00', 'type' => 'string', 'group' => 'appointment'],
             ['key' => 'end_hour', 'value' => '17:00', 'type' => 'string', 'group' => 'appointment'],
+            ['key' => 'clinic_website', 'value' => '', 'type' => 'string', 'group' => 'clinic'],
+            ['key' => 'tax_number', 'value' => '', 'type' => 'string', 'group' => 'clinic'],
+            ['key' => 'payment_terms', 'value' => 'Payment is due within 30 days.', 'type' => 'string', 'group' => 'invoice'],
+            ['key' => 'bank_details', 'value' => '', 'type' => 'string', 'group' => 'invoice'],
         ];
 
         foreach ($settings as $data) {

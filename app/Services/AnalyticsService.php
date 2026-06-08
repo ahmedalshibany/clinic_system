@@ -27,14 +27,27 @@ class AnalyticsService
 
     public function getMonthlyRevenue(int $months = 6): array
     {
+        $start = now()->subMonthsNoOverflow($months - 1)->startOfMonth();
+        $end = now()->endOfMonth();
+
+        $driver = DB::connection()->getDriverName();
+        $yearExpr = $driver === 'sqlite' ? "strftime('%Y', payment_date)" : 'YEAR(payment_date)';
+        $monthExpr = $driver === 'sqlite' ? "strftime('%m', payment_date)" : 'MONTH(payment_date)';
+
+        $rows = Payment::whereBetween('payment_date', [$start, $end])
+            ->selectRaw("{$yearExpr} as year, {$monthExpr} as month, SUM(amount) as revenue")
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get()
+            ->keyBy(fn($r) => $r->year . '-' . str_pad($r->month, 2, '0', STR_PAD_LEFT));
+
         $data = ['labels' => [], 'revenue' => []];
         for ($i = $months - 1; $i >= 0; $i--) {
             $date = now()->subMonthsNoOverflow($i);
-            $revenue = Payment::whereYear('payment_date', $date->year)
-                ->whereMonth('payment_date', $date->month)
-                ->sum('amount');
+            $key = $date->format('Y-m');
             $data['labels'][] = $date->format('M Y');
-            $data['revenue'][] = round((float) $revenue, 2);
+            $data['revenue'][] = round((float) ($rows[$key]->revenue ?? 0), 2);
         }
         return $data;
     }
@@ -49,12 +62,23 @@ class AnalyticsService
 
     public function getWeeklyTrend(): array
     {
+        $start = now()->subDays(6)->startOfDay();
+        $end = now()->endOfDay();
+
+        $rows = Appointment::whereBetween('date', [$start, $end])
+            ->selectRaw('DATE(date) as day, COUNT(*) as count')
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get()
+            ->keyBy('day');
+
         $data = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
+            $key = $date->format('Y-m-d');
             $data[] = [
                 'day' => $date->format('D'),
-                'count' => Appointment::whereDate('date', $date)->count(),
+                'count' => (int) ($rows[$key]->count ?? 0),
             ];
         }
         return $data;
@@ -62,10 +86,13 @@ class AnalyticsService
 
     public function getPendingInvoicesSummary(): array
     {
-        $pending = Invoice::whereNotIn('status', ['paid', 'cancelled'])->get();
+        $result = Invoice::whereNotIn('status', ['paid', 'cancelled'])
+            ->selectRaw('count(*) as count, sum(total - amount_paid) as total_balance')
+            ->first();
+
         return [
-            'count' => $pending->count(),
-            'total_balance' => round((float) $pending->sum(fn($inv) => $inv->total - $inv->amount_paid), 2),
+            'count' => (int) ($result->count ?? 0),
+            'total_balance' => round((float) ($result->total_balance ?? 0), 2),
         ];
     }
 

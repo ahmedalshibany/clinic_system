@@ -1,53 +1,61 @@
 @extends('layouts.dashboard')
-@section('title', 'Reports / Patients')
-@section('page-title', 'Reports / Patients')
+@section('title', __('messages.reports') . ' / ' . __('messages.patients'))
+@section('page-title', __('messages.reports') . ' / ' . __('messages.patients'))
 @section('content')
 <div class="row">
     <div class="col-md-6">
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header  "><h6>Gender Distribution</h6></div>
+            <div class="card-header"><h6>{{ __('messages.genderDistribution') }}</h6></div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
-                    @foreach($gender_stats as $gender => $count)
+                    @forelse($gender_stats as $gender => $count)
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         {{ ucfirst($gender) }}
                         <span class="badge bg-primary rounded-pill">{{ $count }}</span>
                     </li>
-                    @endforeach
+                    @empty
+                    <li class="list-group-item text-center text-muted py-4">{{ __('messages.noTransactions') }}</li>
+                    @endforelse
                 </ul>
             </div>
         </div>
     </div>
     <div class="col-md-6">
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header  "><h6>Age Groups</h6></div>
+            <div class="card-header"><h6>{{ __('messages.ageGroups') }}</h6></div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
-                    @foreach($age_groups as $group => $count)
+                    @forelse($age_groups as $group => $count)
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         {{ $group }}
                         <span class="badge bg-info rounded-pill">{{ $count }}</span>
                     </li>
-                    @endforeach
+                    @empty
+                    <li class="list-group-item text-center text-muted py-4">{{ __('messages.noTransactions') }}</li>
+                    @endforelse
                 </ul>
             </div>
         </div>
     </div>
     <div class="col-12">
         <div class="card border-0 shadow-sm">
-            <div class="card-header  "><h6>Recent Registrations</h6></div>
+            <div class="card-header"><h6>{{ __('messages.recentRegistrations') }}</h6></div>
             <div class="card-body">
-                <table class="table">
-                    <thead><tr><th>Name</th><th>Gender</th><th>Age</th><th>Registered</th></tr></thead>
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>{{ __('messages.nameColumn') }}</th><th>{{ __('messages.genderColumn') }}</th><th>{{ __('messages.ageColumn') }}</th><th>{{ __('messages.registeredColumn') }}</th></tr></thead>
                     <tbody>
-                        @foreach($patients->take(10) as $p)
+                        @forelse($patients->take(10) as $p)
                         <tr>
                             <td>{{ $p->name }}</td>
                             <td>{{ ucfirst($p->gender) }}</td>
                             <td>{{ $p->age }}</td>
                             <td>{{ $p->created_at->format('M d, Y') }}</td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">{{ __('messages.noTransactions') }}</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

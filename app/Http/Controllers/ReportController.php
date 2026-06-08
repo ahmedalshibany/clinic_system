@@ -134,16 +134,16 @@ class ReportController extends Controller
         
         $data = DB::table('payments')
             ->join('invoices', 'payments.invoice_id', '=', 'invoices.id')
-            ->join('appointments', 'invoices.appointment_id', '=', 'appointments.id') // Only counts appointment-based invoices
-            ->join('doctors', 'appointments.doctor_id', '=', 'doctors.id') // Assuming doctors table
-            ->join('users', 'doctors.user_id', '=', 'users.id') // Get user name
+            ->join('appointments', 'invoices.appointment_id', '=', 'appointments.id')
+            ->join('doctors', 'appointments.doctor_id', '=', 'doctors.id')
+            ->join('users', 'doctors.user_id', '=', 'users.id')
             ->whereBetween('payments.payment_date', [$dateFrom, $dateTo])
             ->select(
-                'users.name as doctor_name', 
+                'users.name as doctor_name',
                 DB::raw('SUM(payments.amount) as total_earned'),
                 DB::raw('COUNT(DISTINCT appointments.id) as appointment_count')
             )
-            ->groupBy('users.name')
+            ->groupBy('doctors.id', 'users.name')
             ->get();
 
         return view('reports.revenue_doctor', compact('data', 'dateFrom', 'dateTo'));
@@ -193,13 +193,25 @@ class ReportController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $patients = $query->orderBy('created_at', 'desc')->get();
-        
-        // Demographics stats
-        $gender_stats = $patients->groupBy('gender')->map->count();
-        $age_groups = $patients->map(function ($p) {
-            return $p->age < 18 ? 'Child' : ($p->age > 60 ? 'Senior' : 'Adult');
-        })->groupBy(fn($i) => $i)->map->count();
+        // Aggregate demographics at database level to avoid loading all rows
+        $demographics = (clone $query)
+            ->selectRaw("
+                gender,
+                CASE
+                    WHEN age < 18 THEN 'Child'
+                    WHEN age > 60 THEN 'Senior'
+                    ELSE 'Adult'
+                END as age_group,
+                COUNT(*) as count
+            ")
+            ->groupBy('gender', 'age_group')
+            ->get();
+
+        $gender_stats = $demographics->groupBy('gender')->map(fn($g) => $g->sum('count'));
+        $age_groups = $demographics->groupBy('age_group')->map(fn($g) => $g->sum('count'));
+
+        // Recent registrations — only fetch what the view uses
+        $patients = $query->orderBy('created_at', 'desc')->limit(10)->get();
 
         return view('reports.patients', compact('patients', 'gender_stats', 'age_groups'));
     }
@@ -247,8 +259,8 @@ class ReportController extends Controller
             $query->whereDate('due_date', '<=', $request->date_to);
         }
 
-        $invoices = $query->orderBy('due_date')->get();
-        $total_outstanding = $invoices->sum(fn($i) => $i->total - $i->amount_paid);
+        $total_outstanding = (clone $query)->sum(DB::raw('total - amount_paid'));
+        $invoices = $query->orderBy('due_date')->paginate(50)->withQueryString();
 
         return view('reports.outstanding', compact('invoices', 'total_outstanding'));
     }

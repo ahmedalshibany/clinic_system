@@ -107,7 +107,7 @@
         @if($doctors->hasPages())
         <div class="pagination-controls">
             <div class="pagination-info">
-                <span data-i18n="showing">{{ __('messages.showing') }}</span> <strong>{{ $doctors->firstItem() }}-{{ $doctors->lastItem() }}</strong> <span data-i18n="of">{{ __('messages.of') }}</span> <strong>{{ $doctors->total() }}</strong> <span data-i18n="doctorsLabel">doctors</span>
+                <span data-i18n="showing">{{ __('messages.showing') }}</span> <strong>{{ $doctors->firstItem() }}-{{ $doctors->lastItem() }}</strong> <span data-i18n="of">{{ __('messages.of') }}</span> <strong>{{ $doctors->total() }}</strong> <span data-i18n="doctorsLabel">{{ __('messages.doctors') }}</span>
             </div>
             <div class="pagination-buttons">
                 @if($doctors->onFirstPage())

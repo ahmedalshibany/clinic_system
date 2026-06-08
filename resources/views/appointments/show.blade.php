@@ -5,8 +5,8 @@
 
 @section('content')
 <div class="mb-3">
-    <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('appointments.index') }}" class="btn btn-sm btn-light">
-        <i class="fas fa-arrow-left me-1"></i> {{ __('messages.back') }}
+    <a href="{{ smartBack('appointments.index') }}" class="btn btn-sm btn-light">
+        <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.back') }}
     </a>
 </div>
 <div class="row fade-in">
