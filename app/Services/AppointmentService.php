@@ -68,37 +68,37 @@ class AppointmentService
         $doctor = Doctor::findOrFail($data['doctor_id']);
         
         // 1. Check if doctor is on leave
-        if (Carbon::parse($data['date'])->isFuture()) {
-            $isOnLeave = $doctor->leaves()
-                ->whereDate('start_date', '<=', $data['date'])
-                ->whereDate('end_date', '>=', $data['date'])
-                ->exists();
+        $isOnLeave = $doctor->leaves()
+            ->whereDate('start_date', '<=', $data['date'])
+            ->whereDate('end_date', '>=', $data['date'])
+            ->exists();
 
-            if ($isOnLeave) {
-                throw new Exception(__('messages.doctorOnLeave'));
-            }
+        if ($isOnLeave) {
+            throw new Exception(__('messages.doctorOnLeave'));
+        }
 
-            // 2. Check doctor's schedule
-            $dayOfWeek = Carbon::parse($data['date'])->dayOfWeek;
-            $schedule = $doctor->schedules()->where('day_of_week', $dayOfWeek)->where('is_active', true)->first();
+        // 2. Check doctor's schedule
+        $dayOfWeek = Carbon::parse($data['date'])->dayOfWeek;
+        $schedule = $doctor->schedules()->where('day_of_week', $dayOfWeek)->where('is_active', true)->first();
 
-            if (!$schedule) {
-                throw new Exception(__('messages.doctorUnavailable'));
-            }
+        if (!$schedule) {
+            throw new Exception(__('messages.doctorUnavailable'));
+        }
 
-            // 3. Check time slot validity (within working hours)
-            $apptTime = Carbon::parse($data['date'] . ' ' . $data['time']);
-            $startTime = Carbon::parse($data['date'] . ' ' . $schedule->start_time);
-            $endTime = Carbon::parse($data['date'] . ' ' . $schedule->end_time);
+        // 3. Check time slot validity (within working hours)
+        $apptTime = Carbon::parse($data['date'] . ' ' . $data['time']);
+        $startTime = Carbon::parse($data['date'] . ' ' . $schedule->start_time);
+        $endTime = Carbon::parse($data['date'] . ' ' . $schedule->end_time);
 
-            if ($apptTime->lt($startTime) || $apptTime->gte($endTime)) {
-                throw new Exception(__('messages.timeOutsideHours'));
-            }
+        if ($apptTime->lt($startTime) || $apptTime->gte($endTime)) {
+            throw new Exception(__('messages.timeOutsideHours'));
+        }
 
-            // 3a. Validate slot alignment (must be on 15-minute increments)
-            if ($apptTime->minute % 15 !== 0) {
-                throw new Exception(__('messages.slotMustBe15min'));
-            }
+        // 3a. Validate slot alignment against the schedule's actual slot_duration
+        $slotDuration = $schedule->slot_duration;
+        $minutesSinceStart = $apptTime->diffInMinutes($startTime);
+        if ($minutesSinceStart % $slotDuration !== 0) {
+            throw new Exception(__('messages.slotMustBe15min'));
         }
 
         DB::beginTransaction();
@@ -106,8 +106,8 @@ class AppointmentService
         try {
             // 4. Check for conflicts
             $conflict = Appointment::where('doctor_id', $data['doctor_id'])
-                ->where('date', $data['date'])
-                ->where('time', $data['time'])
+                ->whereDate('date', $data['date'])
+                ->whereTime('time', Carbon::parse($data['time'])->format('H:i:s'))
                 ->whereNotIn('status', ['cancelled'])
                 ->lockForUpdate()
                 ->exists();
@@ -161,7 +161,7 @@ class AppointmentService
                        $data['time'] !== $appointment->time->format('H:i') ||
                        $data['doctor_id'] != $appointment->doctor_id;
 
-        if ($timeChanged && Carbon::parse($data['date'])->isFuture()) {
+        if ($timeChanged) {
             
             // 1. Check leave
             $isOnLeave = $doctor->leaves()
@@ -190,19 +190,22 @@ class AppointmentService
                 throw new Exception(__('messages.timeOutsideHours'));
             }
 
-            // 3a. Validate slot alignment (must be on 15-minute increments)
-            if ($apptTime->minute % 15 !== 0) {
+            // 3a. Validate slot alignment against the schedule's actual slot_duration
+            $slotDuration = $schedule->slot_duration;
+            $minutesSinceStart = $apptTime->diffInMinutes($startTime);
+            if ($minutesSinceStart % $slotDuration !== 0) {
                 throw new Exception(__('messages.slotMustBe15min'));
             }
         }
 
-        // 4. Check for conflicts (excluding current appointment)
+        // 4. Check for conflicts with lock (excluding current appointment)
         if ($timeChanged) {
             $conflict = Appointment::where('doctor_id', $data['doctor_id'])
-                ->where('date', $data['date'])
-                ->where('time', $data['time'])
+                ->whereDate('date', $data['date'])
+                ->whereTime('time', Carbon::parse($data['time'])->format('H:i:s'))
                 ->where('id', '!=', $appointment->id)
                 ->whereNotIn('status', ['cancelled'])
+                ->lockForUpdate()
                 ->exists();
 
             if ($conflict) {

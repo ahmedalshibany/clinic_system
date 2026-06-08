@@ -97,7 +97,7 @@ class ScheduleController extends Controller
         // 4. Get booked appointments
         $bookedSlots = $doctor->appointments()
             ->whereDate('date', $date)
-            ->whereIn('status', ['pending', 'confirmed'])
+            ->whereNotIn('status', ['cancelled', 'completed'])
             ->pluck('time')
             ->map(function ($time) {
                 return Carbon::parse($time)->format('H:i');

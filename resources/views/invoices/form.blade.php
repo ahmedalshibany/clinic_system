@@ -2,9 +2,9 @@
 <div class="row g-3">
     <!-- Header Info -->
     <div class="col-md-6">
-        <label class="form-label">Patient <span class="text-danger">*</span></label>
+        <label class="form-label">{{ __('messages.patient') }} <span class="text-danger">*</span></label>
         <select name="patient_id" class="form-select select2" required>
-            <option value="">Select Patient</option>
+            <option value="">{{ __('messages.selectPatient') }}</option>
             @foreach($patients as $patient)
                 <option value="{{ $patient->id }}" 
                     {{ (old('patient_id', $invoice->patient_id ?? '') == $patient->id) || (isset($selected_patient) && $selected_patient->id == $patient->id) ? 'selected' : '' }}>
@@ -14,23 +14,23 @@
         </select>
         @if(isset($appointment))
             <input type="hidden" name="appointment_id" value="{{ $appointment->id }}">
-            <div class="form-text text-muted"> Linked to Appointment on {{ $appointment->date->format('M d, Y') }}</div>
+            <div class="form-text text-muted"> {{ __('messages.linkedToAppointment') }} {{ $appointment->date->format('M d, Y') }}</div>
         @endif
     </div>
 
     <div class="col-md-3">
-        <label class="form-label">Date <span class="text-danger">*</span></label>
+        <label class="form-label">{{ __('messages.date') }} <span class="text-danger">*</span></label>
         <input type="date" name="date" class="form-control" value="{{ old('date', isset($invoice) ? $invoice->created_at->format('Y-m-d') : date('Y-m-d')) }}" readonly>
     </div>
 
     <div class="col-md-3">
-        <label class="form-label">Due Date <span class="text-danger">*</span></label>
+        <label class="form-label">{{ __('messages.due_date') }} <span class="text-danger">*</span></label>
         <input type="date" name="due_date" class="form-control" value="{{ old('due_date', $invoice->due_date ?? date('Y-m-d')) }}" required>
     </div>
 
     @if(isset($invoice))
     <div class="col-md-3">
-        <label class="form-label">Status</label>
+        <label class="form-label">{{ __('messages.status') }}</label>
         <select name="status" class="form-select">
             @foreach(['draft', 'sent', 'paid', 'partial', 'overdue', 'cancelled'] as $status)
                 <option value="{{ $status }}" {{ old('status', $invoice->status) == $status ? 'selected' : '' }}>
@@ -47,18 +47,18 @@
     <div class="col-12 mt-4">
         <div class="card   border-0">
             <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">Invoice Items</h6>
-                <button type="button" class="btn btn-sm btn-primary" id="add-item-btn"><i class="fas fa-plus"></i> Add Item</button>
+                <h6 class="mb-0">{{ __('messages.invoiceItems') }}</h6>
+                <button type="button" class="btn btn-sm btn-primary" id="add-item-btn"><i class="fas fa-plus"></i> {{ __('messages.addItem') }}</button>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-borderless mb-0" id="items-table">
                         <thead class="table-light">
                             <tr>
-                                <th width="35%">Service / Description</th>
-                                <th width="15%">Price</th>
-                                <th width="10%">Qty</th>
-                                <th width="15%">Total</th>
+                                <th width="35%" data-i18n="serviceDescription">{{ __('messages.serviceDescription') }}</th>
+                                <th width="15%" data-i18n="unitPrice">{{ __('messages.unit_price') }}</th>
+                                <th width="10%" data-i18n="qty">{{ __('messages.qty') }}</th>
+                                <th width="15%" data-i18n="total">{{ __('messages.total') }}</th>
                                 <th width="5%"></th>
                             </tr>
                         </thead>
@@ -73,27 +73,27 @@
 
     <!-- Calculations -->
     <div class="col-md-6 mt-4">
-        <label class="form-label">Notes</label>
-        <textarea name="notes" class="form-control" rows="4" placeholder="Additional notes for the patient...">{{ old('notes', $invoice->notes ?? '') }}</textarea>
+        <label class="form-label">{{ __('messages.notes') }}</label>
+        <textarea name="notes" class="form-control" rows="4" placeholder="{{ __('messages.notesPlaceholder') }}">{{ old('notes', $invoice->notes ?? '') }}</textarea>
     </div>
 
     <div class="col-md-5 offset-md-1 mt-4">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between mb-2">
-                    <span>Subtotal:</span>
+                    <span data-i18n="subtotal">{{ __('messages.subtotal') }}:</span>
                     <span class="fw-bold" id="subtotal-display">$0.00</span>
                 </div>
                 
                 <div class="row mb-2 align-items-center">
-                    <div class="col-7">Discount (%):</div>
+                    <div class="col-7" data-i18n="discountPercent">{{ __('messages.discountPercent') }}:</div>
                     <div class="col-5">
                         <input type="number" name="discount_percent" id="discount-input" class="form-control form-control-sm text-end" min="0" max="100" step="0.01" value="{{ old('discount_percent', $invoice->discount_percent ?? 0) }}">
                     </div>
                 </div>
 
                 <div class="row mb-3 align-items-center">
-                    <div class="col-7">Tax (%):</div>
+                    <div class="col-7" data-i18n="taxPercent">{{ __('messages.taxPercent') }}:</div>
                     <div class="col-5">
                         <input type="number" name="tax_percent" id="tax-input" class="form-control form-control-sm text-end" min="0" max="100" step="0.01" value="{{ old('tax_percent', $invoice->tax_percent ?? 0) }}">
                     </div>
@@ -102,7 +102,7 @@
                 <hr>
                 
                 <div class="d-flex justify-content-between fs-5">
-                    <strong>Total:</strong>
+                    <strong data-i18n="total">{{ __('messages.total') }}:</strong>
                     <strong class="text-primary" id="total-display">$0.00</strong>
                 </div>
             </div>
@@ -111,8 +111,8 @@
 
     <!-- Actions -->
     <div class="col-12 mt-4 text-end">
-        <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('invoices.index') }}" class="btn btn-light me-2">Cancel</a>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Invoice</button>
+        <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('invoices.index') }}" class="btn btn-light me-2" data-i18n="cancel">{{ __('messages.cancel') }}</a>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> <span data-i18n="saveInvoice">{{ __('messages.saveInvoice') }}</span></button>
     </div>
 </div>
 
@@ -120,6 +120,7 @@
 <script>
     const services = @json($services);
     const existingItems = @json(isset($invoice) ? $invoice->items : ($prefilled_items ?? []));
+    const currencySymbol = '{{ __("messages.currencySymbol") }}';
 </script>
 
 <script>
@@ -136,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let servicesOptions = '<option value="">Select Service (Optional)</option>';
         services.forEach(s => {
             const selected = data && data.service_id == s.id ? 'selected' : '';
-            servicesOptions += `<option value="${s.id}" data-price="${s.price}" ${selected}>${s.name} - $${s.price}</option>`;
+            servicesOptions += `<option value="${s.id}" data-price="${s.price}" ${selected}>${s.name} - ${currencySymbol}${s.price}</option>`;
         });
 
         row.innerHTML = `
@@ -144,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <select name="items[${index}][service_id]" class="form-select form-select-sm service-select mb-1">
                     ${servicesOptions}
                 </select>
-                <input type="text" name="items[${index}][description]" class="form-control form-control-sm description-input" placeholder="Description" value="${data ? data.description : ''}" required>
+                <input type="text" name="items[${index}][description]" class="form-control form-control-sm description-input" placeholder="Service description" value="${data ? data.description : ''}" required>
             </td>
             <td>
                 <input type="number" name="items[${index}][unit_price]" class="form-control form-control-sm price-input" step="0.01" min="0" value="${data ? data.unit_price : ''}" required>
@@ -207,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
             subtotal += price * qty;
         });
 
-        document.getElementById('subtotal-display').textContent = '$' + subtotal.toFixed(2);
+        document.getElementById('subtotal-display').textContent = currencySymbol + subtotal.toFixed(2);
 
         const discountPercent = parseFloat(document.getElementById('discount-input').value) || 0;
         const taxPercent = parseFloat(document.getElementById('tax-input').value) || 0;
@@ -217,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const taxAmount = taxable * (taxPercent / 100);
         const total = taxable + taxAmount;
 
-        document.getElementById('total-display').textContent = '$' + total.toFixed(2);
+        document.getElementById('total-display').textContent = currencySymbol + total.toFixed(2);
     }
 
     // Global listeners for tax/discount

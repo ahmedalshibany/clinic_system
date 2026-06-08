@@ -18,6 +18,7 @@ class Doctor extends Model
         'user_id',
         'name',
         'specialty',
+        'department',
         'phone',
         'email',
         'bio',

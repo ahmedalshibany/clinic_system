@@ -89,8 +89,6 @@
             </div>
             <div class="stat-decoration"></div>
         </div>
-            <div class="stat-decoration"></div>
-        </div>
     @elseif(auth()->user()->hasRole('receptionist'))
         <!-- RECEPTIONIST DASHBOARD -->
         <div class="col-12 mb-4">

@@ -36,6 +36,7 @@ window.translations = {
         noDocumentsUploaded: "No documents uploaded yet.",
         uploadFirstDocument: "Upload First Document",
         billingHistory: "Billing History",
+        invoice_details: "Invoice Details",
         invoiceNumber: "Invoice #",
         noInvoicesFound: "No invoices found for this patient.",
         uploadDocument: "Upload Document",
@@ -563,6 +564,7 @@ window.translations = {
         noDocumentsUploaded: "لم يتم رفع مستندات بعد.",
         uploadFirstDocument: "رفع أول مستند",
         billingHistory: "سجل الفواتير",
+        invoice_details: "تفاصيل الفاتورة",
         invoiceNumber: "رقم الفاتورة",
         noInvoicesFound: "لم يتم العثور على فواتير لهذا المريض.",
         uploadDocument: "رفع مستند",
@@ -1137,11 +1139,6 @@ class App {
             this.toggleTheme();
         });
 
-        $(document).on('click', '#logoutBtn', (e) => {
-            e.preventDefault();
-            this.logout();
-        });
-
         $(document).on('click', '#sidebarToggle', (e) => {
             $('.sidebar').toggleClass('active');
         });
@@ -1150,10 +1147,12 @@ class App {
     }
 
     toggleLanguage() {
-        this.lang = this.lang === 'en' ? 'ar' : 'en';
-        localStorage.setItem('clinic_lang', this.lang);
-        document.cookie = 'clinic_lang=' + this.lang + '; path=/; max-age=' + (60*60*24*365);
-        this.applyLanguage(this.lang);
+        const newLang = this.lang === 'en' ? 'ar' : 'en';
+        localStorage.setItem('clinic_lang', newLang);
+        document.cookie = 'clinic_lang=' + newLang + '; path=/; max-age=' + (60*60*24*365);
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', newLang);
+        window.location.href = url.toString();
     }
 
     toggleTheme() {
@@ -1262,31 +1261,6 @@ class App {
         const text = translations[lang]?.[key] || translations['en']?.[key] || key;
         $greeting.text(text);
         $('#greeting-icon').attr('class', 'fas ' + icon);
-    }
-
-    handleLogin(e) {
-        e.preventDefault();
-        const username = $('#username').val();
-        const password = $('#password').val();
-
-        if (username && password) {
-            const $btn = $(e.target).find('button');
-            const originalText = $btn.text();
-            $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...').prop('disabled', true);
-
-            setTimeout(() => {
-                this.showAlert(translations[this.lang].loginSuccess, 'success');
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1000);
-            }, 1000);
-        } else {
-            this.showAlert(translations[this.lang].validationError, 'danger');
-        }
-    }
-
-    logout() {
-        window.location.href = 'index.html';
     }
 
     showAlert(message, type) {

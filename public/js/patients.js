@@ -24,28 +24,10 @@ if (typeof PatientsManager === 'undefined') {
         bindEvents() {
             $(document).off('submit.patients click.patients input.patients');
 
-            $(document).on('submit.patients', '#patientForm', (e) => {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                this.save();
-            });
-
-            $(document).on('click.patients', '[data-action="edit-patient"]', (e) => {
-                const id = parseInt($(e.currentTarget).data('patient-id'));
-                this.edit(id);
-            });
-
-            $(document).on('click.patients', '[data-action="delete-patient"]', (e) => {
-                const id = parseInt($(e.currentTarget).data('patient-id'));
-                this.deleteRequest(id);
-            });
-
             $(document).on('click.patients', '[data-action="history-patient"]', (e) => {
                 const id = parseInt($(e.currentTarget).data('patient-id'));
                 this.showHistory(id);
             });
-
-            $(document).on('click.patients', '#confirmDeleteBtn', () => this.confirmDelete());
 
             $(document).on('input.patients', '#patientSearch', Utils.debounce((e) => {
                 this.searchTerm = $(e.target).val();
@@ -199,92 +181,6 @@ if (typeof PatientsManager === 'undefined') {
 
             $pagination.find('[data-action="prev-page"]').prop('disabled', this.currentPage === 1);
             $pagination.find('[data-action="next-page"]').prop('disabled', this.currentPage >= this.totalPages);
-        }
-
-        add() {
-            this.openModal();
-        }
-
-        async edit(id) {
-            try {
-                const response = await API.patients.get(id);
-                if (response.success && response.data) {
-                    this.openModal(response.data);
-                }
-            } catch (error) {
-                console.error('Error loading patient:', error);
-                this.showError('Failed to load patient data');
-            }
-        }
-
-        openModal(patient = null) {
-            if (patient) {
-                $('#patientId').val(patient.id);
-                $('#patientName').val(patient.name);
-                $('#patientAge').val(patient.age);
-                $('#patientGender').val(patient.gender);
-                $('#patientPhone').val(patient.phone);
-                $('#patientAddress').val(patient.address || '');
-                $('#patientModalTitle').attr('data-i18n', 'editPatient').text(translations[app.lang]?.editPatient || 'Edit Patient');
-            } else {
-                $('#patientForm')[0].reset();
-                $('#patientId').val('');
-                $('#patientModalTitle').attr('data-i18n', 'addPatient').text(translations[app.lang]?.addPatient || 'Add Patient');
-            }
-            $('#patientModal').modal('show');
-        }
-
-        async save() {
-            const id = $('#patientId').val();
-            const data = {
-                name: $('#patientName').val().trim(),
-                age: parseInt($('#patientAge').val()),
-                gender: $('#patientGender').val(),
-                phone: $('#patientPhone').val().trim(),
-                address: $('#patientAddress').val().trim()
-            };
-
-            if (!data.name || !data.age || !data.phone) {
-                this.showError('Please fill in all required fields');
-                return;
-            }
-
-            try {
-                let response;
-                if (id) {
-                    response = await API.patients.update(id, data);
-                    this.showSuccess(translations[app.lang]?.patientUpdated || 'Patient updated successfully!');
-                } else {
-                    response = await API.patients.create(data);
-                    this.showSuccess(translations[app.lang]?.patientAdded || 'Patient added successfully!');
-                }
-
-                $('#patientModal').modal('hide');
-                await this.loadPatients();
-            } catch (error) {
-                console.error('Error saving patient:', error);
-                this.showError(error.message || 'Failed to save patient');
-            }
-        }
-
-        deleteRequest(id) {
-            this.currentDeleteId = id;
-            $('#deleteModal').modal('show');
-        }
-
-        async confirmDelete() {
-            if (this.currentDeleteId) {
-                try {
-                    await API.patients.delete(this.currentDeleteId);
-                    this.showSuccess(translations[app.lang]?.patientDeleted || 'Patient deleted successfully!');
-                    this.currentDeleteId = null;
-                    $('#deleteModal').modal('hide');
-                    await this.loadPatients();
-                } catch (error) {
-                    console.error('Error deleting patient:', error);
-                    this.showError('Failed to delete patient');
-                }
-            }
         }
 
         async showHistory(patientId) {

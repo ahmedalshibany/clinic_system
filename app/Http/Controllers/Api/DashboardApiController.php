@@ -23,6 +23,7 @@ class DashboardApiController extends Controller
 
     public function stats(Request $request): JsonResponse
     {
+        $this->authorizeDashboardAccess();
         $user = Auth::user();
         $filter = $request->get('filter', 'all');
 
@@ -59,6 +60,7 @@ class DashboardApiController extends Controller
 
     public function weeklyTrend(): JsonResponse
     {
+        $this->authorizeDashboardAccess();
         $trend = $this->analytics->getWeeklyTrend();
         $labels = array_map(fn($d) => $d['day'], $trend);
         $data = array_map(fn($d) => $d['count'], $trend);
@@ -71,6 +73,7 @@ class DashboardApiController extends Controller
 
     public function recentAppointments(Request $request): JsonResponse
     {
+        $this->authorizeDashboardAccess();
         $limit = (int) $request->get('limit', 5);
         $user = Auth::user();
 
@@ -101,6 +104,7 @@ class DashboardApiController extends Controller
 
     public function statusDistribution(Request $request): JsonResponse
     {
+        $this->authorizeDashboardAccess();
         $breakdown = $this->analytics->getStatusBreakdown();
 
         return response()->json([
@@ -112,5 +116,14 @@ class DashboardApiController extends Controller
                 'cancelled' => $breakdown['cancelled'] ?? 0,
             ]
         ]);
+    }
+
+    private function authorizeDashboardAccess(): void
+    {
+        $user = Auth::user();
+
+        if (!$user || in_array($user->role, ['receptionist', 'nurse'])) {
+            abort(403, 'Unauthorized access to dashboard metrics.');
+        }
     }
 }

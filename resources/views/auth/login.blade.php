@@ -123,6 +123,11 @@
             localStorage.setItem('clinic_lang', newLang);
             
             applyTranslations(newLang);
+            
+            // Navigate to persist language server-side
+            const url = new URL(window.location.href);
+            url.searchParams.set('lang', newLang);
+            window.location.href = url.toString();
         }
         
         // Apply saved language on page load

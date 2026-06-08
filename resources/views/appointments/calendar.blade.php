@@ -112,6 +112,7 @@
         var isAr = (typeof app !== 'undefined' && app.lang === 'ar') || document.documentElement.lang === 'ar';
         var calendar = new FullCalendar.Calendar(calendarEl, {
             locale: isAr ? 'ar' : 'en',
+            direction: document.documentElement.dir || (isAr ? 'rtl' : 'ltr'),
             initialView: 'dayGridMonth',
             headerToolbar: {
                 left: 'prev,next today',

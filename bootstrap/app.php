@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
 
+        // Exclude the JS-set language cookie from Laravel's encryption layer
+        $middleware->encryptCookies(except: [
+            'clinic_lang',
+        ]);
+
         // Add locale detection and active check to all web requests
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,

@@ -60,26 +60,28 @@ class InvoiceService
             $itemsData = [];
 
             foreach ($data['items'] as $item) {
-                $lineTotal = $item['quantity'] * $item['unit_price'];
-                $subtotal += $lineTotal;
-                
+                $qty = $item['quantity'];
+                $price = $item['unit_price'];
+                $lineTotal = (float) bcmul((string) $qty, (string) $price, 4);
+                $subtotal = (float) bcadd((string) $subtotal, (string) $lineTotal, 4);
+
                 $itemsData[] = [
                     'service_id' => $item['service_id'] ?? null,
                     'description' => $item['description'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'total' => $lineTotal,
-                    'discount' => 0, // Item level discount not in form yet, default 0
+                    'quantity' => $qty,
+                    'unit_price' => $price,
+                    'total' => round($lineTotal, 2),
+                    'discount' => 0,
                 ];
             }
 
-            $discount_percent = $data['discount_percent'] ?? 0;
-            $tax_percent = $data['tax_percent'] ?? 0;
-            
-            $discount_amount = $subtotal * ($discount_percent / 100);
-            $taxable = $subtotal - $discount_amount;
-            $tax_amount = $taxable * ($tax_percent / 100);
-            $total = $taxable + $tax_amount;
+            $discount_percent = (float) ($data['discount_percent'] ?? 0);
+            $tax_percent = (float) ($data['tax_percent'] ?? 0);
+
+            $discount_amount = (float) bcmul((string) $subtotal, bcdiv((string) $discount_percent, '100', 4), 4);
+            $taxable = (float) bcsub((string) $subtotal, (string) $discount_amount, 4);
+            $tax_amount = (float) bcmul((string) $taxable, bcdiv((string) $tax_percent, '100', 4), 4);
+            $total = (float) bcadd((string) $taxable, (string) $tax_amount, 4);
 
             $invoice = Invoice::create([
                 'patient_id' => $data['patient_id'],
@@ -126,26 +128,28 @@ class InvoiceService
             $itemsData = [];
 
             foreach ($data['items'] as $item) {
-                $lineTotal = $item['quantity'] * $item['unit_price'];
-                $subtotal += $lineTotal;
-                
+                $qty = $item['quantity'];
+                $price = $item['unit_price'];
+                $lineTotal = (float) bcmul((string) $qty, (string) $price, 4);
+                $subtotal = (float) bcadd((string) $subtotal, (string) $lineTotal, 4);
+
                 $itemsData[] = [
                     'service_id' => $item['service_id'] ?? null,
                     'description' => $item['description'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'total' => $lineTotal,
+                    'quantity' => $qty,
+                    'unit_price' => $price,
+                    'total' => round($lineTotal, 2),
                     'discount' => 0,
                 ];
             }
 
-            $discount_percent = $data['discount_percent'] ?? 0;
-            $tax_percent = $data['tax_percent'] ?? 0;
-            
-            $discount_amount = $subtotal * ($discount_percent / 100);
-            $taxable = $subtotal - $discount_amount;
-            $tax_amount = $taxable * ($tax_percent / 100);
-            $total = $taxable + $tax_amount;
+            $discount_percent = (float) ($data['discount_percent'] ?? 0);
+            $tax_percent = (float) ($data['tax_percent'] ?? 0);
+
+            $discount_amount = (float) bcmul((string) $subtotal, bcdiv((string) $discount_percent, '100', 4), 4);
+            $taxable = (float) bcsub((string) $subtotal, (string) $discount_amount, 4);
+            $tax_amount = (float) bcmul((string) $taxable, bcdiv((string) $tax_percent, '100', 4), 4);
+            $total = (float) bcadd((string) $taxable, (string) $tax_amount, 4);
 
             $invoice->update([
                 'subtotal' => $subtotal,
@@ -187,6 +191,9 @@ class InvoiceService
         }
 
         return DB::transaction(function () use ($invoice, $data, $receiverId) {
+            // Pessimistic lock to prevent concurrent payment race conditions
+            $invoice = Invoice::where('id', $invoice->id)->lockForUpdate()->firstOrFail();
+
             $payment = Payment::create([
                 'invoice_id' => $invoice->id,
                 'amount' => $data['amount'],

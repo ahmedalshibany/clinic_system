@@ -19,8 +19,10 @@ return new class extends Migration
             $table->timestamp('completed_at')->nullable()->after('started_at');
         });
 
-        // Update status enum
-        DB::statement("ALTER TABLE appointments MODIFY COLUMN status ENUM('scheduled', 'confirmed', 'waiting', 'in_progress', 'completed', 'cancelled', 'no_show', 'pending') NOT NULL DEFAULT 'pending'");
+        // Update status enum (MySQL only — SQLite testing uses in-memory)
+        if (DB::connection()->getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE appointments MODIFY COLUMN status ENUM('scheduled', 'confirmed', 'waiting', 'in_progress', 'completed', 'cancelled', 'no_show', 'pending') NOT NULL DEFAULT 'pending'");
+        }
     }
 
     /**
@@ -32,7 +34,9 @@ return new class extends Migration
             $table->dropColumn(['reason', 'checked_in_at', 'started_at', 'completed_at']);
         });
 
-        // Revert status enum matches original migration
-        DB::statement("ALTER TABLE appointments MODIFY COLUMN status ENUM('pending', 'confirmed', 'completed', 'cancelled') NOT NULL DEFAULT 'pending'");
+        // Revert status enum matches original migration (MySQL only)
+        if (DB::connection()->getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE appointments MODIFY COLUMN status ENUM('pending', 'confirmed', 'completed', 'cancelled') NOT NULL DEFAULT 'pending'");
+        }
     }
 };

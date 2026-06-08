@@ -1,8 +1,8 @@
 @extends('layouts.dashboard')
 
-@section('title', __('messages.createAppt'))
-@section('page-title', __('messages.createAppt'))
-@section('page-i18n', 'createAppt')
+@section('title', __('messages.editAppt'))
+@section('page-title', __('messages.editAppt'))
+@section('page-i18n', 'editAppt')
 
 @section('styles')
 <style>
@@ -74,11 +74,12 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h6>{{ __('messages.createAppt') }}</h6>
+                <h6>{{ __('messages.editAppt') }}</h6>
             </div>
             <div class="card-body">
-                <form action="{{ route('appointments.store') }}" method="POST">
+                <form action="{{ route('appointments.update', $appointment) }}" method="POST">
                     @csrf
+                    @method('PUT')
                     
                     <div class="row g-4">
                         <div class="col-md-6">
@@ -86,7 +87,7 @@
                             <select name="patient_id" id="patient_id" class="form-select @error('patient_id') is-invalid @enderror" required>
                                 <option value="">{{ __('messages.selectPatient') }}</option>
                                 @foreach($patients as $patient)
-                                    <option value="{{ $patient->id }}" {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
+                                    <option value="{{ $patient->id }}" {{ old('patient_id', $appointment->patient_id) == $patient->id ? 'selected' : '' }}>
                                         {{ $patient->name }} (ID: {{ $patient->id }})
                                     </option>
                                 @endforeach
@@ -101,7 +102,7 @@
                             <select name="doctor_id" id="doctor_id" class="form-select @error('doctor_id') is-invalid @enderror" required>
                                 <option value="">{{ __('messages.selectDoctor') }}</option>
                                 @foreach($doctors as $doctor)
-                                    <option value="{{ $doctor->id }}" {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}>
+                                    <option value="{{ $doctor->id }}" {{ old('doctor_id', $appointment->doctor_id) == $doctor->id ? 'selected' : '' }}>
                                         {{ $doctor->name }} - {{ $doctor->department }}
                                     </option>
                                 @endforeach
@@ -115,7 +116,7 @@
                     <div class="row g-4 mt-2">
                         <div class="col-md-6">
                             <label for="date" class="form-label">{{ __('messages.date') }}</label>
-                            <input type="date" name="date" id="date" class="form-control @error('date') is-invalid @enderror" value="{{ old('date', date('Y-m-d')) }}" required min="{{ date('Y-m-d') }}">
+                            <input type="date" name="date" id="date" class="form-control @error('date') is-invalid @enderror" value="{{ old('date', $appointment->date->format('Y-m-d')) }}" required min="{{ date('Y-m-d') }}">
                             @error('date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -123,7 +124,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label">{{ __('messages.time') }}</label>
-                            <input type="hidden" name="time" id="time" value="{{ old('time') }}">
+                            <input type="hidden" name="time" id="time" value="{{ old('time', $appointment->time) }}">
                             <div id="slot-container" class="slot-grid">
                                 <div class="slot-placeholder" id="slot-placeholder">{{ __('messages.selectSlot') }}</div>
                             </div>
@@ -137,10 +138,10 @@
                         <div class="col-md-6">
                             <label for="status" class="form-label">{{ __('messages.status') }}</label>
                             <select name="status" id="status" class="form-select @error('status') is-invalid @enderror" required>
-                                <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>{{ __('messages.pending') }}</option>
-                                <option value="confirmed" {{ old('status') == 'confirmed' ? 'selected' : '' }}>{{ __('messages.confirmed') }}</option>
-                                <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>{{ __('messages.completed') }}</option>
-                                <option value="cancelled" {{ old('status') == 'cancelled' ? 'selected' : '' }}>{{ __('messages.cancelled') }}</option>
+                                <option value="pending" {{ old('status', $appointment->status) == 'pending' ? 'selected' : '' }}>{{ __('messages.pending') }}</option>
+                                <option value="confirmed" {{ old('status', $appointment->status) == 'confirmed' ? 'selected' : '' }}>{{ __('messages.confirmed') }}</option>
+                                <option value="completed" {{ old('status', $appointment->status) == 'completed' ? 'selected' : '' }}>{{ __('messages.completed') }}</option>
+                                <option value="cancelled" {{ old('status', $appointment->status) == 'cancelled' ? 'selected' : '' }}>{{ __('messages.cancelled') }}</option>
                             </select>
                             @error('status')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -150,10 +151,10 @@
                         <div class="col-md-6">
                             <label for="type" class="form-label">{{ __('messages.type') }}</label>
                             <select name="type" id="type" class="form-select @error('type') is-invalid @enderror">
-                                <option value="Checkup" {{ old('type') == 'Checkup' ? 'selected' : '' }}>{{ __('messages.typeCheckup') }}</option>
-                                <option value="Consultation" {{ old('type') == 'Consultation' ? 'selected' : '' }}>{{ __('messages.typeConsultation') }}</option>
-                                <option value="Follow-up" {{ old('type') == 'Follow-up' ? 'selected' : '' }}>{{ __('messages.typeFollowUp') }}</option>
-                                <option value="Emergency" {{ old('type') == 'Emergency' ? 'selected' : '' }}>{{ __('messages.typeEmergency') }}</option>
+                                <option value="Checkup" {{ old('type', $appointment->type) == 'Checkup' ? 'selected' : '' }}>{{ __('messages.typeCheckup') }}</option>
+                                <option value="Consultation" {{ old('type', $appointment->type) == 'Consultation' ? 'selected' : '' }}>{{ __('messages.typeConsultation') }}</option>
+                                <option value="Follow-up" {{ old('type', $appointment->type) == 'Follow-up' ? 'selected' : '' }}>{{ __('messages.typeFollowUp') }}</option>
+                                <option value="Emergency" {{ old('type', $appointment->type) == 'Emergency' ? 'selected' : '' }}>{{ __('messages.typeEmergency') }}</option>
                             </select>
                             @error('type')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -163,7 +164,7 @@
 
                     <div class="mt-4">
                         <label for="notes" class="form-label">{{ __('messages.notes') }}</label>
-                        <textarea name="notes" id="notes" class="form-control @error('notes') is-invalid @enderror" rows="3">{{ old('notes') }}</textarea>
+                        <textarea name="notes" id="notes" class="form-control @error('notes') is-invalid @enderror" rows="3">{{ old('notes', $appointment->notes) }}</textarea>
                         @error('notes')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -171,7 +172,7 @@
 
                     <div class="d-flex justify-content-end gap-3 mt-4">
                         <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('appointments.index') }}" class="btn btn-light">{{ __('messages.cancel') }}</a>
-                        <button type="submit" class="btn btn-primary px-4">{{ __('messages.createAppt') }}</button>
+                        <button type="submit" class="btn btn-primary px-4">{{ __('messages.updateAppt') }}</button>
                     </div>
                 </form>
             </div>
@@ -242,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
     doctorSelect.addEventListener('change', fetchSlots);
     dateInput.addEventListener('change', fetchSlots);
 
-    // If both already selected (e.g. after validation error), load slots
+    // If both already selected, load slots
     if (doctorSelect.value && dateInput.value) {
         fetchSlots();
     }

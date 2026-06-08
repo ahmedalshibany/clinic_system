@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Doctor;
 use App\Models\DoctorSchedule;
+use App\Models\Setting;
 use App\Models\User;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -68,14 +69,15 @@ class DoctorService
 
             // 3. Create default DoctorSchedules based on working_days
             if (!empty($data['working_days']) && !empty($data['work_start_time']) && !empty($data['work_end_time'])) {
+                $defaultSlotDuration = Setting::get('appointment_slot_duration', 30);
                 foreach ($data['working_days'] as $day) {
                     DoctorSchedule::create([
                         'doctor_id' => $doctor->id,
-                        'day_of_week' => $day,
+                        'day_of_week' => $this->mapDayNameToIndex($day),
                         'start_time' => $data['work_start_time'],
                         'end_time' => $data['work_end_time'],
-                        'slot_duration' => 30, // Default 30 min slots
-                        'max_appointments' => 20, // Default arbitrary max
+                        'slot_duration' => $defaultSlotDuration,
+                        'max_appointments' => 20,
                         'is_active' => true,
                     ]);
                 }
@@ -105,21 +107,23 @@ class DoctorService
             }
 
             if (isset($data['working_days'])) {
+                $workingDayIndices = array_map([$this, 'mapDayNameToIndex'], $data['working_days']);
                 DoctorSchedule::where('doctor_id', $doctor->id)
-                    ->whereNotIn('day_of_week', $data['working_days'])
+                    ->whereNotIn('day_of_week', $workingDayIndices)
                     ->delete();
 
                 if (!empty($data['work_start_time']) && !empty($data['work_end_time'])) {
+                    $defaultSlotDuration = Setting::get('appointment_slot_duration', 30);
                     foreach ($data['working_days'] as $day) {
                         DoctorSchedule::updateOrCreate(
                             [
                                 'doctor_id' => $doctor->id,
-                                'day_of_week' => $day,
+                                'day_of_week' => $this->mapDayNameToIndex($day),
                             ],
                             [
                                 'start_time' => $data['work_start_time'],
                                 'end_time' => $data['work_end_time'],
-                                'slot_duration' => 30,
+                                'slot_duration' => $defaultSlotDuration,
                                 'max_appointments' => 20,
                                 'is_active' => true,
                             ]
@@ -130,6 +134,18 @@ class DoctorService
 
             return $doctor;
         });
+    }
+
+    /**
+     * Map a day name string to a Carbon day-of-week integer (0=Sunday, 6=Saturday).
+     */
+    protected function mapDayNameToIndex(string $day): int
+    {
+        $map = [
+            'Sunday' => 0, 'Monday' => 1, 'Tuesday' => 2, 'Wednesday' => 3,
+            'Thursday' => 4, 'Friday' => 5, 'Saturday' => 6,
+        ];
+        return $map[ucfirst(strtolower($day))] ?? (int) $day;
     }
 
     /**

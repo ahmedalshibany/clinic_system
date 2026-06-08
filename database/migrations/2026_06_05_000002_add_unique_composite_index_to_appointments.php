@@ -33,14 +33,25 @@ return new class extends Migration
         }
 
         Schema::table('appointments', function (Blueprint $table) {
-            $table->unique(['doctor_id', 'date', 'time'], 'appointments_doctor_date_time_unique');
+            if (DB::connection()->getDriverName() === 'sqlite') {
+                // Partial unique index — allows rebooking cancelled slots
+                DB::statement(
+                    'CREATE UNIQUE INDEX appointments_doctor_date_time_unique '
+                    . 'ON appointments(doctor_id, date, time) '
+                    . "WHERE status != 'cancelled'"
+                );
+            } else {
+                // MySQL does not support partial indexes on InnoDB;
+                // use a regular composite index + app-level lockForUpdate
+                $table->index(['doctor_id', 'date', 'time'], 'appointments_doctor_date_time_unique');
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->dropUnique('appointments_doctor_date_time_unique');
+            $table->dropIndex('appointments_doctor_date_time_unique');
         });
     }
 };

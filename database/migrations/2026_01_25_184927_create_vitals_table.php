@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Modify users table to add 'nurse' role
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'doctor', 'receptionist', 'nurse') NOT NULL DEFAULT 'receptionist'");
+        if (DB::connection()->getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'doctor', 'receptionist', 'nurse') NOT NULL DEFAULT 'receptionist'");
+        }
 
         // 2. Create vitals table
         Schema::create('vitals', function (Blueprint $table) {

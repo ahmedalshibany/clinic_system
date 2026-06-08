@@ -26,10 +26,10 @@
             value="{{ request('search') }}" data-i18n-placeholder="searchDoctors">
     </form>
 
-    <button class="btn btn-primary d-flex align-items-center gap-2 ms-auto" data-bs-toggle="modal" data-bs-target="#doctorModal">
+    <a href="{{ route('doctors.create') }}" class="btn btn-primary d-flex align-items-center gap-2 ms-auto">
         <i class="fas fa-plus"></i>
         <span data-i18n="addDoctor">Add Doctor</span>
-    </button>
+    </a>
 </div>
 
 <!-- Doctors Grid -->
@@ -57,9 +57,9 @@
                         <a href="{{ route('doctors.schedule', $doctor) }}" class="btn btn-soft-info btn-sm" title="Manage Schedule" data-i18n-title="manageSchedule">
                             <i class="fas fa-calendar-alt"></i>
                         </a>
-                        <button class="btn btn-soft-primary btn-sm" onclick="editDoctor({{ $doctor->id }}, '{{ addslashes($doctor->name) }}', '{{ addslashes($doctor->specialty) }}', '{{ addslashes($doctor->phone) }}')" title="Edit" data-i18n-title="edit">
+                        <a href="{{ route('doctors.edit', $doctor) }}" class="btn btn-soft-primary btn-sm" title="Edit" data-i18n-title="edit">
                             <i class="fas fa-edit"></i>
-                        </button>
+                        </a>
                         <form action="{{ route('doctors.destroy', $doctor) }}" method="POST" class="d-inline" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteDoctor)">
                             @csrf
                             @method('DELETE')
@@ -99,73 +99,7 @@
 </div>
 @endif
 
-<!-- Add/Edit Doctor Modal -->
-<div class="modal fade" id="doctorModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-glass border-0">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold" id="doctorModalTitle" data-i18n="addDoctor">Add Doctor</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <form id="doctorForm" action="{{ route('doctors.store') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="_method" id="formMethod" value="POST">
-                    <div class="mb-3">
-                        <label class="form-label" data-i18n="fullName">Full Name</label>
-                        <input type="text" class="form-control" name="name" id="doctorName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" data-i18n="specialty">Specialty</label>
-                        <select class="form-select" name="specialty" id="doctorSpecialty" required>
-                            <option value="General Practice">General Practice</option>
-                            <option value="Cardiology">Cardiology</option>
-                            <option value="Dermatology">Dermatology</option>
-                            <option value="Pediatrics">Pediatrics</option>
-                            <option value="Orthopedics">Orthopedics</option>
-                            <option value="Neurology">Neurology</option>
-                            <option value="Ophthalmology">Ophthalmology</option>
-                            <option value="ENT">ENT</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" data-i18n="phone">Phone Number</label>
-                        <input type="tel" class="form-control" name="phone" id="doctorPhone" required>
-                    </div>
-                    <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-primary" data-i18n="save">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+
 @endsection
 
-@section('scripts')
-<script>
-function editDoctor(id, name, specialty, phone) {
-    document.getElementById('doctorModalTitle').setAttribute('data-i18n', 'editDoctor');
-    document.getElementById('doctorModalTitle').textContent = 'Edit Doctor'; // Fallback
-    if (window.app && window.app.applyLanguage) window.app.applyLanguage(window.app.lang);
 
-    document.getElementById('doctorForm').action = '/doctors/' + id;
-    document.getElementById('formMethod').value = 'PUT';
-    document.getElementById('doctorName').value = name;
-    document.getElementById('doctorSpecialty').value = specialty;
-    document.getElementById('doctorPhone').value = phone;
-    new bootstrap.Modal(document.getElementById('doctorModal')).show();
-}
-
-// Reset form when modal is closed
-document.getElementById('doctorModal').addEventListener('hidden.bs.modal', function () {
-    document.getElementById('doctorModalTitle').setAttribute('data-i18n', 'addDoctor');
-    document.getElementById('doctorModalTitle').textContent = 'Add Doctor'; // Fallback
-    if (window.app && window.app.applyLanguage) window.app.applyLanguage(window.app.lang);
-
-    document.getElementById('doctorForm').action = '{{ route("doctors.store") }}';
-    document.getElementById('formMethod').value = 'POST';
-    document.getElementById('doctorForm').reset();
-});
-</script>
-@endsection

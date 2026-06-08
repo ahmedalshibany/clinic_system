@@ -24,24 +24,6 @@ if (typeof DoctorsManager === 'undefined') {
         bindEvents() {
             $(document).off('submit.doctors click.doctors input.doctors');
 
-            $(document).on('submit.doctors', '#doctorForm', (e) => {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                this.save();
-            });
-
-            $(document).on('click.doctors', '[data-action="edit-doctor"]', (e) => {
-                const id = parseInt($(e.currentTarget).data('doctor-id'));
-                this.edit(id);
-            });
-
-            $(document).on('click.doctors', '[data-action="delete-doctor"]', (e) => {
-                const id = parseInt($(e.currentTarget).data('doctor-id'));
-                this.deleteRequest(id);
-            });
-
-            $(document).on('click.doctors', '#confirmDeleteBtn', () => this.confirmDelete());
-
             $(document).on('input.doctors', '#doctorSearch', Utils.debounce((e) => {
                 this.searchTerm = $(e.target).val();
                 this.currentPage = 1;
@@ -175,93 +157,6 @@ if (typeof DoctorsManager === 'undefined') {
 
             $pagination.find('[data-action="prev-page"]').prop('disabled', this.currentPage === 1);
             $pagination.find('[data-action="next-page"]').prop('disabled', this.currentPage >= this.totalPages);
-        }
-
-        add() {
-            this.openModal();
-        }
-
-        async edit(id) {
-            try {
-                const response = await API.doctors.get(id);
-                if (response.success && response.data) {
-                    this.openModal(response.data);
-                }
-            } catch (error) {
-                console.error('Error loading doctor:', error);
-                this.showError('Failed to load doctor data');
-            }
-        }
-
-        openModal(doctor = null) {
-            const lang = (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
-
-            if (doctor) {
-                $('#doctorId').val(doctor.id);
-                $('#doctorName').val(doctor.name);
-                $('#doctorSpecialty').val(doctor.specialty);
-                $('#doctorPhone').val(doctor.phone);
-                $('#doctorModalTitle').attr('data-i18n', 'editDoctor').text(translations[lang]?.editDoctor || 'Edit Doctor');
-            } else {
-                $('#doctorForm')[0].reset();
-                $('#doctorId').val('');
-                $('#doctorModalTitle').attr('data-i18n', 'addDoctor').text(translations[lang]?.addDoctor || 'Add Doctor');
-            }
-            $('#doctorModal').modal('show');
-        }
-
-        async save() {
-            const id = $('#doctorId').val();
-            const data = {
-                name: $('#doctorName').val().trim(),
-                specialty: $('#doctorSpecialty').val(),
-                phone: $('#doctorPhone').val().trim()
-            };
-
-            if (!data.name || !data.specialty || !data.phone) {
-                this.showError('Please fill in all required fields');
-                return;
-            }
-
-            const lang = (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
-
-            try {
-                if (id) {
-                    await API.doctors.update(id, data);
-                    this.showSuccess(translations[lang]?.doctorUpdated || 'Doctor updated successfully!');
-                } else {
-                    await API.doctors.create(data);
-                    this.showSuccess(translations[lang]?.doctorAdded || 'Doctor added successfully!');
-                }
-
-                $('#doctorModal').modal('hide');
-                await this.loadDoctors();
-            } catch (error) {
-                console.error('Error saving doctor:', error);
-                this.showError(error.message || 'Failed to save doctor');
-            }
-        }
-
-        deleteRequest(id) {
-            this.currentDeleteId = id;
-            $('#deleteModal').modal('show');
-        }
-
-        async confirmDelete() {
-            if (this.currentDeleteId) {
-                const lang = (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
-
-                try {
-                    await API.doctors.delete(this.currentDeleteId);
-                    this.showSuccess(translations[lang]?.doctorDeleted || 'Doctor deleted successfully!');
-                    this.currentDeleteId = null;
-                    $('#deleteModal').modal('hide');
-                    await this.loadDoctors();
-                } catch (error) {
-                    console.error('Error deleting doctor:', error);
-                    this.showError('Failed to delete doctor');
-                }
-            }
         }
 
         async exportCSV() {

@@ -39,30 +39,6 @@ if (typeof AppointmentsManager === 'undefined') {
         bindEvents() {
             $(document).off('submit.appointments click.appointments input.appointments change.appointments');
 
-            $(document).on('submit.appointments', '#appointmentForm', (e) => {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                this.save();
-            });
-
-            $(document).on('click.appointments', '[data-action="add-appointment"]', () => {
-                this.resetForm();
-                $('#appointmentModalTitle').text(this.t('bookAppt'));
-                $('#appointmentModal').modal('show');
-            });
-
-            $(document).on('click.appointments', '[data-action="edit-appointment"]', (e) => {
-                const id = parseInt($(e.currentTarget).data('id'));
-                this.edit(id);
-            });
-
-            $(document).on('click.appointments', '[data-action="delete-appointment"]', (e) => {
-                const id = parseInt($(e.currentTarget).data('id'));
-                this.deleteRequest(id);
-            });
-
-            $(document).on('click.appointments', '#confirmDeleteBtn', () => this.confirmDelete());
-
             $(document).on('input.appointments', '#appointmentSearch', Utils.debounce((e) => {
                 this.searchTerm = $(e.target).val();
                 this.currentPage = 1;
@@ -344,7 +320,6 @@ if (typeof AppointmentsManager === 'undefined') {
                     this.showSuccess(this.t('appointmentBooked'));
                 }
 
-                $('#appointmentModal').modal('hide');
                 await this.loadAppointments();
             } catch (error) {
                 console.error('Error saving appointment:', error);
@@ -383,43 +358,11 @@ if (typeof AppointmentsManager === 'undefined') {
                     $('#appointmentType').val(appt.type);
                     $('#appointmentStatus').val(appt.status);
 
-                    $('#appointmentModalTitle').text(this.t('editAppointment'));
-                    $('#appointmentModal').modal('show');
                 }
             } catch (error) {
                 console.error('Error loading appointment:', error);
                 this.showError('Failed to load appointment');
             }
-        }
-
-        deleteRequest(id) {
-            this.deleteId = id;
-            $('#deleteModal').modal('show');
-        }
-
-        async confirmDelete() {
-            if (this.deleteId) {
-                try {
-                    await API.appointments.delete(this.deleteId);
-                    this.showSuccess(this.t('appointmentCancelled'));
-                    this.deleteId = null;
-                    $('#deleteModal').modal('hide');
-                    await this.loadAppointments();
-                } catch (error) {
-                    console.error('Error deleting appointment:', error);
-                    this.showError('Failed to delete appointment');
-                }
-            }
-        }
-
-        resetForm() {
-            const form = $('#appointmentForm')[0];
-            if (form) form.reset();
-            $('#appointmentId').val('');
-            $('#appointmentPatientId').val('');
-            $('#appointmentDoctorId').val('');
-            $('#patientSearchInput').val('').removeClass('is-invalid');
-            $('#doctorSearchInput').val('').removeClass('is-invalid');
         }
 
         prevPage() {

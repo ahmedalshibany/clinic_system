@@ -32,6 +32,18 @@ class ServiceController extends Controller
         return view('services.index', compact('services'));
     }
 
+    public function create()
+    {
+        $this->authorize('create', Service::class);
+        return view('services.create');
+    }
+
+    public function edit(Service $service)
+    {
+        $this->authorize('update', $service);
+        return view('services.edit', compact('service'));
+    }
+
     public function store(Request $request)
     {
         $this->authorize('create', Service::class);
