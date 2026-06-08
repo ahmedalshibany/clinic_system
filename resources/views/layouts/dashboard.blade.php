@@ -32,7 +32,7 @@
 
 <body>
     <!-- Sidebar -->
-    <nav class="sidebar glass-effect">
+    <nav class="sidebar">
         <div class="sidebar-header">
             <a href="{{ route('dashboard') }}" class="sidebar-brand">
                 <i class="fas fa-heartbeat pulse-anim"></i>

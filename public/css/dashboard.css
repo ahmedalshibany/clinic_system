@@ -1272,3 +1272,61 @@
     color: #0a0a14;
     box-shadow: 0 4px 15px rgba(42, 168, 138, 0.25);
 }
+
+[data-theme="dark"] .kpi-icon-neutral {
+    background: rgba(42, 168, 138, 0.08);
+    color: #2aa88a;
+}
+
+[data-theme="dark"] .kpi-icon-danger {
+    background: rgba(231, 76, 60, 0.08);
+    color: #e74c3c;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   REPORTS MODULE — Shared Utilities
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.icon-shape {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hover-card {
+    transition: transform 0.2s;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+}
+
+/* 5-column grid helper (2.4/12 = 20% width) */
+.col-md-2dot4 {
+    flex: 0 0 20%;
+    max-width: 20%;
+}
+
+/* KPI icon — premium soft container for stat cards */
+.kpi-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    font-size: var(--text-xl);
+    flex-shrink: 0;
+}
+
+.kpi-icon-neutral {
+    background: rgba(15, 61, 62, 0.06);
+    color: var(--secondary);
+}
+
+.kpi-icon-danger {
+    background: rgba(139, 58, 58, 0.06);
+    color: var(--danger);
+}

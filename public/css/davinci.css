@@ -481,6 +481,37 @@ p {
     transform: none;
 }
 
+/* Outline secondary — Da Vinci jade unified */
+.btn-outline-secondary {
+    background: transparent;
+    color: var(--secondary);
+    border: 1px solid rgba(15, 61, 62, 0.25);
+}
+
+.btn-outline-secondary:hover {
+    background: rgba(15, 61, 62, 0.06);
+    color: var(--secondary);
+    border-color: var(--secondary);
+}
+
+.btn-outline-secondary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-glow), 0 0 0 1px var(--secondary);
+}
+
+.btn-outline-secondary:active {
+    background: rgba(15, 61, 62, 0.12);
+    transform: translateY(0);
+}
+
+.btn-outline-secondary:disabled,
+.btn-outline-secondary.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+}
+
 /* Soft buttons with natural colors */
 .btn-soft-primary {
     background: rgba(15, 61, 62, 0.08);
@@ -757,6 +788,24 @@ p {
     background: rgba(239, 68, 68, 0.2);
     border-color: rgba(239, 68, 68, 0.4);
     box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
+}
+
+[data-theme="dark"] .btn-outline-secondary {
+    background: transparent;
+    color: #2aa88a;
+    border: 1px solid rgba(42, 168, 138, 0.35);
+}
+
+[data-theme="dark"] .btn-outline-secondary:hover {
+    background: rgba(42, 168, 138, 0.1);
+    color: #34c4a3;
+    border-color: #2aa88a;
+    box-shadow: 0 0 20px rgba(42, 168, 138, 0.1);
+}
+
+[data-theme="dark"] .btn-outline-secondary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(42, 168, 138, 0.3), 0 0 0 1px #2aa88a;
 }
 
 /* Form inputs with subtle glow on focus */

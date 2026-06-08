@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\Service;
+use App\Models\Doctor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -236,10 +237,19 @@ class ReportController extends Controller
             $query->where('status', $request->status);
         }
 
-        $appointments = $query->orderBy('date')->get();
-        $status_stats = $appointments->groupBy('status')->map->count();
+        // Status stats across all matching records
+        $status_stats = (clone $query)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
 
-        return view('reports.appointments', compact('appointments', 'status_stats'));
+        // Paginated list
+        $appointments = $query->orderBy('date')->paginate(50)->withQueryString();
+
+        $doctors = Doctor::with('user')->orderBy('name')->get();
+
+        return view('reports.appointments', compact('appointments', 'status_stats', 'doctors'));
     }
 
     /**
