@@ -4,7 +4,7 @@
 @section('page-title', __('messages.dashboard'))
 
 @section('styles')
-<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}?v={{ filemtime(public_path('css/dashboard.css')) }}">
 @endsection
 
 @section('content')

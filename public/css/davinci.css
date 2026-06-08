@@ -335,7 +335,6 @@ p {
 }
 
 .card:hover {
-    transform: translateY(-4px);
     box-shadow: var(--shadow-hover);
 }
 
