@@ -38,8 +38,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    padding: var(--space-xl) var(--space-md);
-    overflow-y: auto;
+    padding: var(--space-lg) var(--space-md);
+    overflow-y: auto !important;
     overflow-x: hidden;
     background: var(--white);
     box-shadow: var(--shadow-soft);
@@ -58,7 +58,7 @@ body {
 
 .sidebar:hover {
     width: var(--sidebar-width-expanded);
-    padding: var(--space-xl) var(--space-lg);
+    padding: var(--space-lg) var(--space-lg);
     box-shadow: var(--shadow-hover);
 }
 
@@ -74,16 +74,26 @@ body {
     align-items: center;
     justify-content: flex-start;
     width: 100%;
-    padding-left: 6px;
-    margin-bottom: var(--space-2xl);
+    padding-left: 19px;
+    margin-bottom: var(--space-xl);
     text-decoration: none;
     overflow: hidden;
     white-space: nowrap;
+    transition: padding-left var(--duration-slow) var(--ease-out);
 }
 
 [dir="rtl"] .sidebar-brand {
     padding-left: 0;
-    padding-right: 6px;
+    padding-right: 19px;
+}
+
+.sidebar:hover .sidebar-brand {
+    padding-left: var(--space-md);
+}
+
+[dir="rtl"] .sidebar:hover .sidebar-brand {
+    padding-right: var(--space-md);
+    padding-left: 0;
 }
 
 .sidebar-brand i {
@@ -146,10 +156,10 @@ body {
 .sidebar .nav-link {
     display: flex;
     align-items: center;
-    padding: var(--space-md);
+    padding: 8px var(--space-md);
     color: var(--text-secondary);
     border-radius: var(--radius);
-    margin-bottom: var(--space-sm);
+    margin-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;
     position: relative;
@@ -161,14 +171,14 @@ body {
 }
 
 .sidebar .nav-link .icon-box {
-    min-width: 44px;
+    min-width: 48px;
     height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: var(--radius);
     font-size: 1.4rem;
-    transition: background-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+    transition: background-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
     background: transparent;
 }
 
@@ -217,7 +227,7 @@ body {
 }
 
 .sidebar .nav-link:hover .icon-box {
-    transform: scale(1.1);
+    background: rgba(15, 61, 62, 0.1);
 }
 
 .logout-link {
@@ -471,11 +481,6 @@ body {
         margin-left: 0 !important;
         margin-right: 0 !important;
         padding: 24px;
-    }
-
-    .sidebar-brand {
-        justify-content: flex-start;
-        padding-left: 6px;
     }
 
     .sidebar .nav-link span {
