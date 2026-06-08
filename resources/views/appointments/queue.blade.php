@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', __('messages.appointments') . ' / ' . __('Queue'))
-@section('page-title', __('messages.appointments') . ' / ' . __('Queue'))
+@section('title', __('messages.appointments') . ' / ' . __('messages.queue'))
+@section('page-title', __('messages.appointments') . ' / ' . __('messages.queue'))
 
 @section('content')
 <!-- Date & Filter -->
@@ -75,15 +75,15 @@
                         <div class="card-body p-3">
                             <h6 class="fw-bold mb-1">{{ $appt->patient->name }}</h6>
                             <div class="text-muted small mb-2">
-                                {{ __('Arrived:') }} {{ $appt->checked_in_at ? $appt->checked_in_at->format('h:i A') : __('Now') }}
+                                {{ __('messages.arrived') }}: {{ $appt->checked_in_at ? $appt->checked_in_at->format('h:i A') : __('messages.now') }}
                             </div>
                             <div class="alert alert-info py-1 px-2 mb-0 small">
-                                <i class="fas fa-spinner fa-spin me-1"></i> {{ __('In Triage') }}
+                                <i class="fas fa-spinner fa-spin me-1"></i> {{ __('messages.inTriage') }}
                             </div>
                         </div>
                     </div>
                 @empty
-                    <div class="text-center text-muted py-4 small">{{ __('No patients in triage') }}</div>
+                    <div class="text-center text-muted py-4 small">{{ __('messages.inTriage') }}</div>
                 @endforelse
             </div>
         </div>
@@ -104,7 +104,7 @@
                         <div class="card-header bg-success bg-opacity-10 py-2">
                              <div class="d-flex justify-content-between align-items-center">
                                 <span class="fw-bold text-success">{{ $appt->patient->name }}</span>
-                                <span class="badge bg-success">{{ __('Priority') }}</span>
+                                <span class="badge bg-success">{{ __('messages.priority') }}</span>
                              </div>
                         </div>
                         <div class="card-body p-3">
@@ -113,11 +113,11 @@
                             <div class="mb-3 p-2   rounded text-center">
                                 <div class="row g-0">
                                     <div class="col-6 border-end">
-                                        <small class="text-muted d-block">{{ __('BP') }}</small>
+                                        <small class="text-muted d-block">{{ __('messages.bp') }}</small>
                                         <span class="fw-bold text-dark">{{ $appt->vital->blood_pressure }}</span>
                                     </div>
                                     <div class="col-6">
-                                        <small class="text-muted d-block">{{ __('Temp') }}</small>
+                                        <small class="text-muted d-block">{{ __('messages.temp') }}</small>
                                         <span class="fw-bold {{ $appt->vital->temperature > 37.5 ? 'text-danger' : 'text-dark' }}">{{ $appt->vital->temperature }}°C</span>
                                     </div>
                                 </div>
@@ -126,7 +126,7 @@
                             
                             <div class="text-danger small mb-2">
                                 <i class="fas fa-clock me-1"></i> 
-                                {{ __('Waiting:') }} <span class="waiting-timer" data-time="{{ $appt->checked_in_at }}">0m</span>
+                                {{ __('messages.waiting') }}: <span class="waiting-timer" data-time="{{ $appt->checked_in_at }}">0m</span>
                             </div>
                             
                             <form action="{{ route('appointments.start', $appt) }}" method="POST">
@@ -138,7 +138,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="text-center text-muted py-4 small">{{ __('Waiting room empty') }}</div>
+                    <div class="text-center text-muted py-4 small">{{ __('messages.waitingRoomEmpty') }}</div>
                 @endforelse
             </div>
         </div>
@@ -160,7 +160,7 @@
                             <h6 class="fw-bold mb-1">{{ $appt->patient->name }}</h6>
                             <div class="mb-2">
                                 <span class="badge bg-primary-soft text-primary animate-pulse">
-                                    <i class="fas fa-circle fa-xs me-1"></i> {{ __('Live Session') }}
+                                    <i class="fas fa-circle fa-xs me-1"></i> {{ __('messages.liveSession') }}
                                 </span>
                             </div>
                             <div class="small text-muted mb-3">
@@ -177,7 +177,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="text-center text-muted py-4 small">{{ __('No active sessions') }}</div>
+                    <div class="text-center text-muted py-4 small">{{ __('messages.noActiveSessions') }}</div>
                 @endforelse
             </div>
         </div>

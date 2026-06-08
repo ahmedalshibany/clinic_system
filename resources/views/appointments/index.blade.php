@@ -99,8 +99,8 @@
                                 @endif
                             </td>
                             <td>
-                                <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} px-3 py-2 rounded-pill" data-i18n="{{ strtolower($appointment->status) }}">
-                                    {{ ucfirst($appointment->status) }}
+                                <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} px-3 py-2 rounded-pill">
+                                    {{ __("messages.{$appointment->status}") }}
                                 </span>
                             </td>
                             <td class="pe-4">
