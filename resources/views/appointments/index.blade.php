@@ -124,7 +124,7 @@
                                         <form action="{{ route('appointments.check-in', $appointment) }}" method="POST">
                                             @csrf
                                             <button type="submit" class="btn btn-primary btn-sm w-100" title="Check In" data-i18n-title="checkIn">
-                                                <i class="fas fa-check-square me-1"></i> Check In
+                                                <i class="fas fa-check-square me-1"></i> {{ __('messages.checkIn') }}
                                             </button>
                                         </form>
                                     @elseif($appointment->status === 'waiting')

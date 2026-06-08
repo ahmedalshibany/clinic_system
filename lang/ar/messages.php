@@ -162,7 +162,7 @@ return [
     'noAppointments' => 'لا توجد مواعيد',
     'appointmentsLabel' => 'مواعيد',
     'viewDetails' => 'عرض التفاصيل',
-    'checkIn' => 'تسجيل الدخول',
+    'checkIn' => 'تسجيل الوصول',
     'startVisit' => 'بدء الزيارة',
     'completeVisit' => 'إكمال الزيارة',
     'createInvoice' => 'إنشاء فاتورة',
@@ -259,7 +259,7 @@ return [
     'completed' => 'مكتمل',
     'cancelled' => 'ملغي',
     'no_show' => 'لم يحضر',
-    'checked_in' => 'تم تسجيل الدخول',
+    'checked_in' => 'تم تسجيل الوصول',
     'in_progress' => 'قيد التنفيذ',
     'waiting' => 'بانتظار',
 
