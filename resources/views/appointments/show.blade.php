@@ -4,9 +4,9 @@
 @section('page-title', __('messages.appointmentsDetails'))
 
 @section('content')
-<div class="mb-3">
-    <a href="{{ smartBack('appointments.index') }}" class="btn btn-sm btn-light">
-        <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.back') }}
+<div>
+    <a href="{{ smartBack('appointments.index') }}" class="btn btn-outline-secondary mb-3">
+        <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToAppointments') }}
     </a>
 </div>
 <div class="row fade-in">

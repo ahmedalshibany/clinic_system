@@ -4,14 +4,20 @@
 @section('page-title', __('messages.reports') . ' / ' . __('messages.totalRevenue'))
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0 fw-bold">{{ __('messages.reports') }} / {{ __('messages.totalRevenue') }}</h4>
-    <div>
-        <button onclick="window.print()" class="btn btn-outline-secondary me-2">
-            <i class="fas fa-print me-1"></i> {{ __('messages.print') }}
+<a href="{{ route('reports.index') }}" class="btn btn-outline-secondary mb-3">
+    <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToReports') }}
+</a>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="fw-bold m-0" style="color: var(--text-primary);">
+        {{ __('messages.reports') }} / {{ __('messages.totalRevenue') }}
+    </h4>
+    <div class="d-flex align-items-center gap-2">
+        <button onclick="window.print()" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+            <i class="fas fa-print"></i> {{ __('messages.print') }}
         </button>
-        <a href="{{ route('reports.export.excel', ['report' => 'revenue'] + request()->all()) }}" class="btn btn-success">
-            <i class="fas fa-file-excel me-1"></i> {{ __('messages.exportExcel') }}
+        <a href="{{ route('reports.export.excel', ['report' => 'revenue'] + request()->all()) }}" class="btn btn-success d-inline-flex align-items-center gap-2">
+            <i class="fas fa-file-excel"></i> {{ __('messages.exportExcel') }}
         </a>
     </div>
 </div>
@@ -47,7 +53,7 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="text-muted small text-uppercase fw-bold mb-1">{{ __('messages.totalRevenue') }}</div>
-                <h3 class="fw-bold text-success mb-0">{{ __('messages.currencySymbol') }}{{ number_format($total_revenue, 2) }}</h3>
+                <h3 class="fw-bold text-success mb-0">{{ $currencySymbol }}{{ number_format($total_revenue, 2) }}</h3>
                 <small class="text-muted">{{ __('messages.collected') }}</small>
             </div>
         </div>
@@ -65,7 +71,7 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="text-muted small text-uppercase fw-bold mb-1">{{ __('messages.avgInvoice') }}</div>
-                <h3 class="fw-bold text-info mb-0">{{ __('messages.currencySymbol') }}{{ number_format($invoices_stats->avg_amount, 2) }}</h3>
+                <h3 class="fw-bold text-info mb-0">{{ $currencySymbol }}{{ number_format($invoices_stats->avg_amount, 2) }}</h3>
                 <small class="text-muted">{{ __('messages.perPatient') }}</small>
             </div>
         </div>
@@ -85,7 +91,7 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="text-muted small text-uppercase fw-bold mb-1">{{ __('messages.pendingAmount') }}</div>
-                <h3 class="fw-bold text-danger mb-0">{{ __('messages.currencySymbol') }}{{ number_format($invoices_stats->pending_amount, 2) }}</h3>
+                <h3 class="fw-bold text-danger mb-0">{{ $currencySymbol }}{{ number_format($invoices_stats->pending_amount, 2) }}</h3>
                 <small class="text-muted">{{ __('messages.unpaidBalances') }}</small>
             </div>
         </div>
@@ -123,7 +129,7 @@
                         @foreach($revenue_by_method as $method => $amount)
                         <li class="list-group-item d-flex justify-content-between px-0">
                             <span class="text-capitalize">{{ str_replace('_', ' ', $method) }}</span>
-                            <span class="fw-bold">{{ __('messages.currencySymbol') }}{{ number_format($amount, 2) }}</span>
+                            <span class="fw-bold">{{ $currencySymbol }}{{ number_format($amount, 2) }}</span>
                         </li>
                         @endforeach
                     </ul>
@@ -175,7 +181,7 @@
                                 </td>
                                 <td><span class="badge text-dark border">{{ ucfirst($payment->payment_method) }}</span></td>
                                 <td>{{ $payment->receiver->name ?? __('messages.systemLabel') }}</td>
-                                <td class="text-end pe-4 fw-bold">{{ __('messages.currencySymbol') }}{{ number_format($payment->amount, 2) }}</td>
+                                <td class="text-end pe-4 fw-bold">{{ $currencySymbol }}{{ number_format($payment->amount, 2) }}</td>
                             </tr>
                             @empty
                             <tr>

@@ -72,9 +72,9 @@
                             <small class="d-block text-muted">{{ $invoice->patient->patient_code }}</small>
                         </td>
                         <td>{{ $invoice->created_at->format('M d, Y') }}</td>
-                        <td class="fw-bold">{{ __('messages.currencySymbol') }} {{ number_format($invoice->total, 2) }}</td>
-                        <td class="text-success">{{ __('messages.currencySymbol') }} {{ number_format($invoice->amount_paid, 2) }}</td>
-                        <td class="text-danger fw-bold">{{ __('messages.currencySymbol') }} {{ number_format($invoice->balance, 2) }}</td>
+                        <td class="fw-bold">{{ $currencySymbol }} {{ number_format($invoice->total, 2) }}</td>
+                        <td class="text-success">{{ $currencySymbol }} {{ number_format($invoice->amount_paid, 2) }}</td>
+                        <td class="text-danger fw-bold">{{ $currencySymbol }} {{ number_format($invoice->balance, 2) }}</td>
                         <td>
                             @php $badgeColor = $statusColors[$invoice->status] ?? 'secondary'; @endphp
                             <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} px-3 py-2 rounded-pill">

@@ -40,13 +40,13 @@ class InvoiceLocalizationTest extends TestCase
         $response->assertSee(__('messages.serviceDescription', [], 'en'));
     }
 
-    public function test_english_invoice_create_page_contains_dollar_symbol(): void
+    public function test_invoice_create_page_contains_currency_symbol(): void
     {
         $response = $this->actingAs($this->admin)
             ->get('/invoices/create?lang=en');
 
         $response->assertStatus(200);
-        $response->assertSee("currencySymbol = '$'", false);
+        $response->assertSee("currencySymbol = '﷼'", false);
     }
 
     public function test_arabic_invoice_create_page_contains_arabic_keys(): void
@@ -66,7 +66,7 @@ class InvoiceLocalizationTest extends TestCase
         $response->assertSee(__('messages.serviceDescription', [], 'ar'));
     }
 
-    public function test_arabic_invoice_create_page_contains_rial_symbol(): void
+    public function test_arabic_invoice_create_page_contains_same_currency_symbol(): void
     {
         $response = $this->actingAs($this->admin)
             ->get('/invoices/create?lang=ar');
@@ -104,7 +104,7 @@ class InvoiceLocalizationTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee(__('messages.invoicesCreate', [], 'en'));
-        $response->assertSee("currencySymbol = '$'", false);
+        $response->assertSee("currencySymbol = '﷼'", false);
     }
 
     public function test_receptionist_can_see_localized_invoice_create(): void

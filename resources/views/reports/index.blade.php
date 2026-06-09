@@ -97,7 +97,7 @@
                 <div class="kpi-text-stack">
                     <span class="text-muted text-xs mb-1" style="text-transform: uppercase; letter-spacing: 0.05em;">{{ __('messages.revenueToday') }}</span>
                     <h3 class="fw-bold mb-1" style="font-size: 1.85rem; color: var(--text-primary); margin: 0; line-height: 1.2;">
-                        {{ number_format($stats['today_revenue'], 2) }} <span class="text-sm fw-normal text-muted">{{ __('messages.currencySymbol') }}</span>
+                        {{ number_format($stats['today_revenue'], 2) }} <span class="text-sm fw-normal text-muted">{{ $currencySymbol }}</span>
                     </h3>
                     <small class="text-muted mt-1"><i class="far fa-calendar-alt me-1"></i> {{ now()->format('M d') }}</small>
                 </div>
@@ -112,7 +112,7 @@
                 <div class="kpi-text-stack">
                     <span class="text-muted text-xs mb-1" style="text-transform: uppercase; letter-spacing: 0.05em;">{{ __('messages.revenueMonth') }}</span>
                     <h3 class="fw-bold mb-1" style="font-size: 1.85rem; color: var(--text-primary); margin: 0; line-height: 1.2;">
-                        {{ number_format($stats['month_revenue'], 2) }} <span class="text-sm fw-normal text-muted">{{ __('messages.currencySymbol') }}</span>
+                        {{ number_format($stats['month_revenue'], 2) }} <span class="text-sm fw-normal text-muted">{{ $currencySymbol }}</span>
                     </h3>
                     <small class="text-muted mt-1"><i class="far fa-calendar-alt me-1"></i> {{ now()->format('F Y') }}</small>
                 </div>
@@ -144,7 +144,7 @@
                 <div class="kpi-text-stack">
                     <span class="text-muted text-xs mb-1" style="text-transform: uppercase; letter-spacing: 0.05em;">{{ __('messages.outstanding') }}</span>
                     <h3 class="fw-bold mb-1" style="font-size: 1.85rem; color: var(--text-primary); margin: 0; line-height: 1.2;">
-                        {{ number_format($stats['outstanding_amount'], 2) }} <span class="text-sm fw-normal text-muted">{{ __('messages.currencySymbol') }}</span>
+                        {{ number_format($stats['outstanding_amount'], 2) }} <span class="text-sm fw-normal text-muted">{{ $currencySymbol }}</span>
                     </h3>
                     <small class="text-danger text-xs fw-semibold mt-1">
                         {{ $stats['outstanding_invoices'] }} {{ __('messages.invoicesOverdue') }}

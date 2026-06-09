@@ -73,7 +73,7 @@
                         <div class="col-md-4">
                             <label class="form-label">{{ __('messages.consultationFee') }}</label>
                             <div class="input-group">
-                                <span class="input-group-text">{{ __('messages.currencySymbol') }}</span>
+                                <span class="input-group-text">{{ $currencySymbol }}</span>
                                 <input type="number" class="form-control @error('consultation_fee') is-invalid @enderror" name="consultation_fee" value="{{ old('consultation_fee') }}" min="0" step="0.01">
                             </div>
                             @error('consultation_fee') <div class="invalid-feedback">{{ $message }}</div> @enderror

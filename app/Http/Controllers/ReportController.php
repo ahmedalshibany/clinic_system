@@ -245,7 +245,7 @@ class ReportController extends Controller
             ->toArray();
 
         // Paginated list
-        $appointments = $query->orderBy('date')->paginate(50)->withQueryString();
+        $appointments = $query->orderBy('date')->paginate(10)->withQueryString();
 
         $doctors = Doctor::with('user')->orderBy('name')->get();
 

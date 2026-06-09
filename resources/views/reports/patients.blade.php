@@ -2,6 +2,13 @@
 @section('title', __('messages.reports') . ' / ' . __('messages.patients'))
 @section('page-title', __('messages.reports') . ' / ' . __('messages.patients'))
 @section('content')
+<a href="{{ route('reports.index') }}" class="btn btn-outline-secondary mb-3">
+    <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToReports') }}
+</a>
+
+<h4 class="fw-bold mb-4" style="color: var(--text-primary);">
+    {{ __('messages.patientDemographics') }}
+</h4>
 <div class="row">
     <div class="col-md-6">
         <div class="card border-0 shadow-sm mb-4">
@@ -10,7 +17,7 @@
                 <ul class="list-group list-group-flush">
                     @forelse($gender_stats as $gender => $count)
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ ucfirst($gender) }}
+                        {{ __('messages.' . strtolower($gender)) }}
                         <span class="badge bg-primary rounded-pill">{{ $count }}</span>
                     </li>
                     @empty
@@ -27,7 +34,7 @@
                 <ul class="list-group list-group-flush">
                     @forelse($age_groups as $group => $count)
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ $group }}
+                        {{ __('messages.' . strtolower($group)) }}
                         <span class="badge bg-info rounded-pill">{{ $count }}</span>
                     </li>
                     @empty
@@ -47,7 +54,7 @@
                         @forelse($patients->take(10) as $p)
                         <tr>
                             <td>{{ $p->name }}</td>
-                            <td>{{ ucfirst($p->gender) }}</td>
+                            <td>{{ __('messages.' . strtolower($p->gender)) }}</td>
                             <td>{{ $p->age }}</td>
                             <td>{{ $p->created_at->format('M d, Y') }}</td>
                         </tr>

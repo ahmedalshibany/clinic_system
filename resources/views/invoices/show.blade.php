@@ -76,8 +76,8 @@
                                     {{ $item->description }}
                                 </td>
                                 <td class="text-center">{{ $item->quantity }}</td>
-                                <td class="text-end">{{ __('messages.currencySymbol') }}{{ number_format($item->unit_price, 2) }}</td>
-                                <td class="text-end">{{ __('messages.currencySymbol') }}{{ number_format($item->total, 2) }}</td>
+                                <td class="text-end">{{ $currencySymbol }}{{ number_format($item->unit_price, 2) }}</td>
+                                <td class="text-end">{{ $currencySymbol }}{{ number_format($item->total, 2) }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -97,31 +97,31 @@
                         <table class="table table-sm">
                             <tr>
                                 <td>{{ __('messages.subtotal') }}:</td>
-                                <td class="text-end fw-bold">{{ __('messages.currencySymbol') }}{{ number_format($invoice->subtotal, 2) }}</td>
+                                <td class="text-end fw-bold">{{ $currencySymbol }}{{ number_format($invoice->subtotal, 2) }}</td>
                             </tr>
                             @if($invoice->discount_amount > 0)
                             <tr>
                                 <td class="text-success">{{ __('messages.discount') }} ({{ number_format($invoice->discount_percent, 1) }}%):</td>
-                                <td class="text-end text-success">-{{ __('messages.currencySymbol') }}{{ number_format($invoice->discount_amount, 2) }}</td>
+                                <td class="text-end text-success">-{{ $currencySymbol }}{{ number_format($invoice->discount_amount, 2) }}</td>
                             </tr>
                             @endif
                             @if($invoice->tax_amount > 0)
                             <tr>
                                 <td>{{ __('messages.tax') }} ({{ number_format($invoice->tax_percent, 1) }}%):</td>
-                                <td class="text-end">+{{ __('messages.currencySymbol') }}{{ number_format($invoice->tax_amount, 2) }}</td>
+                                <td class="text-end">+{{ $currencySymbol }}{{ number_format($invoice->tax_amount, 2) }}</td>
                             </tr>
                             @endif
                             <tr class="border-top border-dark">
                                 <td class="fs-5 fw-bold">{{ __('messages.total') }}:</td>
-                                <td class="text-end fs-5 fw-bold">{{ __('messages.currencySymbol') }}{{ number_format($invoice->total, 2) }}</td>
+                                <td class="text-end fs-5 fw-bold">{{ $currencySymbol }}{{ number_format($invoice->total, 2) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ __('messages.amount_paid') }}:</td>
-                                <td class="text-end text-success fw-bold">{{ __('messages.currencySymbol') }}{{ number_format($invoice->amount_paid, 2) }}</td>
+                                <td class="text-end text-success fw-bold">{{ $currencySymbol }}{{ number_format($invoice->amount_paid, 2) }}</td>
                             </tr>
                             <tr class="">
                                 <td class="fw-bold">{{ __('messages.balance_due') }}:</td>
-                                <td class="text-end fw-bold text-danger">{{ __('messages.currencySymbol') }}{{ number_format($invoice->balance, 2) }}</td>
+                                <td class="text-end fw-bold text-danger">{{ $currencySymbol }}{{ number_format($invoice->balance, 2) }}</td>
                             </tr>
                         </table>
                     </div>
@@ -153,7 +153,7 @@
                     @foreach($invoice->payments as $payment)
                     <div class="list-group-item">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-bold text-success">{{ __('messages.currencySymbol') }}{{ number_format($payment->amount, 2) }}</span>
+                            <span class="fw-bold text-success">{{ $currencySymbol }}{{ number_format($payment->amount, 2) }}</span>
                             <small class="text-muted">{{ $payment->payment_date->format('M d') }}</small>
                         </div>
                         <div class="small text-muted">
@@ -186,7 +186,7 @@
                 <div class="mb-3">
                     <label class="form-label">{{ __('messages.payment_amount') }}</label>
                     <div class="input-group">
-                        <span class="input-group-text">{{ __('messages.currencySymbol') }}</span>
+                        <span class="input-group-text">{{ $currencySymbol }}</span>
                         <input type="number" name="amount" class="form-control" step="0.01" max="{{ $invoice->balance }}" value="{{ $invoice->balance }}" required>
                     </div>
                 </div>

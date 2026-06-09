@@ -2,10 +2,14 @@
 @section('title', __('messages.reports') . ' / ' . __('messages.outstandingInvoices'))
 @section('page-title', __('messages.reports') . ' / ' . __('messages.outstandingInvoices'))
 @section('content')
+<a href="{{ route('reports.index') }}" class="btn btn-outline-secondary mb-3">
+    <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToReports') }}
+</a>
+
 <div class="card border-0 shadow-sm">
-    <div class="card-header d-flex justify-content-between">
-        <h5 class="mb-0">{{ __('messages.outstandingInvoices') }}</h5>
-        <div class="text-danger fw-bold">{{ __('messages.totalDue') }}: {{ __('messages.currencySymbol') }}{{ number_format($total_outstanding, 2) }}</div>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold" style="color: var(--text-primary);">{{ __('messages.outstandingInvoices') }}</h5>
+        <div class="text-danger fw-bold">{{ __('messages.totalDue') }}: {{ $currencySymbol }}{{ number_format($total_outstanding, 2) }}</div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -17,9 +21,9 @@
                         <td class="text-danger">{{ $inv->due_date->format('M d, Y') }}</td>
                         <td>{{ $inv->invoice_number }}</td>
                         <td>{{ $inv->patient->name }}</td>
-                        <td>{{ __('messages.currencySymbol') }}{{ number_format($inv->total, 2) }}</td>
-                        <td>{{ __('messages.currencySymbol') }}{{ number_format($inv->amount_paid, 2) }}</td>
-                        <td class="fw-bold text-danger">{{ __('messages.currencySymbol') }}{{ number_format($inv->balance, 2) }}</td>
+                        <td>{{ $currencySymbol }}{{ number_format($inv->total, 2) }}</td>
+                        <td>{{ $currencySymbol }}{{ number_format($inv->amount_paid, 2) }}</td>
+                        <td class="fw-bold text-danger">{{ $currencySymbol }}{{ number_format($inv->balance, 2) }}</td>
                         <td><a href="{{ route('invoices.show', $inv) }}" class="btn btn-sm btn-outline-primary">{{ __('messages.viewAction') }}</a></td>
                     </tr>
                     @empty

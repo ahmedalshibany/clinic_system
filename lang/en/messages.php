@@ -52,6 +52,9 @@ return [
     'resultsLabel' => 'results',
     'male' => 'Male',
     'female' => 'Female',
+    'child' => 'Child',
+    'adult' => 'Adult',
+    'senior' => 'Senior',
     'allPatients' => 'All Patients',
     'patientsCreate' => 'Patients / Create',
     'editPatient' => 'Edit Patient',
@@ -139,7 +142,6 @@ return [
     'yearsShort' => 'years',
     'invoicesShort' => 'Invoices',
     'insuranceNumberShort' => 'Insurance Number',
-    'currencySymbol' => '$',
     'total' => 'Total',
     'paid' => 'Paid',
     'balance' => 'Balance',
@@ -491,6 +493,7 @@ return [
     'unauthorized' => 'Unauthorized',
 
     // Reports
+    'backToReports' => 'Back to Reports',
     'revenueToday' => "Today's Revenue",
     'revenueMonth' => 'Month Revenue',
     'totalPatients' => 'Total Patients',

@@ -120,7 +120,7 @@
 <script>
     const services = @json($services);
     const existingItems = @json(isset($invoice) ? $invoice->items : ($prefilled_items ?? []));
-    const currencySymbol = '{{ __("messages.currencySymbol") }}';
+    const currencySymbol = '{{ $currencySymbol }}';
 </script>
 
 <script>
