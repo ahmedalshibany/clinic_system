@@ -288,36 +288,88 @@ class ReportController extends Controller
      */
     public function patients(Request $request)
     {
-        $query = Patient::query();
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
 
-        if ($request->date_from) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
-        if ($request->date_to) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+        // 1. Unified Quick Filter Handling using strict string dates
+        if ($request->has('quick_filter')) {
+            switch ($request->input('quick_filter')) {
+                case 'today':
+                    $dateFrom = now()->startOfDay()->toDateString();
+                    $dateTo = now()->endOfDay()->toDateString();
+                    break;
+                case 'this_week':
+                    $dateFrom = now()->startOfWeek()->toDateString();
+                    $dateTo = now()->endOfWeek()->toDateString();
+                    break;
+                case 'this_month':
+                    $dateFrom = now()->startOfMonth()->toDateString();
+                    $dateTo = now()->endOfMonth()->toDateString();
+                    break;
+                case 'this_year':
+                    $dateFrom = now()->startOfYear()->toDateString();
+                    $dateTo = now()->endOfDay()->toDateString();
+                    break;
+            }
         }
 
-        // Aggregate demographics at database level to avoid loading all rows
-        $demographics = (clone $query)
-            ->selectRaw("
-                gender,
-                CASE
-                    WHEN age < 18 THEN 'Child'
-                    WHEN age > 60 THEN 'Senior'
+        // 2. Base Query Setup for Active Registers
+        $baseQuery = Patient::query();
+        if ($dateFrom && $dateTo) {
+            $baseQuery->whereBetween(DB::raw('DATE(created_at)'), [$dateFrom, $dateTo]);
+        }
+
+        $allFilteredPatients = (clone $baseQuery)->get();
+
+        // 3. Dynamic Age Bucket Calculation using SQL-Parity Birthday Diffs
+        // Child: < 18, Senior: > 60, Adult: 18-60
+        $ageGroupsQuery = Patient::query()
+            ->select(DB::raw("
+                CASE 
+                    WHEN date_of_birth IS NULL THEN 'Unknown'
+                    WHEN TIMESTAMPDIFF(YEAR, date_of_birth, CURRENT_DATE) < 18 THEN 'Child'
+                    WHEN TIMESTAMPDIFF(YEAR, date_of_birth, CURRENT_DATE) > 60 THEN 'Senior'
                     ELSE 'Adult'
-                END as age_group,
-                COUNT(*) as count
-            ")
-            ->groupBy('gender', 'age_group')
+                END as age_group
+            "), DB::raw('COUNT(*) as total'))
+            ->whereIn('id', $allFilteredPatients->pluck('id')->toArray() ?: [0])
+            ->groupBy('age_group')
             ->get();
 
-        $gender_stats = $demographics->groupBy('gender')->map(fn($g) => $g->sum('count'));
-        $age_groups = $demographics->groupBy('age_group')->map(fn($g) => $g->sum('count'));
+        $age_groups = $ageGroupsQuery->pluck('total', 'age_group')->toArray();
 
-        // Recent registrations — only fetch what the view uses
-        $patients = $query->orderBy('created_at', 'desc')->limit(10)->get();
+        // 4. Gender Distribution Metrics
+        $genderQuery = Patient::query()
+            ->select('gender', DB::raw('COUNT(*) as total'))
+            ->whereIn('id', $allFilteredPatients->pluck('id')->toArray() ?: [0])
+            ->groupBy('gender')
+            ->get();
 
-        return view('reports.patients', compact('patients', 'gender_stats', 'age_groups'));
+        $gender_stats = $genderQuery->pluck('total', 'gender')->toArray();
+
+        // 5. Geographic/Location Distribution Metrics (Dynamic Top 5 Cities/Areas)
+        // Safely falls back to an unassigned label if the city field is empty or null
+        $locationQuery = Patient::query()
+            ->select(DB::raw("COALESCE(city, 'غير محدد') as location_name"), DB::raw('COUNT(*) as total'))
+            ->whereIn('id', $allFilteredPatients->pluck('id')->toArray() ?: [0])
+            ->groupBy('location_name')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+        // 6. Top-Level Core Summary Counter Variables
+        $total_patients_count = $allFilteredPatients->count();
+        $total_male_count     = $genderQuery->where('gender', 'male')->first()->total ?? 0;
+        $total_female_count   = $genderQuery->where('gender', 'female')->first()->total ?? 0;
+
+        // Recent registrations collection block for listing section
+        $patients = $baseQuery->orderBy('created_at', 'desc')->limit(10)->get();
+
+        return view('reports.patients', compact(
+            'patients', 'gender_stats', 'age_groups', 'locationQuery',
+            'total_patients_count', 'total_male_count', 'total_female_count',
+            'dateFrom', 'dateTo'
+        ));
     }
 
     /**

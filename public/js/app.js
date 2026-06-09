@@ -1083,8 +1083,7 @@ class App {
 
     setupGlobalErrorHandlers() {
         window.addEventListener('error', (e) => {
-            console.error('Global error:', e.error);
-            this.showAlert('An unexpected error occurred. Please try again.', 'danger');
+            console.error('Global error tracked:', e.error);
         });
 
         window.addEventListener('unhandledrejection', (e) => {

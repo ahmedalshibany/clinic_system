@@ -258,11 +258,7 @@ function applyQuickFilter(filterValue) {
                         </tbody>
                     </table>
                 </div>
-                @if ($payments->hasPages())
-                <div class="px-3 py-2">
-                    {{ $payments->links() }}
-                </div>
-                @endif
+
             </div>
         </div>
     </div>

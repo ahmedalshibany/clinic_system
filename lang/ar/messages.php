@@ -603,6 +603,24 @@ return [
     'highest_demand' => 'الأعلى طلباً',
     'catalog_tracked' => 'متتبع بالسجل',
 
+    // Patient Demographics Report
+    'total_patients' => 'إجمالي المرضى',
+    'active_records' => 'سجلات نشطة',
+    'male_patients' => 'المرضى الذكور',
+    'female_patients' => 'المرضى الإناث',
+    'ratio' => 'نسبة',
+    'top_location' => 'أعلى منطقة',
+    'highest_density' => 'أعلى كثافة',
+    'gender_distribution' => 'توزيع الجنس',
+    'age_groups' => 'الفئات العمرية',
+    'age_child' => 'أطفال',
+    'age_adult' => 'بالغين',
+    'age_senior' => 'كبار',
+    'age_unknown' => 'غير معروف',
+    'geo_distribution' => 'التوزيع الجغرافي',
+    'recent_registrations' => 'التسجيلات الأخيرة',
+    'registeredDateColumn' => 'تاريخ التسجيل',
+
     /*
     |--------------------------------------------------------------------------
     | Outstanding Report Keys

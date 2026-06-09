@@ -602,6 +602,24 @@ return [
     'highest_demand' => 'Highest Demand',
     'catalog_tracked' => 'Catalog Tracked',
 
+    // Patient Demographics Report
+    'total_patients' => 'Total Patients',
+    'active_records' => 'Active Records',
+    'male_patients' => 'Male Patients',
+    'female_patients' => 'Female Patients',
+    'ratio' => 'Ratio',
+    'top_location' => 'Top Location',
+    'highest_density' => 'Highest Density',
+    'gender_distribution' => 'Gender Distribution',
+    'age_groups' => 'Age Groups',
+    'age_child' => 'Child',
+    'age_adult' => 'Adult',
+    'age_senior' => 'Senior',
+    'age_unknown' => 'Unknown',
+    'geo_distribution' => 'Geographic Distribution',
+    'recent_registrations' => 'Recent Registrations',
+    'registeredDateColumn' => 'Registered Date',
+
     /*
     |--------------------------------------------------------------------------
     | Outstanding Report Keys
