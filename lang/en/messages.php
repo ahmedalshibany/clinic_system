@@ -314,6 +314,9 @@ return [
     'invSettings' => 'Invoices',
     'invSettingsDesc' => 'Tax, Prefixes, Terms',
     'clinicInfoSection' => 'Clinic Information',
+    'branding' => 'Branding',
+    'contactDetails' => 'Contact Details',
+    'registration' => 'Registration',
     'clinicLogo' => 'Clinic Logo',
     'logoDimensions' => 'Recommended size: 300x100px. Max size: 2MB.',
     'clinicNameEn' => 'Clinic Name (English)',
@@ -583,4 +586,37 @@ return [
     'actionColumn' => 'Action',
     'viewAction' => 'View',
     'overdueDate' => 'Overdue',
+    'total_appointments' => 'Total Appointments',
+    'top_doctor' => 'Top Doctor',
+    'attended_slots' => 'Attended Slots',
+    'highest_earner' => 'Highest Earner',
+    'active_doctors' => 'Active Doctors',
+    'monitored' => 'Monitored',
+    'no_data_available' => 'No data available for this period.',
+    'total_sales' => 'Total Sales',
+    'items_sold' => 'Items Sold',
+    'top_service' => 'Top Service',
+    'active_services' => 'Active Services',
+    'billed_amount' => 'Billed Amount',
+    'units_executed' => 'Units Executed',
+    'highest_demand' => 'Highest Demand',
+    'catalog_tracked' => 'Catalog Tracked',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Outstanding Report Keys
+    |--------------------------------------------------------------------------
+    */
+    'total_outstanding'   => 'Total Outstanding',
+    'uncollected_funds'   => 'Uncollected funds',
+    'overdue_invoices'    => 'Overdue Invoices',
+    'past_due_date'       => 'Past due date',
+    'top_debtor'          => 'Top Debtor',
+    'highest_balance'     => 'Highest balance',
+    'pending_bills'       => 'Pending Bills',
+    'active_receivables'  => 'Active receivables',
+    'invoiceNumColumn'    => 'Invoice #',
+    'status_overdue'      => 'Overdue',
+    'status_partial'      => 'Partial',
+    'status_sent'         => 'Sent',
 ];

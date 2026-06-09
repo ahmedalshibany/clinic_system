@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Models\User;
 use App\Models\Service;
 use App\Models\Doctor;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -159,13 +160,34 @@ class ReportController extends Controller
      */
     public function revenueByDoctor(Request $request)
     {
-        $dateFrom = $request->date_from ?? now()->startOfMonth();
-        $dateTo = $request->date_to ?? now()->endOfMonth();
+        // Date Filters with quick_filter support
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
 
-        // This requires joining payments -> invoices -> appointments/doctors
-        // Or simpler: Invoices created by doctors (if doctors create them) OR Invoices linked to appointments with doctors.
-        // Let's assume Appointment -> Doctor link is the source of truth for "Who earned this".
-        
+        if ($request->has('quick_filter')) {
+            switch ($request->input('quick_filter')) {
+                case 'today':
+                    $dateFrom = now()->startOfDay()->toDateString();
+                    $dateTo = now()->endOfDay()->toDateString();
+                    break;
+                case 'this_week':
+                    $dateFrom = now()->startOfWeek()->toDateString();
+                    $dateTo = now()->endOfWeek()->toDateString();
+                    break;
+                case 'this_month':
+                    $dateFrom = now()->startOfMonth()->toDateString();
+                    $dateTo = now()->endOfMonth()->toDateString();
+                    break;
+                case 'this_year':
+                    $dateFrom = now()->startOfYear()->toDateString();
+                    $dateTo = now()->endOfYear()->toDateString();
+                    break;
+            }
+        } else {
+            $dateFrom = $dateFrom ?? now()->startOfMonth()->toDateString();
+            $dateTo = $dateTo ?? now()->endOfMonth()->toDateString();
+        }
+
         $unassigned = __('messages.unassigned');
         $data = DB::table('payments')
             ->join('invoices', 'payments.invoice_id', '=', 'invoices.id')
@@ -181,7 +203,18 @@ class ReportController extends Controller
             ->groupBy('doctors.id', 'users.name')
             ->get();
 
-        return view('reports.revenue_doctor', compact('data', 'dateFrom', 'dateTo'));
+        $total_earned_sum   = $data->sum('total_earned');
+        $total_appointments = $data->sum('appointment_count');
+
+        $top_doctor_row = $data->sortByDesc('total_earned')->first();
+        $top_doctor     = ($top_doctor_row && $top_doctor_row->doctor_name) ? $top_doctor_row->doctor_name : __('messages.unassigned');
+        $doctor_count   = $data->whereNotNull('doctor_name')->count();
+
+        return view('reports.revenue_doctor', compact(
+            'data', 'dateFrom', 'dateTo',
+            'total_earned_sum', 'total_appointments',
+            'top_doctor', 'doctor_count'
+        ));
     }
 
     /**
@@ -189,29 +222,65 @@ class ReportController extends Controller
      */
     public function revenueByService(Request $request)
     {
-        $dateFrom = $request->date_from ?? now()->startOfMonth();
-        $dateTo = $request->date_to ?? now()->endOfMonth();
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
 
-        // Join invoice_items -> invoices -> payments? 
-        // Actually, revenue by service is usually based on "Billed" amount (Invoice Items), not necessarily "Collected" (Payments) 
-        // properly attributing partial payments to specific items is complex. 
-        // We will report on "Billed Amount" by service here for simplicity, or "Sales by Service".
+        // 1. Unified Quick Filter Handling using strict string dates
+        if ($request->has('quick_filter')) {
+            switch ($request->input('quick_filter')) {
+                case 'today':
+                    $dateFrom = now()->startOfDay()->toDateString();
+                    $dateTo = now()->endOfDay()->toDateString();
+                    break;
+                case 'this_week':
+                    $dateFrom = now()->startOfWeek()->toDateString();
+                    $dateTo = now()->endOfWeek()->toDateString();
+                    break;
+                case 'this_month':
+                    $dateFrom = now()->startOfMonth()->toDateString();
+                    $dateTo = now()->endOfMonth()->toDateString();
+                    break;
+                case 'this_year':
+                    $dateFrom = now()->startOfYear()->toDateString();
+                    $dateTo = now()->endOfYear()->toDateString();
+                    break;
+            }
+        } else {
+            $dateFrom = $dateFrom ?? now()->startOfMonth()->toDateString();
+            $dateTo = $dateTo ?? now()->endOfMonth()->toDateString();
+        }
 
-        $data = DB::table('invoice_items')
+        // 2. Base Query Formulation (Billed Sales via Invoice Items)
+        $query = DB::table('invoice_items')
             ->join('invoices', 'invoice_items.invoice_id', '=', 'invoices.id')
-            ->leftJoin('services', 'invoice_items.service_id', '=', 'services.id')
-            ->whereBetween('invoices.created_at', [$dateFrom, $dateTo])
+            ->join('services', 'invoice_items.service_id', '=', 'services.id')
+            ->whereBetween(DB::raw('DATE(invoices.created_at)'), [$dateFrom, $dateTo])
             ->where('invoices.status', '!=', 'cancelled')
             ->select(
-                DB::raw('COALESCE(services.name, invoice_items.description) as service_name'),
+                'services.name as service_name',
                 DB::raw('SUM(invoice_items.quantity) as total_qty'),
                 DB::raw('SUM(invoice_items.total) as total_sales')
             )
-            ->groupBy('service_name')
-            ->orderByDesc('total_sales')
-            ->get();
+            ->groupBy('services.id', 'services.name');
 
-        return view('reports.revenue_service', compact('data', 'dateFrom', 'dateTo'));
+        $data = $query->get();
+
+        // 3. Compute High-End Summary Aggregates for the Symmetrical Cards
+        $total_sales_sum   = $data->sum('total_sales');
+        $total_items_count = $data->sum('total_qty');
+
+        $top_service_row   = $data->sortByDesc('total_sales')->first();
+        $top_service       = ($top_service_row && $top_service_row->service_name) ? $top_service_row->service_name : '—';
+        $service_count     = $data->count();
+
+        // Explicitly pull currency symbol for controller architectural hygiene
+        $currencySymbol = Setting::get('currency_symbol', '$');
+
+        return view('reports.revenue_service', compact(
+            'data', 'dateFrom', 'dateTo',
+            'total_sales_sum', 'total_items_count',
+            'top_service', 'service_count', 'currencySymbol'
+        ));
     }
 
     /**
@@ -291,22 +360,79 @@ class ReportController extends Controller
      */
     public function outstanding(Request $request)
     {
-        $query = Invoice::query()->with('patient')
-            ->where('status', '!=', 'paid')
-            ->where('status', '!=', 'cancelled')
-            ->whereRaw('total - amount_paid > 0');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
 
-        if ($request->date_from) {
-            $query->whereDate('due_date', '>=', $request->date_from);
+        // 1. Unified Quick Filter Handling using clean string dates
+        if ($request->has('quick_filter')) {
+            switch ($request->input('quick_filter')) {
+                case 'today':
+                    $dateFrom = now()->startOfDay()->toDateString();
+                    $dateTo = now()->endOfDay()->toDateString();
+                    break;
+                case 'this_week':
+                    $dateFrom = now()->startOfWeek()->toDateString();
+                    $dateTo = now()->endOfWeek()->toDateString();
+                    break;
+                case 'this_month':
+                    $dateFrom = now()->startOfMonth()->toDateString();
+                    $dateTo = now()->endOfMonth()->toDateString();
+                    break;
+                case 'this_year':
+                    $dateFrom = now()->startOfYear()->toDateString();
+                    $dateTo = now()->endOfDay()->toDateString();
+                    break;
+            }
+        } else {
+            $dateFrom = $dateFrom ?? now()->startOfMonth()->toDateString();
+            $dateTo = $dateTo ?? now()->endOfMonth()->toDateString();
         }
-        if ($request->date_to) {
-            $query->whereDate('due_date', '<=', $request->date_to);
+
+        // 2. Formulate Base Query for Unpaid Balances (matches Dashboard KPI parity)
+        $baseQuery = Invoice::query()->with('patient')
+            ->whereIn('status', ['sent', 'partial', 'overdue'])
+            ->whereRaw('(total - amount_paid) > 0');
+
+        if ($dateFrom && $dateTo) {
+            $baseQuery->whereBetween(DB::raw('DATE(due_date)'), [$dateFrom, $dateTo]);
         }
 
-        $total_outstanding = (clone $query)->sum(DB::raw('total - amount_paid'));
-        $invoices = $query->orderBy('due_date')->paginate(50)->withQueryString();
+        // 3. Compute Financial Summary Aggregates
+        $calcCollection = (clone $baseQuery)->get();
 
-        return view('reports.outstanding', compact('invoices', 'total_outstanding'));
+        $total_outstanding = $calcCollection->sum(function ($inv) {
+            return $inv->total - $inv->amount_paid;
+        });
+
+        $overdue_invoices_count = $calcCollection->where('status', 'overdue')->count();
+        $total_pending_bills = $calcCollection->count();
+
+        $topDebtorGroup = $calcCollection->groupBy('patient_id')->map(function ($group) {
+            return [
+                'name'    => $group->first()->patient->name ?? __('messages.unassigned'),
+                'balance' => $group->sum(function ($inv) {
+                    return $inv->total - $inv->amount_paid;
+                }),
+            ];
+        })->sortByDesc('balance')->first();
+
+        $top_debtor_patient = $topDebtorGroup ? $topDebtorGroup['name'] : '—';
+
+        // 4. Paginated List
+        $invoices = $baseQuery->orderBy('due_date', 'asc')->paginate(50)->withQueryString();
+
+        $currencySymbol = Setting::get('currency_symbol', '$');
+
+        return view('reports.outstanding', compact(
+            'invoices',
+            'dateFrom',
+            'dateTo',
+            'total_outstanding',
+            'overdue_invoices_count',
+            'top_debtor_patient',
+            'total_pending_bills',
+            'currencySymbol'
+        ));
     }
 
     /**

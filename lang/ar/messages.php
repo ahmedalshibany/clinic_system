@@ -314,6 +314,9 @@ return [
     'invSettings' => 'الفواتير',
     'invSettingsDesc' => 'الضريبة، البادئات، الشروط',
     'clinicInfoSection' => 'معلومات العيادة',
+    'branding' => 'العلامة التجارية',
+    'contactDetails' => 'تفاصيل الاتصال',
+    'registration' => 'التسجيل',
     'clinicLogo' => 'شعار العيادة',
     'logoDimensions' => 'الحجم الموصى به: 300x100 بكسل. الحد الأقصى: 2 ميجابايت.',
     'clinicNameEn' => 'اسم العيادة (إنجليزي)',
@@ -584,4 +587,37 @@ return [
     'actionColumn' => 'الإجراء',
     'viewAction' => 'عرض',
     'overdueDate' => 'متأخر',
+    'total_appointments' => 'إجمالي المواعيد',
+    'top_doctor' => 'أفضل طبيب',
+    'attended_slots' => 'المواعيد المنفذة',
+    'highest_earner' => 'الأعلى دخلاً',
+    'active_doctors' => 'الأطباء النشطون',
+    'monitored' => 'تحت المراقبة',
+    'no_data_available' => 'لا توجد بيانات متاحة لهذه الفترة.',
+    'total_sales' => 'إجمالي المبيعات',
+    'items_sold' => 'الخدمات المباعة',
+    'top_service' => 'أفضل خدمة',
+    'active_services' => 'الخدمات النشطة',
+    'billed_amount' => 'المبلغ المفوتر',
+    'units_executed' => 'الوحدات المنفذة',
+    'highest_demand' => 'الأعلى طلباً',
+    'catalog_tracked' => 'متتبع بالسجل',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Outstanding Report Keys
+    |--------------------------------------------------------------------------
+    */
+    'total_outstanding'   => 'إجمالي المستحقات',
+    'uncollected_funds'   => 'الأموال غير المحصلة',
+    'overdue_invoices'    => 'الفواتير المتأخرة',
+    'past_due_date'       => 'تجاوزت تاريخ الاستحقاق',
+    'top_debtor'          => 'أكبر مدين',
+    'highest_balance'     => 'أعلى رصيد',
+    'pending_bills'       => 'الفواتير المعلقة',
+    'active_receivables'  => 'المستحقات النشطة',
+    'invoiceNumColumn'    => 'رقم الفاتورة',
+    'status_overdue'      => 'متأخر',
+    'status_partial'      => 'مدفوع جزئياً',
+    'status_sent'         => 'مرسل',
 ];

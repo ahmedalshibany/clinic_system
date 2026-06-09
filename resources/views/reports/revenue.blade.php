@@ -2,7 +2,7 @@
 
 @section('title', __('messages.revenue_report'))
 @section('page-title', __('messages.revenue_report'))
-@section('page-i18n', 'reports')
+@section('page-i18n', 'revenue_report')
 
 @section('content')
 <style>

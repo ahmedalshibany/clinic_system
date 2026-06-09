@@ -367,6 +367,7 @@ window.translations = {
         patientDemographicsDesc: "Age, gender, and registration trends.",
         appointmentsReport: "Appointments",
         appointmentsReportDesc: "Status summaries and no-show rates.",
+        revenueDoctorReport: "Revenue by Doctor",
 
         pendingInvoices: "Pending Invoices",
 
@@ -434,6 +435,7 @@ window.translations = {
         patientDemographicsDesc: "Age, gender, and registration trends.",
         appointmentsReport: "Appointments",
         appointmentsReportDesc: "Status summaries and no-show rates.",
+        revenueDoctorReport: "Revenue by Doctor",
 
         // Status & Chart Labels
         pending: "Pending",
@@ -896,6 +898,7 @@ window.translations = {
         patientDemographicsDesc: "العمر، الجنس، واتجاهات التسجيل.",
         appointmentsReport: "المواعيد",
         appointmentsReportDesc: "ملخصات الحالة ومعدلات التغيب.",
+        revenueDoctorReport: "الدخل حسب الطبيب",
 
         pendingInvoices: "الفواتير المعلقة",
 
@@ -963,6 +966,7 @@ window.translations = {
         patientDemographicsDesc: "العمر، الجنس، واتجاهات التسجيل.",
         appointmentsReport: "المواعيد",
         appointmentsReportDesc: "ملخصات الحالة ومعدلات التغيب.",
+        revenueDoctorReport: "الدخل حسب الطبيب",
 
         // Status & Chart Labels
         pending: "مستحق / معلق",
