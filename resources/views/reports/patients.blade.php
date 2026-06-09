@@ -1,14 +1,11 @@
 @extends('layouts.dashboard')
-@section('title', __('messages.reports') . ' / ' . __('messages.patients'))
-@section('page-title', __('messages.reports') . ' / ' . __('messages.patients'))
+@section('title', __('messages.patients_report'))
+@section('page-title', __('messages.patients_report'))
+@section('page-i18n', 'patients_report')
 @section('content')
 <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary mb-3">
     <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToReports') }}
 </a>
-
-<h4 class="fw-bold mb-4" style="color: var(--text-primary);">
-    {{ __('messages.patientDemographics') }}
-</h4>
 <div class="row">
     <div class="col-md-6">
         <div class="card border-0 shadow-sm mb-4">

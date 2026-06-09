@@ -1,6 +1,7 @@
 @extends('layouts.dashboard')
-@section('title', __('messages.reports') . ' / ' . __('messages.outstandingInvoices'))
-@section('page-title', __('messages.reports') . ' / ' . __('messages.outstandingInvoices'))
+@section('title', __('messages.outstanding_report'))
+@section('page-title', __('messages.outstanding_report'))
+@section('page-i18n', 'outstanding_report')
 @section('content')
 <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary mb-3">
     <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToReports') }}

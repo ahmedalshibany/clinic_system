@@ -181,10 +181,9 @@
     color var(--duration-base) var(--ease-out);
 }
 
-.report-action-link:hover {
+.report-action-plate:hover .report-action-link {
   gap: var(--space-md);
   color: var(--secondary-light);
-  text-decoration: none;
 }
 
 .report-action-link i {
@@ -192,7 +191,7 @@
   transition: transform var(--duration-base) var(--ease-out);
 }
 
-.report-action-link:hover i {
+.report-action-plate:hover .report-action-link i {
   transform: translateX(3px);
 }
 
@@ -200,7 +199,7 @@
   transform: scaleX(-1);
 }
 
-[dir="rtl"] .report-action-link:hover i.fa-arrow-right {
+[dir="rtl"] .report-action-plate:hover .report-action-link i.fa-arrow-right {
   transform: scaleX(-1) translateX(-3px);
 }
 
@@ -238,10 +237,10 @@
   .reports-interactive-card:hover {
     transform: none !important;
   }
-  .report-action-link:hover {
+  .report-action-plate:hover .report-action-link {
     gap: var(--space-sm);
   }
-  .report-action-link:hover i {
+  .report-action-plate:hover .report-action-link i {
     transform: none;
   }
 }
@@ -322,7 +321,7 @@
   color: #2aa88a;
 }
 
-[data-theme="dark"] .report-action-link:hover {
+[data-theme="dark"] .report-action-plate:hover .report-action-link {
   color: #34c4a3;
 }
 

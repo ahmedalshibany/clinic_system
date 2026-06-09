@@ -2,6 +2,7 @@
 
 @section('title', __('messages.reports'))
 @section('page-title', __('messages.reports'))
+@section('page-i18n', 'reports')
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/reports.css') }}?v={{ filemtime(public_path('css/reports.css')) }}">
@@ -165,61 +166,61 @@
         </div>
 
         <div class="report-card-grid">
-            <a href="{{ route('reports.revenue') }}" class="reports-interactive-card report-card-revenue text-decoration-none">
+            <div class="reports-interactive-card report-card-revenue">
                 <div class="report-card-icon">
                     <i class="fas fa-money-bill-wave"></i>
                 </div>
                 <h6>{{ __('messages.revenueReport') }}</h6>
                 <p>{{ __('messages.revenueReportDesc') }}</p>
-                <div class="report-action-plate">
+                <a href="{{ route('reports.revenue') }}" class="report-action-plate text-decoration-none">
                     <span class="report-action-link">
                         {{ __('messages.viewReport') }}
                         <i class="fas fa-arrow-right"></i>
                     </span>
-                </div>
-            </a>
+                </a>
+            </div>
 
-            <a href="{{ route('reports.revenue.doctor') }}" class="reports-interactive-card report-card-doctor text-decoration-none">
+            <div class="reports-interactive-card report-card-doctor">
                 <div class="report-card-icon">
                     <i class="fas fa-user-md"></i>
                 </div>
                 <h6>{{ __('messages.incomeByDoctor') }}</h6>
                 <p>{{ __('messages.incomeByDoctorDesc') }}</p>
-                <div class="report-action-plate">
+                <a href="{{ route('reports.revenue.doctor') }}" class="report-action-plate text-decoration-none">
                     <span class="report-action-link">
                         {{ __('messages.viewReport') }}
                         <i class="fas fa-arrow-right"></i>
                     </span>
-                </div>
-            </a>
+                </a>
+            </div>
 
-            <a href="{{ route('reports.revenue.service') }}" class="reports-interactive-card report-card-service text-decoration-none">
+            <div class="reports-interactive-card report-card-service">
                 <div class="report-card-icon">
                     <i class="fas fa-briefcase-medical"></i>
                 </div>
                 <h6>{{ __('messages.salesByService') }}</h6>
                 <p>{{ __('messages.salesByServiceDesc') }}</p>
-                <div class="report-action-plate">
+                <a href="{{ route('reports.revenue.service') }}" class="report-action-plate text-decoration-none">
                     <span class="report-action-link">
                         {{ __('messages.viewReport') }}
                         <i class="fas fa-arrow-right"></i>
                     </span>
-                </div>
-            </a>
+                </a>
+            </div>
 
-            <a href="{{ route('reports.outstanding') }}" class="reports-interactive-card report-card-outstanding text-decoration-none">
+            <div class="reports-interactive-card report-card-outstanding">
                 <div class="report-card-icon">
                     <i class="fas fa-exclamation-circle"></i>
                 </div>
                 <h6>{{ __('messages.outstandingReport') }}</h6>
                 <p>{{ __('messages.outstandingReportDesc') }}</p>
-                <div class="report-action-plate">
+                <a href="{{ route('reports.outstanding') }}" class="report-action-plate text-decoration-none">
                     <span class="report-action-link">
                         {{ __('messages.viewReport') }}
                         <i class="fas fa-arrow-right"></i>
                     </span>
-                </div>
-            </a>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -231,33 +232,33 @@
         </div>
 
         <div class="report-card-grid">
-            <a href="{{ route('reports.patients') }}" class="reports-interactive-card report-card-patients text-decoration-none">
+            <div class="reports-interactive-card report-card-patients">
                 <div class="report-card-icon">
                     <i class="fas fa-users"></i>
                 </div>
                 <h6>{{ __('messages.patientDemographics') }}</h6>
                 <p>{{ __('messages.patientDemographicsDesc') }}</p>
-                <div class="report-action-plate">
+                <a href="{{ route('reports.patients') }}" class="report-action-plate text-decoration-none">
                     <span class="report-action-link">
                         {{ __('messages.viewReport') }}
                         <i class="fas fa-arrow-right"></i>
                     </span>
-                </div>
-            </a>
+                </a>
+            </div>
 
-            <a href="{{ route('reports.appointments') }}" class="reports-interactive-card report-card-appointments text-decoration-none">
+            <div class="reports-interactive-card report-card-appointments">
                 <div class="report-card-icon">
                     <i class="fas fa-calendar-check"></i>
                 </div>
                 <h6>{{ __('messages.appointmentsReport') }}</h6>
                 <p>{{ __('messages.appointmentsReportDesc') }}</p>
-                <div class="report-action-plate">
+                <a href="{{ route('reports.appointments') }}" class="report-action-plate text-decoration-none">
                     <span class="report-action-link">
                         {{ __('messages.viewReport') }}
                         <i class="fas fa-arrow-right"></i>
                     </span>
-                </div>
-            </a>
+                </a>
+            </div>
         </div>
     </div>
 

@@ -1,6 +1,7 @@
 @extends('layouts.dashboard')
-@section('title', __('messages.reports') . ' / ' . __('messages.salesByServiceTitle'))
-@section('page-title', __('messages.reports') . ' / ' . __('messages.salesByServiceTitle'))
+@section('title', __('messages.revenue_service_report'))
+@section('page-title', __('messages.revenue_service_report'))
+@section('page-i18n', 'reports')
 @section('content')
 <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary mb-3">
     <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToReports') }}
@@ -18,7 +19,7 @@
                 <tr>
                     <td>{{ $row->service_name }}</td>
                     <td>{{ $row->total_qty }}</td>
-                    <td class="text-end fw-bold text-primary">{{ $currencySymbol }}{{ number_format($row->total_sales, 2) }}</td>
+                    <td class="text-end fw-bold text-primary text-nowrap">{{ $currencySymbol }}{{ number_format($row->total_sales, 2) }}</td>
                 </tr>
                 @empty
                 <tr>

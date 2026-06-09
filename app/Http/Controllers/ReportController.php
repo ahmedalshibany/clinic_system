@@ -44,9 +44,33 @@ class ReportController extends Controller
      */
     public function revenue(Request $request)
     {
-        // Date Filters
-        $dateFrom = $request->date_from ?? now()->startOfMonth()->toDateString();
-        $dateTo = $request->date_to ?? now()->endOfMonth()->toDateString();
+        // Date Filters with quick_filter support
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+
+        if ($request->has('quick_filter')) {
+            switch ($request->input('quick_filter')) {
+                case 'today':
+                    $dateFrom = now()->startOfDay()->toDateString();
+                    $dateTo = now()->endOfDay()->toDateString();
+                    break;
+                case 'this_week':
+                    $dateFrom = now()->startOfWeek()->toDateString();
+                    $dateTo = now()->endOfWeek()->toDateString();
+                    break;
+                case 'this_month':
+                    $dateFrom = now()->startOfMonth()->toDateString();
+                    $dateTo = now()->endOfMonth()->toDateString();
+                    break;
+                case 'this_year':
+                    $dateFrom = now()->startOfYear()->toDateString();
+                    $dateTo = now()->endOfYear()->toDateString();
+                    break;
+            }
+        } else {
+            $dateFrom = $dateFrom ?? now()->startOfMonth()->toDateString();
+            $dateTo = $dateTo ?? now()->endOfMonth()->toDateString();
+        }
 
         // Base Query
         $baseQuery = Payment::query()
@@ -113,11 +137,20 @@ class ReportController extends Controller
             ->groupBy('category')
             ->get();
 
+        $pending_amount = $invoices_stats->pending_amount;
+        $total_invoices = $invoices_stats->count;
+
+        if ($total_revenue <= 0 || $total_invoices <= 0) {
+            $avg_invoice = 0.00;
+        } else {
+            $avg_invoice = $total_revenue / $total_invoices;
+        }
+
         return view('reports.revenue', compact(
             'payments', 'total_revenue', 'revenue_by_method', 
             'invoices_stats', 'paid_percentage', 
             'chart_labels', 'chart_data', 'revenue_by_category',
-            'dateFrom', 'dateTo'
+            'dateFrom', 'dateTo', 'pending_amount', 'avg_invoice', 'total_invoices'
         ));
     }
 
@@ -133,14 +166,15 @@ class ReportController extends Controller
         // Or simpler: Invoices created by doctors (if doctors create them) OR Invoices linked to appointments with doctors.
         // Let's assume Appointment -> Doctor link is the source of truth for "Who earned this".
         
+        $unassigned = __('messages.unassigned');
         $data = DB::table('payments')
             ->join('invoices', 'payments.invoice_id', '=', 'invoices.id')
-            ->join('appointments', 'invoices.appointment_id', '=', 'appointments.id')
-            ->join('doctors', 'appointments.doctor_id', '=', 'doctors.id')
-            ->join('users', 'doctors.user_id', '=', 'users.id')
+            ->leftJoin('appointments', 'invoices.appointment_id', '=', 'appointments.id')
+            ->leftJoin('doctors', 'appointments.doctor_id', '=', 'doctors.id')
+            ->leftJoin('users', 'doctors.user_id', '=', 'users.id')
             ->whereBetween('payments.payment_date', [$dateFrom, $dateTo])
             ->select(
-                'users.name as doctor_name',
+                DB::raw('COALESCE(users.name, "' . $unassigned . '") as doctor_name'),
                 DB::raw('SUM(payments.amount) as total_earned'),
                 DB::raw('COUNT(DISTINCT appointments.id) as appointment_count')
             )
@@ -296,8 +330,12 @@ class ReportController extends Controller
             
             if ($report === 'revenue') {
                 fputcsv($file, ['Date', 'Invoice #', 'Patient', 'Method', 'Amount']);
-                // Re-run query (simplified for stream)
-                $payments = Payment::with('invoice.patient')->get(); // Filters should be applied
+                $from = $request->date_from ?? now()->startOfMonth()->toDateString();
+                $to   = $request->date_to   ?? now()->endOfMonth()->toDateString();
+                $payments = Payment::with('invoice.patient')
+                    ->whereDate('payment_date', '>=', $from)
+                    ->whereDate('payment_date', '<=', $to)
+                    ->get();
                 foreach ($payments as $p) {
                     fputcsv($file, [
                         $p->payment_date->format('Y-m-d'),

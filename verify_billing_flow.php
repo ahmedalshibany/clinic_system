@@ -17,17 +17,11 @@ View::share('errors', new MessageBag());
 echo "--- STARTING HEADLESS VERIFICATION: RECEPTIONIST BILLING ---\n";
 
 // 1. Simulate Login
-$user = User::where('email', 'receptionist_amy@clinic.com')->first();
-if (!$user) {
-    die("❌ Error: Receptionist Amy not found.\n");
-}
+$user = User::firstOrCreate(['username' => 'receptionist_amy'], ['name' => 'Amy', 'password' => Hash::make('password'), 'role' => 'receptionist']);
 Auth::login($user);
 echo "✅ Logged in as: " . $user->name . " (" . $user->role . ")\n";
 
-// 2. Check Dashboard Logic (Controller)
-$controller = new \App\Http\Controllers\DashboardController();
-// We can't easily capture the return of the controller action without Request, 
-// so let's reproduce the query logic to verify the data state.
+// 2. Check Dashboard Logic
 $readyToBillCount = Appointment::where('status', 'completed')
     ->doesntHave('invoice')
     ->count();
@@ -64,7 +58,10 @@ $viewData = [
     'weeklyData' => [],
     'todayRevenue' => 0, 'newPatientsMonth' => 0, 
     'pendingInvoicesCount' => 0, 'pendingInvoicesAmount' => 0,
-    'waitingPatients' => 0, 'weekAppointments' => 0, 'monthAppointments' => 0
+    'waitingPatients' => 0, 'weekAppointments' => 0, 'monthAppointments' => 0,
+    'monthlyRevenue' => ['labels' => [], 'revenue' => []],
+    'statusBreakdown' => ['pending' => 0, 'confirmed' => 0, 'completed' => 0, 'cancelled' => 0],
+    'totalDoctors' => 0, 'totalPatients' => 0
 ];
 
 $dashboardHtml = view('dashboard', $viewData)->render();

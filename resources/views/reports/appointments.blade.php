@@ -1,15 +1,12 @@
 @extends('layouts.dashboard')
-@section('title', __('messages.reports') . ' / ' . __('messages.appointmentsReport'))
-@section('page-title', __('messages.reports') . ' / ' . __('messages.appointmentsReport'))
+@section('title', __('messages.appointments_report'))
+@section('page-title', __('messages.appointments_report'))
+@section('page-i18n', 'appointments_report')
 @section('content')
 
 <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary mb-3">
     <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToReports') }}
 </a>
-
-<h4 class="fw-bold mb-4" style="color: var(--text-primary);">
-    {{ __('messages.appointmentsReport') }}
-</h4>
 
 <!-- Action Toolbar -->
 <div class="action-toolbar d-flex gap-3 flex-wrap align-items-center justify-content-between mb-4 fade-in">
@@ -117,11 +114,4 @@
     </div>
 </div>
 
-<style>
-i.fa-arrow-right, .backend-direction-icon {
-    max-width: 20px !important;
-    max-height: 20px !important;
-    font-size: var(--text-sm, 0.875rem) !important;
-}
-</style>
 @endsection
