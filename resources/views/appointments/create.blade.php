@@ -171,7 +171,7 @@
 
                     <div class="d-flex justify-content-end gap-3 mt-4">
                         <a href="{{ smartBack('appointments.index') }}" class="btn btn-light">{{ __('messages.cancel') }}</a>
-                        <button type="submit" class="btn btn-primary px-4">{{ __('messages.createAppt') }}</button>
+                        <button type="submit" class="btn btn-primary px-4"><i class="fas fa-calendar-plus me-2"></i>{{ __('messages.createAppt') }}</button>
                     </div>
                 </form>
             </div>

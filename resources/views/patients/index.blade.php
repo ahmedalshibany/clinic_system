@@ -26,7 +26,7 @@
             value="{{ request('search') }}" data-i18n-placeholder="searchPatients">
     </form>
 
-    <a href="{{ route('patients.create') }}" class="btn btn-primary d-flex align-items-center gap-2 ms-auto">
+    <a href="{{ route('patients.create') }}" class="btn btn-primary d-inline-flex align-items-center gap-2 ms-auto">
         <i class="fas fa-plus"></i>
         <span data-i18n="addPatient">Add Patient</span>
     </a>

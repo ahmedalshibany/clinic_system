@@ -63,9 +63,9 @@
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2 mt-4">
+                    <div class="d-flex justify-content-end gap-3 mt-4">
                         <a href="{{ route('services.index') }}" class="btn btn-light">{{ __('messages.cancel') }}</a>
-                        <button type="submit" class="btn btn-primary">{{ __('messages.saveService') }}</button>
+                        <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>{{ __('messages.saveService') }}</button>
                     </div>
                 </form>
             </div>

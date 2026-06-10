@@ -93,12 +93,9 @@
                             </div>
                         </div>
 
-                        <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('messages.createUser') }}
-                                </button>
-                            </div>
+                        <div class="d-flex justify-content-end gap-3 mb-5">
+                            <a href="{{ route('users.index') }}" class="btn btn-light">{{ __('messages.cancel') }}</a>
+                            <button type="submit" class="btn btn-primary px-4"><i class="fas fa-user-plus me-2"></i>{{ __('messages.createUser') }}</button>
                         </div>
                     </form>
                 </div>

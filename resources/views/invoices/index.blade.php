@@ -28,7 +28,7 @@
         <input type="date" name="date_to" class="form-control" style="width: auto;" value="{{ request('date_to') }}" data-i18n-placeholder="toDate">
     </form>
 
-    <a href="{{ route('invoices.create') }}" class="btn btn-primary d-flex align-items-center gap-2">
+    <a href="{{ route('invoices.create') }}" class="btn btn-primary d-inline-flex align-items-center gap-2">
         <i class="fas fa-plus"></i>
         <span data-i18n="createInvoice">{{ __('messages.createInvoice') }}</span>
     </a>

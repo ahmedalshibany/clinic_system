@@ -92,9 +92,9 @@
                             @enderror
                         </div>
 
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ smartBack('appointments.show', $appointment) }}" class="btn btn-secondary">{{ __('messages.cancel') }}</a>
-                            <button type="submit" class="btn btn-primary">{{ __('messages.saveVitals') }}</button>
+                        <div class="d-flex justify-content-end gap-3">
+                            <a href="{{ smartBack('appointments.show', $appointment) }}" class="btn btn-light">{{ __('messages.cancel') }}</a>
+                            <button type="submit" class="btn btn-primary px-4"><i class="fas fa-heartbeat me-2"></i>{{ __('messages.saveVitals') }}</button>
                         </div>
                     </form>
                 </div>
