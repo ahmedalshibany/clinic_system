@@ -30,12 +30,17 @@
             <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ request('search') }}">
         </div>
 
-        <select name="status" class="form-select" style="width: auto;" onchange="this.form.submit()">
+        <select name="status" class="form-select" style="width: auto; border-radius: var(--radius-sm, 6px); border-color: var(--border-hairline, rgba(26,26,26,0.04));" onchange="this.form.submit()">
             <option value="all" {{ request('status') == 'all' ? 'selected' : '' }} data-i18n="allStatus">All Status</option>
-            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }} data-i18n="pending">Pending</option>
-            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }} data-i18n="confirmed">Confirmed</option>
-            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }} data-i18n="completed">Completed</option>
-            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }} data-i18n="cancelled">Cancelled</option>
+            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }} data-i18n="status_pending">Pending</option>
+            <option value="scheduled" {{ request('status') == 'scheduled' ? 'selected' : '' }} data-i18n="status_scheduled">Scheduled</option>
+            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }} data-i18n="status_confirmed">Confirmed</option>
+            <option value="waiting" {{ request('status') == 'waiting' ? 'selected' : '' }} data-i18n="status_waiting">Waiting</option>
+            <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }} data-i18n="status_in_progress">In Progress</option>
+            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }} data-i18n="status_completed">Completed</option>
+            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }} data-i18n="status_cancelled">Cancelled</option>
+            <option value="no_show" {{ request('status') == 'no_show' ? 'selected' : '' }} data-i18n="status_no_show">No Show</option>
+            <option value="checked_in" {{ request('status') == 'checked_in' ? 'selected' : '' }} data-i18n="status_checked_in">Checked In</option>
         </select>
 
         <input type="date" name="date" class="form-control" style="width: auto;" value="{{ request('date') }}" onchange="this.form.submit()">
@@ -68,13 +73,17 @@
                     @forelse($appointments as $appointment)
                         @php
                             $statusColors = [
-                                'pending' => 'warning',
-                                'confirmed' => 'success',
-                                'checked_in' => 'primary',
-                                'completed' => 'info',
-                                'cancelled' => 'danger'
+                                'pending' => ['bg' => 'rgba(191, 140, 48, 0.1)', 'text' => '#bf8c30'],
+                                'scheduled' => ['bg' => 'rgba(15, 61, 62, 0.08)', 'text' => '#0f3d3e'],
+                                'confirmed' => ['bg' => 'rgba(46, 93, 52, 0.1)', 'text' => '#2e5d34'],
+                                'checked_in' => ['bg' => 'rgba(61, 90, 128, 0.1)', 'text' => '#3d5a80'],
+                                'waiting' => ['bg' => 'rgba(191, 140, 48, 0.1)', 'text' => '#bf8c30'],
+                                'in_progress' => ['bg' => 'rgba(26, 26, 46, 0.08)', 'text' => '#1a1a2e'],
+                                'completed' => ['bg' => 'rgba(85, 85, 85, 0.1)', 'text' => '#555555'],
+                                'cancelled' => ['bg' => 'rgba(139, 58, 58, 0.1)', 'text' => '#8b3a3a'],
+                                'no_show' => ['bg' => 'rgba(139, 58, 58, 0.06)', 'text' => '#8b3a3a'],
                             ];
-                            $badgeColor = $statusColors[$appointment->status] ?? 'secondary';
+                            $badge = $statusColors[$appointment->status] ?? ['bg' => 'rgba(85, 85, 85, 0.08)', 'text' => '#555555'];
                         @endphp
                         <tr>
                             <td class="ps-4 fw-bold text-secondary">{{ $appointment->id }}</td>
@@ -99,7 +108,7 @@
                                 @endif
                             </td>
                             <td>
-                                <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} px-3 py-2 rounded-pill">
+                                <span style="display: inline-block; padding: 4px 12px; border-radius: var(--radius-sm, 6px); font-size: var(--text-sm, 0.875rem); font-weight: 600; background-color: {{ $badge['bg'] }}; color: {{ $badge['text'] }};">
                                     {{ __("messages.{$appointment->status}") }}
                                 </span>
                             </td>

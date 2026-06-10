@@ -138,10 +138,7 @@ class AppointmentController extends Controller
             return back()->with('error', __('messages.reopenVitalsError'));
         }
 
-        $appointment->update([
-            'vitals_unlocked' => true,
-            'status' => 'pending',
-        ]);
+        $this->appointmentService->reopenVitals($appointment);
         return back()->with('success', 'Vitals re-opened for nurse triage.');
     }
 

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -104,15 +105,23 @@ class AppointmentService
         DB::beginTransaction();
 
         try {
-            // 4. Check for conflicts
-            $conflict = Appointment::where('doctor_id', $data['doctor_id'])
-                ->whereDate('date', $data['date'])
-                ->whereTime('time', Carbon::parse($data['time'])->format('H:i:s'))
-                ->whereNotIn('status', ['cancelled'])
-                ->lockForUpdate()
-                ->exists();
+            // 4. Check for conflicts — duration-aware overlap + no_show/cancelled unlock
+            $slotDuration = (int) Setting::get('appointment_slot_duration', 30);
+            $newStart = Carbon::parse($data['date'] . ' ' . $data['time']);
+            $newEnd = (clone $newStart)->addMinutes($slotDuration);
 
-            if ($conflict) {
+            $hasOverlap = Appointment::where('doctor_id', $data['doctor_id'])
+                ->whereDate('date', $data['date'])
+                ->whereNotIn('status', ['cancelled', 'no_show'])
+                ->lockForUpdate()
+                ->get()
+                ->contains(function ($existing) use ($newStart, $newEnd) {
+                    $existingStart = Carbon::parse($existing->date->format('Y-m-d') . ' ' . $existing->time->format('H:i:s'));
+                    $existingEnd = (clone $existingStart)->addMinutes((int) Setting::get('appointment_slot_duration', 30));
+                    return max($newStart->timestamp, $existingStart->timestamp) < min($newEnd->timestamp, $existingEnd->timestamp);
+                });
+
+            if ($hasOverlap) {
                 throw new Exception(__('messages.timeSlotBooked'));
             }
 
@@ -198,17 +207,25 @@ class AppointmentService
             }
         }
 
-        // 4. Check for conflicts with lock (excluding current appointment)
+        // 4. Check for conflicts with lock (excluding current appointment) — overlap-aware + no_show unlock
         if ($timeChanged) {
-            $conflict = Appointment::where('doctor_id', $data['doctor_id'])
-                ->whereDate('date', $data['date'])
-                ->whereTime('time', Carbon::parse($data['time'])->format('H:i:s'))
-                ->where('id', '!=', $appointment->id)
-                ->whereNotIn('status', ['cancelled'])
-                ->lockForUpdate()
-                ->exists();
+            $slotDuration = (int) Setting::get('appointment_slot_duration', 30);
+            $newStart = Carbon::parse($data['date'] . ' ' . $data['time']);
+            $newEnd = (clone $newStart)->addMinutes($slotDuration);
 
-            if ($conflict) {
+            $hasOverlap = Appointment::where('doctor_id', $data['doctor_id'])
+                ->whereDate('date', $data['date'])
+                ->where('id', '!=', $appointment->id)
+                ->whereNotIn('status', ['cancelled', 'no_show'])
+                ->lockForUpdate()
+                ->get()
+                ->contains(function ($existing) use ($newStart, $newEnd) {
+                    $existingStart = Carbon::parse($existing->date->format('Y-m-d') . ' ' . $existing->time->format('H:i:s'));
+                    $existingEnd = (clone $existingStart)->addMinutes((int) Setting::get('appointment_slot_duration', 30));
+                    return max($newStart->timestamp, $existingStart->timestamp) < min($newEnd->timestamp, $existingEnd->timestamp);
+                });
+
+            if ($hasOverlap) {
                throw new Exception(__('messages.timeSlotBooked'));
             }
         }
@@ -299,5 +316,19 @@ class AppointmentService
             DB::rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * Re-open vitals for an appointment — routes through service layer.
+     *
+     * @param Appointment $appointment
+     * @return bool
+     */
+    public function reopenVitals(Appointment $appointment): bool
+    {
+        return $appointment->update([
+            'vitals_unlocked' => true,
+            'status' => 'pending',
+        ]);
     }
 }
