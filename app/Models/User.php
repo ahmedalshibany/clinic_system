@@ -24,27 +24,19 @@ class User extends Authenticatable
         'role',
         'password',
         'is_active',
+        'password_change_required',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
+        'password_change_required' => 'boolean',
     ];
 
     /**

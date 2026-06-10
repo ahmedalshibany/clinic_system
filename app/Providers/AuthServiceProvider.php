@@ -9,6 +9,7 @@ use App\Models\MedicalRecord;
 use App\Models\Patient;
 use App\Models\Service;
 use App\Models\Setting;
+use App\Models\User;
 use App\Models\Vital;
 use App\Policies\AppointmentPolicy;
 use App\Policies\DoctorPolicy;
@@ -17,6 +18,7 @@ use App\Policies\MedicalRecordPolicy;
 use App\Policies\PatientPolicy;
 use App\Policies\ServicePolicy;
 use App\Policies\SettingPolicy;
+use App\Policies\UserPolicy;
 use App\Policies\VitalPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -31,6 +33,7 @@ class AuthServiceProvider extends ServiceProvider
         Service::class => ServicePolicy::class,
         Setting::class => SettingPolicy::class,
         Vital::class => VitalPolicy::class,
+        User::class => UserPolicy::class,
     ];
 
     public function boot(): void

@@ -7,24 +7,24 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UserController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // Simple index to prevent errors if visited
+        $this->authorize('viewAny', User::class);
+
         $users = User::paginate(10);
-        // If the view doesn't exist, we might want to return something else, but let's assume index exists or just return data for now
-        // Or render the index view if it existed. The user mentioned index.blade.php.
-        // Wait, I couldn't find index.blade.php earlier. I should probably create a placeholder or just return json/text if view is missing?
-        // But the user's primary goal is CREATION.
+
         if (view()->exists('users.index')) {
             return view('users.index', compact('users'));
         }
-        return response()->json($users); // Fallback
+        return response()->json($users);
     }
 
     /**
@@ -32,6 +32,8 @@ class UserController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', User::class);
+
         return view('users.create');
     }
 
@@ -40,6 +42,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', User::class);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
@@ -64,11 +68,15 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
+        $this->authorize('update', $user);
+
         return view('users.edit', compact('user'));
     }
 
     public function update(Request $request, User $user)
     {
+        $this->authorize('update', $user);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
@@ -91,9 +99,7 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        if (auth()->id() === $user->id) {
-            return back()->with('error', 'You cannot delete your own account.');
-        }
+        $this->authorize('delete', $user);
 
         try {
             $user->delete();
@@ -107,9 +113,7 @@ class UserController extends Controller
 
     public function toggleActive(User $user)
     {
-        if (auth()->id() === $user->id) {
-            return redirect()->back()->with('error', __('messages.cannot_deactivate_self'));
-        }
+        $this->authorize('toggleActive', $user);
 
         $user->update([
             'is_active' => !$user->is_active
@@ -120,6 +124,8 @@ class UserController extends Controller
 
     public function resetPassword(User $user)
     {
+        $this->authorize('resetPassword', $user);
+
         $defaultPassword = 'Password123!';
 
         $user->update([
