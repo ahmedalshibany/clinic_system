@@ -78,6 +78,16 @@
         height: 8px !important;
         overflow: hidden !important;
     }
+    .davinci-gradient-divider {
+        height: 1px;
+        background: linear-gradient(to right, transparent, var(--border-light), transparent);
+    }
+    .pagination-arrow {
+        display: inline-block;
+    }
+    [dir="rtl"] .pagination-arrow {
+        transform: scaleX(-1);
+    }
 </style>
 
 <div class="demographics-actions-row">
@@ -151,7 +161,7 @@
 
 <div class="demographics-charts-grid">
     <div class="card border-0 p-4 shadow-sm" style="border-radius: 16px; background: var(--white);">
-        <h6 class="text-secondary fw-bold mb-3 pb-1 border-bottom text-sm"><i class="fas fa-venus-mars ml-2 text-muted"></i>{{ __('messages.gender_distribution') }}</h6>
+        <h6 class="text-secondary fw-bold mb-3 pb-1 border-bottom text-sm">{{ __('messages.gender_distribution') }}</h6>
         <div class="d-flex flex-column gap-3 mt-2">
             @foreach(['male' => ['#2b5c8f', 'Male'], 'female' => ['#b85c7b', 'Female']] as $key => $props)
                 @php
@@ -171,7 +181,7 @@
         </div>
     </div>
     <div class="card border-0 p-4 shadow-sm" style="border-radius: 16px; background: var(--white);">
-        <h6 class="text-secondary fw-bold mb-3 pb-1 border-bottom text-sm"><i class="fas fa-baby-carriage ml-2 text-muted"></i>{{ __('messages.age_groups') }}</h6>
+        <h6 class="text-secondary fw-bold mb-3 pb-1 border-bottom text-sm">{{ __('messages.age_groups') }}</h6>
         <div class="d-flex flex-column gap-2" style="max-height: 180px; overflow-y: auto;">
             @foreach(['Child' => '#4caf50', 'Adult' => '#ff9800', 'Senior' => '#f44336', 'Unknown' => '#9e9e9e'] as $group => $color)
                 @php
@@ -191,7 +201,7 @@
         </div>
     </div>
     <div class="card border-0 p-4 shadow-sm" style="border-radius: 16px; background: var(--white);">
-        <h6 class="text-secondary fw-bold mb-3 pb-1 border-bottom text-sm"><i class="fas fa-map-marker-alt ml-2 text-muted"></i>{{ __('messages.geo_distribution') }}</h6>
+        <h6 class="text-secondary fw-bold mb-3 pb-1 border-bottom text-sm">{{ __('messages.geo_distribution') }}</h6>
         <div class="d-flex flex-column gap-2">
             @forelse($locationQuery as $loc)
                 @php $pct = $total_patients_count > 0 ? ($loc->total / $total_patients_count) * 100 : 0; @endphp
@@ -213,7 +223,7 @@
 
 <div class="card border-0 shadow-sm" style="border-radius: 16px;">
     <div class="card-header border-0 bg-transparent pt-4 px-4">
-        <h6 class="card-title fw-bold text-dark mb-0 text-sm"><i class="fas fa-history ml-2 text-muted"></i>{{ __('messages.recent_registrations') }}</h6>
+        <h6 class="card-title fw-bold text-dark mb-0 text-sm">{{ __('messages.recent_registrations') }}</h6>
     </div>
     <div class="card-body p-4 pt-2">
         <div class="table-responsive">
@@ -252,6 +262,26 @@
                 </tbody>
             </table>
         </div>
+        @if($patients->hasPages())
+            <div class="davinci-gradient-divider"></div>
+            <div class="pagination-controls" style="border-top: none;">
+                <div class="pagination-info">
+                    <span>{{ __('messages.showing') }}</span> <strong>{{ $patients->firstItem() }}-{{ $patients->lastItem() }}</strong> <span>{{ __('messages.of') }}</span> <strong>{{ $patients->total() }}</strong>
+                </div>
+                <div class="pagination-buttons">
+                    @if($patients->onFirstPage())
+                        <button disabled><i class="fas fa-chevron-left pagination-arrow"></i> <span>{{ __('messages.previous') }}</span></button>
+                    @else
+                        <a href="{{ $patients->previousPageUrl() }}" class="btn btn-light btn-sm"><i class="fas fa-chevron-left pagination-arrow"></i> <span>{{ __('messages.previous') }}</span></a>
+                    @endif
+                    @if($patients->hasMorePages())
+                        <a href="{{ $patients->nextPageUrl() }}" class="btn btn-light btn-sm"><span>{{ __('messages.next') }}</span> <i class="fas fa-chevron-right pagination-arrow"></i></a>
+                    @else
+                        <button disabled><span>{{ __('messages.next') }}</span> <i class="fas fa-chevron-right pagination-arrow"></i></button>
+                    @endif
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 

@@ -363,7 +363,7 @@ class ReportController extends Controller
         $total_female_count   = $genderQuery->where('gender', 'female')->first()->total ?? 0;
 
         // Recent registrations collection block for listing section
-        $patients = $baseQuery->orderBy('created_at', 'desc')->limit(10)->get();
+        $patients = $baseQuery->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
         return view('reports.patients', compact(
             'patients', 'gender_stats', 'age_groups', 'locationQuery',
@@ -377,34 +377,75 @@ class ReportController extends Controller
      */
     public function appointments(Request $request)
     {
-        $query = Appointment::query()->with('doctor', 'patient');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $doctorId = $request->input('doctor_id');
+        $status = $request->input('status');
 
-        if ($request->date_from) {
-            $query->whereDate('date', '>=', $request->date_from);
+        // 1. Unified Quick Filter Handling using strict string dates
+        // Default to current month when no filter or date range is specified
+        if (!$request->has('quick_filter') && !$dateFrom && !$dateTo) {
+            $request->merge(['quick_filter' => 'this_month']);
         }
-        if ($request->date_to) {
-            $query->whereDate('date', '<=', $request->date_to);
+        if ($request->has('quick_filter')) {
+            switch ($request->input('quick_filter')) {
+                case 'today':
+                    $dateFrom = now()->startOfDay()->toDateString();
+                    $dateTo = now()->endOfDay()->toDateString();
+                    break;
+                case 'this_week':
+                    $dateFrom = now()->startOfWeek()->toDateString();
+                    $dateTo = now()->endOfWeek()->toDateString();
+                    break;
+                case 'this_month':
+                    $dateFrom = now()->startOfMonth()->toDateString();
+                    $dateTo = now()->endOfMonth()->toDateString();
+                    break;
+                case 'this_year':
+                    $dateFrom = now()->startOfYear()->toDateString();
+                    $dateTo = now()->endOfDay()->toDateString();
+                    break;
+            }
         }
-        if ($request->doctor_id) {
-            $query->where('doctor_id', $request->doctor_id);
+
+        // 2. Base Query Formulation with eager loading
+        $baseQuery = \App\Models\Appointment::query()->with(['doctor.user', 'patient']);
+
+        // Apply strict structural operational filters
+        if ($dateFrom && $dateTo) {
+            $baseQuery->whereBetween(\DB::raw('DATE(date)'), [$dateFrom, $dateTo]);
         }
-        if ($request->status) {
-            $query->where('status', $request->status);
+        if ($doctorId) {
+            $baseQuery->where('doctor_id', $doctorId);
+        }
+        if ($status) {
+            // Normalize status check for database hyphen/underscore safety
+            if ($status === 'no_show' || $status === 'no-show') {
+                $baseQuery->whereIn('status', ['no-show', 'no_show']);
+            } else {
+                $baseQuery->where('status', $status);
+            }
         }
 
-        // Status stats across all matching records
-        $status_stats = (clone $query)
-            ->selectRaw('status, COUNT(*) as count')
-            ->groupBy('status')
-            ->pluck('count', 'status')
-            ->toArray();
+        // Clone to compute solid mathematical aggregates before pagination variables binding
+        $calcCollection = (clone $baseQuery)->get();
 
-        // Paginated list
-        $appointments = $query->orderBy('date')->paginate(10)->withQueryString();
+        // 3. Compute Top-Level Hardcoded KPI Scalars to lock the 4-column Frontend Grid
+        $total_appointments_count = $calcCollection->count();
+        $completed_count          = $calcCollection->whereIn('status', ['completed', 'تمت'])->count();
+        $scheduled_count          = $calcCollection->whereIn('status', ['scheduled', 'confirmed', 'مجدول'])->count();
+        $cancelled_and_noshow     = $calcCollection->whereIn('status', ['cancelled', 'no-show', 'no_show', 'ملغي', 'غائب'])->count();
 
-        $doctors = Doctor::with('user')->orderBy('name')->get();
+        // 4. Fetch Active Doctors List using consistent display properties mapping
+        $doctors = \App\Models\Doctor::with('user')->get();
 
-        return view('reports.appointments', compact('appointments', 'status_stats', 'doctors'));
+        // 5. Paginate final ordered results block
+        $appointments = $baseQuery->orderBy('date', 'desc')->paginate(10)->withQueryString();
+
+        return view('reports.appointments', compact(
+            'appointments', 'doctors', 'dateFrom', 'dateTo', 'doctorId', 'status',
+            'total_appointments_count', 'completed_count', 'scheduled_count', 'cancelled_and_noshow'
+        ));
     }
 
     /**

@@ -1,10 +1,13 @@
+<style>
+    [dir="rtl"] .pagination-arrow { transform: scaleX(-1); }
+</style>
 @if ($paginator->hasPages())
     <nav class="d-flex justify-content-center mt-4" role="navigation" aria-label="Pagination Navigation">
         <ul class="pagination pagination-sm m-0 align-items-center">
             @if ($paginator->onFirstPage())
-                <li class="page-item disabled" aria-disabled="true"><span class="page-link" style="border: 1px solid rgba(15, 61, 62, 0.1) !important; border-radius: 8px !important; background: var(--white) !important; color: #ccc !important; padding: 0.5rem 0.85rem;"><i class="fas fa-chevron-right"></i></span></li>
+                <li class="page-item disabled" aria-disabled="true"><span class="page-link" style="border: 1px solid rgba(15, 61, 62, 0.1) !important; border-radius: 8px !important; background: var(--white) !important; color: #ccc !important; padding: 0.5rem 0.85rem;"><i class="fas fa-chevron-left pagination-arrow"></i></span></li>
             @else
-                <li class="page-item"><a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev" style="border: 1px solid rgba(15, 61, 62, 0.12) !important; border-radius: 8px !important; background: var(--white) !important; color: var(--secondary) !important; padding: 0.5rem 0.85rem; transition: all 0.2s;"><i class="fas fa-chevron-right"></i></a></li>
+                <li class="page-item"><a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev" style="border: 1px solid rgba(15, 61, 62, 0.12) !important; border-radius: 8px !important; background: var(--white) !important; color: var(--secondary) !important; padding: 0.5rem 0.85rem; transition: all 0.2s;"><i class="fas fa-chevron-left pagination-arrow"></i></a></li>
             @endif
 
             @foreach ($elements as $element)
@@ -24,9 +27,9 @@
             @endforeach
 
             @if ($paginator->hasMorePages())
-                <li class="page-item"><a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next" style="border: 1px solid rgba(15, 61, 62, 0.12) !important; border-radius: 8px !important; background: var(--white) !important; color: var(--secondary) !important; padding: 0.5rem 0.85rem; transition: all 0.2s;"><i class="fas fa-chevron-left"></i></a></li>
+                <li class="page-item"><a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next" style="border: 1px solid rgba(15, 61, 62, 0.12) !important; border-radius: 8px !important; background: var(--white) !important; color: var(--secondary) !important; padding: 0.5rem 0.85rem; transition: all 0.2s;"><i class="fas fa-chevron-right pagination-arrow"></i></a></li>
             @else
-                <li class="page-item disabled" aria-disabled="true"><span class="page-link" style="border: 1px solid rgba(15, 61, 62, 0.1) !important; border-radius: 8px !important; background: var(--white) !important; color: #ccc !important; padding: 0.5rem 0.85rem;"><i class="fas fa-chevron-left"></i></span></li>
+                <li class="page-item disabled" aria-disabled="true"><span class="page-link" style="border: 1px solid rgba(15, 61, 62, 0.1) !important; border-radius: 8px !important; background: var(--white) !important; color: #ccc !important; padding: 0.5rem 0.85rem;"><i class="fas fa-chevron-right pagination-arrow"></i></span></li>
             @endif
         </ul>
     </nav>

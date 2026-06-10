@@ -134,7 +134,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const row = document.createElement('tr');
         row.className = 'item-row';
         
-        let servicesOptions = '<option value="">Select Service (Optional)</option>';
+        const selectServicePlaceholder = '{{ __("messages.select_service_placeholder") }}';
+        let servicesOptions = `<option value="">${selectServicePlaceholder}</option>`;
         services.forEach(s => {
             const selected = data && data.service_id == s.id ? 'selected' : '';
             servicesOptions += `<option value="${s.id}" data-price="${s.price}" ${selected}>${s.name} - ${currencySymbol}${s.price}</option>`;
@@ -145,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <select name="items[${index}][service_id]" class="form-select form-select-sm service-select mb-1">
                     ${servicesOptions}
                 </select>
+                <input type="hidden" name="items[${index}][id]" value="${data ? data.id : ''}">
                 <input type="text" name="items[${index}][description]" class="form-control form-control-sm description-input" placeholder="Service description" value="${data ? data.description : ''}" required>
             </td>
             <td>

@@ -52,16 +52,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        $statusColors = [
-                            'paid' => 'success',
-                            'partial' => 'warning',
-                            'overdue' => 'danger',
-                            'sent' => 'info',
-                            'cancelled' => 'secondary',
-                            'draft' => 'secondary'
-                        ];
-                    @endphp
                     @forelse($invoices as $invoice)
                     <tr>
                         <td class="ps-4 fw-bold">
@@ -76,10 +66,17 @@
                         <td class="text-success">{{ $currencySymbol }} {{ number_format($invoice->amount_paid, 2) }}</td>
                         <td class="text-danger fw-bold">{{ $currencySymbol }} {{ number_format($invoice->balance, 2) }}</td>
                         <td>
-                            @php $badgeColor = $statusColors[$invoice->status] ?? 'secondary'; @endphp
-                            <span class="badge bg-{{ $badgeColor }} bg-opacity-10 text-{{ $badgeColor }} px-3 py-2 rounded-pill">
-                                {{ ucfirst($invoice->status) }}
-                            </span>
+                                @if($invoice->status === 'paid')
+                                <span class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-1 text-xs fw-semibold">{{ __('messages.invoice_paid') }}</span>
+                            @elseif($invoice->status === 'partial')
+                                <span class="badge rounded-pill bg-info bg-opacity-10 text-info px-3 py-1 text-xs fw-semibold">{{ __('messages.invoice_partial') }}</span>
+                            @elseif($invoice->status === 'draft')
+                                <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary px-3 py-1 text-xs fw-semibold">{{ __('messages.invoice_draft') }}</span>
+                            @elseif($invoice->status === 'overdue')
+                                <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger px-3 py-1 text-xs fw-semibold">{{ __('messages.invoice_overdue') }}</span>
+                            @else
+                                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning px-3 py-1 text-xs fw-semibold">{{ __('messages.invoice_cancelled') }}</span>
+                            @endif
                         </td>
                         <td class="pe-4">
                             <div class="d-flex justify-content-center gap-2">

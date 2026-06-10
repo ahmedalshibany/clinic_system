@@ -1,7 +1,8 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Settings')
-@section('page-title', 'Settings')
+@section('title', __('messages.settingsTitle'))
+@section('page-title', __('messages.settingsTitle'))
+@section('page-i18n', 'settings')
 
 @section('content')
 <div class="row mb-4">

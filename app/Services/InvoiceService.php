@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Setting;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -83,6 +84,8 @@ class InvoiceService
             $tax_amount = (float) bcmul((string) $taxable, bcdiv((string) $tax_percent, '100', 4), 4);
             $total = (float) bcadd((string) $taxable, (string) $tax_amount, 4);
 
+            $dueDate = $data['due_date'] ?? now()->addDays((int) Setting::get('default_due_days', 0))->toDateString();
+
             $invoice = Invoice::create([
                 'patient_id' => $data['patient_id'],
                 'appointment_id' => $data['appointment_id'] ?? null,
@@ -95,7 +98,7 @@ class InvoiceService
                 'total' => $total,
                 'amount_paid' => 0,
                 'status' => $data['status'] ?? 'draft',
-                'due_date' => $data['due_date'],
+                'due_date' => $dueDate,
                 'notes' => $data['notes'] ?? null,
             ]);
 
@@ -125,7 +128,8 @@ class InvoiceService
 
         return DB::transaction(function () use ($invoice, $data) {
             $subtotal = 0;
-            $itemsData = [];
+            $incomingIds = [];
+            $newItems = [];
 
             foreach ($data['items'] as $item) {
                 $qty = $item['quantity'];
@@ -133,14 +137,28 @@ class InvoiceService
                 $lineTotal = (float) bcmul((string) $qty, (string) $price, 4);
                 $subtotal = (float) bcadd((string) $subtotal, (string) $lineTotal, 4);
 
-                $itemsData[] = [
-                    'service_id' => $item['service_id'] ?? null,
-                    'description' => $item['description'],
-                    'quantity' => $qty,
-                    'unit_price' => $price,
-                    'total' => round($lineTotal, 2),
-                    'discount' => 0,
-                ];
+                $itemId = $item['id'] ?? null;
+
+                if ($itemId && $invoice->items()->where('id', $itemId)->exists()) {
+                    $invoice->items()->where('id', $itemId)->update([
+                        'service_id' => $item['service_id'] ?? null,
+                        'description' => $item['description'],
+                        'quantity' => $qty,
+                        'unit_price' => $price,
+                        'total' => round($lineTotal, 2),
+                        'discount' => 0,
+                    ]);
+                    $incomingIds[] = $itemId;
+                } else {
+                    $newItems[] = [
+                        'service_id' => $item['service_id'] ?? null,
+                        'description' => $item['description'],
+                        'quantity' => $qty,
+                        'unit_price' => $price,
+                        'total' => round($lineTotal, 2),
+                        'discount' => 0,
+                    ];
+                }
             }
 
             $discount_percent = (float) ($data['discount_percent'] ?? 0);
@@ -163,9 +181,11 @@ class InvoiceService
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            // Sync items
-            $invoice->items()->delete();
-            foreach ($itemsData as $itemData) {
+            // Delete items explicitly removed by the user
+            $invoice->items()->whereNotIn('id', $incomingIds)->delete();
+
+            // Create genuinely new items
+            foreach ($newItems as $itemData) {
                 $invoice->items()->create($itemData);
             }
 

@@ -5,6 +5,11 @@
 @section('page-i18n', 'invoice_details')
 
 @section('content')
+<div>
+    <a href="{{ smartBack('invoices.index') }}" class="btn btn-outline-secondary mb-3">
+        <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToInvoices') }}
+    </a>
+</div>
 <div class="row">
     <div class="col-lg-9">
         <div class="card border-0 shadow-sm mb-4">

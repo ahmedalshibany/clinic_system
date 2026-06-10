@@ -29,7 +29,7 @@ class InvoiceLocalizationTest extends TestCase
             ->get('/invoices/create?lang=en');
 
         $response->assertStatus(200);
-        $response->assertSee(__('messages.invoicesCreate', [], 'en'));
+        $response->assertSee(__('messages.create_invoice', [], 'en'));
         $response->assertSee(__('messages.addItem', [], 'en'));
         $response->assertSee(__('messages.saveInvoice', [], 'en'));
         $response->assertSee(__('messages.selectPatient', [], 'en'));
@@ -55,7 +55,7 @@ class InvoiceLocalizationTest extends TestCase
             ->get('/invoices/create?lang=ar');
 
         $response->assertStatus(200);
-        $response->assertSee(__('messages.invoicesCreate', [], 'ar'));
+        $response->assertSee(__('messages.create_invoice', [], 'ar'));
         $response->assertSee(__('messages.addItem', [], 'ar'));
         $response->assertSee(__('messages.saveInvoice', [], 'ar'));
         $response->assertSee(__('messages.selectPatient', [], 'ar'));
@@ -81,7 +81,7 @@ class InvoiceLocalizationTest extends TestCase
             ->get('/invoices/create?lang=en');
 
         $response->assertStatus(200);
-        $response->assertDontSee('الفواتير / إنشاء');
+        $response->assertDontSee('إنشاء فاتورة');
         $response->assertDontSee('إضافة بند');
         $response->assertDontSee('حفظ الفاتورة');
     }
@@ -92,7 +92,7 @@ class InvoiceLocalizationTest extends TestCase
             ->get('/invoices/create?lang=ar');
 
         $response->assertStatus(200);
-        $response->assertDontSee('Invoices / Create');
+        $response->assertDontSee('Create Invoice');
         $response->assertDontSee('Add Item');
         $response->assertDontSee('Save Invoice');
     }
@@ -103,7 +103,7 @@ class InvoiceLocalizationTest extends TestCase
             ->get('/invoices/create');
 
         $response->assertStatus(200);
-        $response->assertSee(__('messages.invoicesCreate', [], 'en'));
+        $response->assertSee(__('messages.create_invoice', [], 'en'));
         $response->assertSee("currencySymbol = '﷼'", false);
     }
 
@@ -115,7 +115,7 @@ class InvoiceLocalizationTest extends TestCase
             ->get('/invoices/create?lang=en');
 
         $response->assertStatus(200);
-        $response->assertSee(__('messages.invoicesCreate', [], 'en'));
+        $response->assertSee(__('messages.create_invoice', [], 'en'));
     }
 
     public function test_doctor_cannot_access_invoice_create(): void
