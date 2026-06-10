@@ -111,22 +111,22 @@ class InvoiceService
     }
 
     /**
-     * Update an invoice.
+     * Update an invoice with pessimistic row locking.
      *
-     * @param mixed $id
+     * @param int $invoiceId
      * @param array $data
      * @return Invoice
      * @throws Exception
      */
-    public function updateInvoice($id, array $data): Invoice
+    public function updateInvoice(int $invoiceId, array $data): Invoice
     {
-        $invoice = $id instanceof Invoice ? $id : Invoice::findOrFail($id);
+        return DB::transaction(function () use ($invoiceId, $data) {
+            $invoice = Invoice::lockForUpdate()->findOrFail($invoiceId);
 
-        if ($invoice->status === 'paid' || $invoice->status === 'cancelled') {
-            throw new Exception('Cannot edit paid or cancelled invoices.');
-        }
+            if (in_array($invoice->status, ['paid', 'cancelled'])) {
+                throw new Exception('Cannot modify a finalized or cancelled invoice.');
+            }
 
-        return DB::transaction(function () use ($invoice, $data) {
             $subtotal = 0;
             $incomingIds = [];
             $newItems = [];

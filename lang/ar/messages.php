@@ -438,6 +438,11 @@ return [
     'saveRecord' => 'حفظ السجل',
     'updateRecord' => 'تحديث السجل',
     'noMedicalRecords' => 'لا توجد سجلات طبية.',
+    'visit_linked' => 'مرتبط بزيارة',
+    'diagnosis_notes' => 'التشخيص والملاحظات',
+    'prescribed_medication' => 'الأدوية الموصوفة',
+    'no_medical_records_found' => 'لم يتم تسجيل أي سجلات طبية بعد.',
+    'days' => 'أيام',
 
     // Invoices
     'scheduleUpdated' => 'تم تحديث الجدول بنجاح!',

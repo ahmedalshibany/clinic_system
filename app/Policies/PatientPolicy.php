@@ -31,4 +31,9 @@ class PatientPolicy
     {
         return $user->role === 'admin';
     }
+
+    public function deleteFile(User $user): bool
+    {
+        return in_array($user->role, ['admin', 'doctor']);
+    }
 }

@@ -14,9 +14,11 @@ use Illuminate\Support\Facades\Route;
 
 // Authenticated API routes
 Route::middleware('auth')->group(function () {
-    // Internal AJAX search endpoints (all roles)
-    Route::get('/patients/search', [App\Http\Controllers\Api\PatientApiController::class, 'search']);
-    Route::get('/medicines/search', [App\Http\Controllers\Api\MedicineApiController::class, 'search']);
+    // Internal AJAX search endpoints — locked to clinical front-desk roles
+    Route::middleware('role:admin,doctor,receptionist,nurse')->group(function () {
+        Route::get('/patients/search', [App\Http\Controllers\Api\PatientApiController::class, 'search']);
+        Route::get('/medicines/search', [App\Http\Controllers\Api\MedicineApiController::class, 'search']);
+    });
 
     // Dashboard API endpoints — restricted to admin & doctor (aggregate/financial data)
     Route::middleware(['auth', 'role:admin,doctor'])->group(function () {

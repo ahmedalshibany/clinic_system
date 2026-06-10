@@ -96,7 +96,7 @@ class InvoiceController extends Controller
         $this->authorize('update', $invoice);
         $validated = $request->validated();
         try {
-            $this->invoiceService->updateInvoice($invoice, $validated);
+            $this->invoiceService->updateInvoice($invoice->id, $validated);
             return redirect()->route('invoices.show', $invoice)->with('success', 'Invoice updated successfully.');
         } catch (\Exception $e) {
             return back()->with('error', 'Error updating invoice: ' . $e->getMessage())->withInput();

@@ -79,6 +79,9 @@
     --text-secondary: #555555;
     --light-text: #888888;
     --muted: #aaaaaa;
+    --text-muted: var(--muted);
+    --card-bg: #ffffff;
+    --panel-bg: #fcfbfa;
 
     /* Semantic - Natural Pigments */
     --success: #2e5d34;
@@ -213,6 +216,9 @@
     /* Muted / Placeholder — WCAG AA 4.5:1 minimum */
     --muted: #7a7790;
     /* ~4.6:1 ✅ */
+    --text-muted: var(--muted);
+    --card-bg: #1c1c30;
+    --panel-bg: #151528;
 
     /* Surface Colors */
     --beige: #0d0d1a;

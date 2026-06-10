@@ -27,9 +27,9 @@ class InvoicePolicy
         return in_array($user->role, ['admin', 'receptionist']);
     }
 
-    public function delete(User $user, Invoice $invoice = null): bool
+    public function delete(User $user, Invoice $invoice): bool
     {
-        return $user->role === 'admin';
+        return $user->role === 'admin' && $invoice->status === 'draft';
     }
 
     public function recordPayment(User $user, Invoice $invoice): bool

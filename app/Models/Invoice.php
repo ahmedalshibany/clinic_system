@@ -99,8 +99,15 @@ class Invoice extends Model
         return $this->hasMany(Payment::class);
     }
 
-    public function getBalanceAttribute()
+    public function getBalanceAttribute(): string
     {
-        return $this->total - $this->amount_paid;
+        $total = (string) $this->total;
+        $amountPaid = (string) $this->amount_paid;
+
+        if (function_exists('bcsub')) {
+            return bcsub($total, $amountPaid, 2);
+        }
+
+        return number_format((float) $total - (float) $amountPaid, 2, '.', '');
     }
 }

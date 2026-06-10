@@ -13,6 +13,13 @@
         color: white;
         margin-bottom: 1.5rem;
     }
+    [data-theme="dark"] .patient-header {
+        background: linear-gradient(135deg, #0f0f1e 0%, #0d2e2a 100%);
+    }
+    .patient-header .badge.text-dark,
+    .patient-header .text-dark {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
     .patient-avatar {
         width: 120px;
         height: 120px;
@@ -49,7 +56,7 @@
     }
     .nav-tabs-custom .nav-link {
         border: none;
-        color: var(--text-muted);
+        color: var(--muted);
         padding: 0.75rem 1.5rem;
         border-radius: var(--border-radius);
         font-weight: 500;
@@ -68,7 +75,7 @@
         height: 100%;
     }
     .info-card h6 {
-        color: var(--text-muted);
+        color: var(--muted);
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -104,7 +111,7 @@
         height: 12px;
         border-radius: 50%;
         background: var(--primary);
-        border: 3px solid var(--card-bg);
+        border: 3px solid var(--panel-bg);
     }
     .file-card {
         background: var(--glass-bg);
@@ -139,13 +146,18 @@
     }
     .stat-mini .label {
         font-size: 0.75rem;
-        color: var(--text-muted);
+        color: var(--muted);
         text-transform: uppercase;
     }
 </style>
 @endsection
 
 @section('content')
+<div>
+    <a href="{{ smartBack('patients.index') }}" class="btn btn-outline-secondary mb-3">
+        <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToPatients') }}
+    </a>
+</div>
 <!-- Flash Messages -->
 
 
@@ -163,7 +175,7 @@
         </div>
         <div class="col patient-info">
             <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
-                <h2>{{ $patient->name }}</h2>
+                <h2 style="color: #ffffff !important; font-weight: 600; letter-spacing: -0.02em;">{{ $patient->name }}</h2>
                 <span class="patient-code">{{ $patient->patient_code ?? 'PAT-' . str_pad($patient->id, 4, '0', STR_PAD_LEFT) }}</span>
                 @if($patient->status === 'active')
                     <span class="badge bg-success" data-i18n="active">{{ __('messages.active') }}</span>
@@ -174,13 +186,13 @@
                 @endif
             </div>
             <div class="patient-badges">
-                <span class="badge   text-dark"><i class="fas fa-birthday-cake me-1"></i>{{ $patient->age ?? $patient->calculated_age ?? '-' }} {{ __('messages.yearsShort') }}</span>
-                <span class="badge   text-dark"><i class="fas fa-venus-mars me-1"></i>{{ ucfirst($patient->gender) }}</span>
+                <span class="badge" style="color: rgba(255, 255, 255, 0.75) !important;"><i class="fas fa-birthday-cake me-1"></i>{{ $patient->age ?? $patient->calculated_age ?? '-' }} {{ __('messages.yearsShort') }}</span>
+                <span class="badge" style="color: rgba(255, 255, 255, 0.75) !important;"><i class="fas fa-venus-mars me-1"></i>{{ ucfirst($patient->gender) }}</span>
                 @if($patient->blood_type)
                     <span class="badge bg-danger"><i class="fas fa-tint me-1"></i>{{ $patient->blood_type }}</span>
                 @endif
                 @if($patient->phone)
-                    <span class="badge   text-dark"><i class="fas fa-phone me-1"></i>{{ $patient->phone }}</span>
+                    <span class="badge" style="color: rgba(255, 255, 255, 0.75) !important;"><i class="fas fa-phone me-1"></i>{{ $patient->phone }}</span>
                 @endif
             </div>
         </div>
@@ -198,37 +210,29 @@
 </div>
 
 <!-- Quick Stats -->
-<div class="row g-3 mb-4 fade-in">
-    <div class="col-md-3">
-        <div class="card h-100">
-            <div class="card-body stat-mini">
-                <div class="number">{{ $appointmentStats['total'] }}</div>
-                <div class="label" data-i18n="totalVisits">{{ __('messages.totalVisits') }}</div>
-            </div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md, 16px);" class="mb-4 fade-in">
+    <div class="card h-100">
+        <div class="card-body stat-mini">
+            <div class="number">{{ $appointmentStats['total'] }}</div>
+            <div class="label" data-i18n="totalVisits">{{ __('messages.totalVisits') }}</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card h-100">
-            <div class="card-body stat-mini">
-                <div class="number text-success">{{ $appointmentStats['completed'] }}</div>
-                <div class="label" data-i18n="completed">{{ __('messages.completed') }}</div>
-            </div>
+    <div class="card h-100">
+        <div class="card-body stat-mini">
+            <div class="number text-success">{{ $appointmentStats['completed'] }}</div>
+            <div class="label" data-i18n="completed">{{ __('messages.completed') }}</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card h-100">
-            <div class="card-body stat-mini">
-                <div class="number text-info">{{ $appointmentStats['upcoming'] }}</div>
-                <div class="label" data-i18n="upcoming">{{ __('messages.upcoming') }}</div>
-            </div>
+    <div class="card h-100">
+        <div class="card-body stat-mini">
+            <div class="number text-info">{{ $appointmentStats['upcoming'] }}</div>
+            <div class="label" data-i18n="upcoming">{{ __('messages.upcoming') }}</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card h-100">
-            <div class="card-body stat-mini">
-                <div class="number text-primary">{{ $patient->files->count() }}</div>
-                <div class="label" data-i18n="documentsLabel">{{ __('messages.documentsLabel') }}</div>
-            </div>
+    <div class="card h-100">
+        <div class="card-body stat-mini">
+            <div class="number text-primary">{{ $patient->files->count() }}</div>
+            <div class="label" data-i18n="documentsLabel">{{ __('messages.documentsLabel') }}</div>
         </div>
     </div>
 </div>
@@ -266,40 +270,39 @@
 <div class="tab-content fade-in" id="patientTabsContent">
     <!-- Overview Tab -->
     <div class="tab-pane fade show active" id="overview">
-        <div class="row g-4">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: var(--space-md, 16px);">
             <!-- Contact Information -->
-            <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-header">
                         <h5 class="mb-0"><i class="fas fa-address-card me-2"></i>{{ __('messages.contactInformation') }}</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-6">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md, 16px);">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="phonePrimary">{{ __('messages.phonePrimary') }}</h6>
                                     <p><span dir="ltr">{{ $patient->phone ?? '-' }}</span></p>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="phoneSecondary">{{ __('messages.phoneSecondary') }}</h6>
                                     <p><span dir="ltr">{{ $patient->phone_secondary ?? '-' }}</span></p>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="email">{{ __('messages.email') }}</h6>
                                     <p>{{ $patient->email ?? '-' }}</p>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="city">{{ __('messages.city') }}</h6>
                                     <p>{{ $patient->city ?? '-' }}</p>
                                 </div>
                             </div>
-                            <div class="col-12">
+                            <div style="grid-column: 1 / -1;">
                                 <div class="info-card">
                                     <h6 data-i18n="address">{{ __('messages.address') }}</h6>
                                     <p>{{ $patient->address ?? '-' }}</p>
@@ -308,41 +311,39 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
             <!-- Personal Information -->
-            <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-header">
                         <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>{{ __('messages.personalInfo') }}</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-6">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md, 16px);">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="dateOfBirth">{{ __('messages.dateOfBirth') }}</h6>
                                     <p>{{ $patient->date_of_birth ? $patient->date_of_birth->format('M d, Y') : '-' }}</p>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="nationality">{{ __('messages.nationality') }}</h6>
                                     <p>{{ $patient->nationality ?? '-' }}</p>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="idNumber">{{ __('messages.idNumber') }}</h6>
                                     <p>{{ $patient->id_number ?? '-' }}</p>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="maritalStatus">{{ __('messages.maritalStatus') }}</h6>
                                     <p>{{ ucfirst($patient->marital_status ?? '-') }}</p>
                                 </div>
                             </div>
-                            <div class="col-12">
+                            <div style="grid-column: 1 / -1;">
                                 <div class="info-card">
                                     <h6 data-i18n="occupation">{{ __('messages.occupation') }}</h6>
                                     <p>{{ $patient->occupation ?? '-' }}</p>
@@ -351,35 +352,33 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
             <!-- Medical Summary -->
-            <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-header">
                         <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>{{ __('messages.medicalSummary') }}</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-6">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md, 16px);">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="bloodType">{{ __('messages.bloodType') }}</h6>
                                     <p class="text-danger fw-bold">{{ $patient->blood_type ?? '-' }}</p>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="knownAllergies">{{ __('messages.knownAllergies') }}</h6>
                                     <p>{{ $patient->allergies ?? __('messages.noneReported') }}</p>
                                 </div>
                             </div>
-                            <div class="col-12">
+                            <div style="grid-column: 1 / -1;">
                                 <div class="info-card">
                                     <h6 data-i18n="chronicDiseases">{{ __('messages.chronicDiseases') }}</h6>
                                     <p>{{ $patient->chronic_diseases ?? __('messages.noneReported') }}</p>
                                 </div>
                             </div>
-                            <div class="col-12">
+                            <div style="grid-column: 1 / -1;">
                                 <div class="info-card">
                                     <h6 data-i18n="currentMedications">{{ __('messages.currentMedications') }}</h6>
                                     <p>{{ $patient->current_medications ?? __('messages.noneReported') }}</p>
@@ -388,35 +387,33 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
             <!-- Emergency & Insurance -->
-            <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-header">
                         <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('messages.emergencyInsurance') }}</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-6">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md, 16px);">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="emergencyContact">{{ __('messages.emergencyContact') }}</h6>
                                     <p>{{ $patient->emergency_contact ?? '-' }}</p>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="emergencyPhone">{{ __('messages.emergencyPhone') }}</h6>
                                     <p><span dir="ltr">{{ $patient->emergency_phone ?? '-' }}</span></p>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="insuranceProvider">{{ __('messages.insuranceProvider') }}</h6>
                                     <p>{{ $patient->insurance_provider ?? '-' }}</p>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div>
                                 <div class="info-card">
                                     <h6 data-i18n="insuranceNumberShort">{{ __('messages.insuranceNumberShort') }}</h6>
                                     <p>{{ $patient->insurance_number ?? '-' }}</p>
@@ -425,7 +422,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
 
@@ -492,41 +488,62 @@
         </div>
     </div>
 
-    <!-- Medical Records Tab -->
+    <!-- Medical Records Tab — Clinical Timeline -->
     <div class="tab-pane fade" id="medical">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-notes-medical me-2"></i>{{ __('messages.medicalHistory') }}</h5>
-            </div>
-            <div class="card-body">
-                @if($patient->medical_history || $patient->previous_surgeries || $patient->family_history)
-                    <div class="row g-4">
-                        @if($patient->medical_history)
-                            <div class="col-12">
-                                <h6 class="text-muted mb-2" data-i18n="generalMedicalHistory">{{ __('messages.generalMedicalHistory') }}</h6>
-                                <p>{{ $patient->medical_history }}</p>
+        <div class="clinical-timeline" style="position: relative; padding-left: 20px; border-left: 2px solid var(--border-hairline);">
+            @forelse($patient->medicalRecords as $record)
+                <div class="timeline-item" style="position: relative; margin-bottom: var(--space-xl, 26px);">
+                    <div style="position: absolute; left: -26px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background-color: var(--secondary); border: 2px solid var(--panel-bg, #fcfbfa);"></div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 style="font-size: var(--text-md, 16px); color: var(--secondary); font-weight: 600; margin: 0;">
+                            {{ $record->created_at->format('Y-m-d — h:i A') }} | {{ __('messages.doctor') }}: {{ $record->doctor->user->name ?? $record->doctor->name }}
+                        </h4>
+                        @if($record->appointment_id)
+                            <span style="font-size: var(--text-xs); background-color: rgba(15,61,62,0.05); color: var(--secondary); padding: 2px 8px; border-radius: 4px;">
+                                {{ __('messages.visit_linked') }}
+                            </span>
+                        @endif
+                    </div>
+
+                    <div style="background-color: var(--panel-bg, #fcfbfa); border: 1px solid var(--border-hairline); border-radius: var(--radius-sm, 6px); padding: var(--space-md, 16px); box-shadow: var(--shadow-soft);">
+                        @if($record->appointment && $record->appointment->vital)
+                            @php $v = $record->appointment->vital; @endphp
+                            <div class="vitals-summary mb-3" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-hairline); font-size: var(--text-base);">
+                                <div><strong>BP:</strong> {{ $v->blood_pressure }} mmHg</div>
+                                <div><strong>HR:</strong> {{ $v->pulse }} bpm</div>
+                                <div><strong>Temp:</strong> {{ $v->temperature }} °C</div>
+                                <div><strong>Weight:</strong> {{ $v->weight }} kg</div>
                             </div>
                         @endif
-                        @if($patient->previous_surgeries)
-                            <div class="col-12">
-                                <h6 class="text-muted mb-2" data-i18n="previousSurgeries">{{ __('messages.previousSurgeries') }}</h6>
-                                <p>{{ $patient->previous_surgeries }}</p>
-                            </div>
-                        @endif
-                        @if($patient->family_history)
-                            <div class="col-12">
-                                <h6 class="text-muted mb-2" data-i18n="familyHistory">{{ __('messages.familyHistory') }}</h6>
-                                <p>{{ $patient->family_history }}</p>
+
+                        <div class="mb-3">
+                            <h5 style="font-size: var(--text-base); color: var(--secondary); font-weight: 600; margin-bottom: 4px;">{{ __('messages.diagnosis_notes') }}</h5>
+                            <p style="font-size: var(--text-base); color: var(--text-primary); margin: 0; line-height: 1.5;">{{ $record->diagnosis }}</p>
+                            @if($record->notes)
+                                <p style="font-size: var(--text-sm); color: var(--muted); margin-top: 4px; font-style: italic;">{{ $record->notes }}</p>
+                            @endif
+                        </div>
+
+                        @if($record->prescription && $record->prescription->items->count() > 0)
+                            <div class="prescription-box" style="margin-top: 12px; padding: 10px; background-color: var(--accent-glow); border-left: 3px solid var(--accent); border-radius: 4px;">
+                                <h6 style="font-size: var(--text-sm); color: var(--accent); font-weight: 600; margin-bottom: 6px;">{{ __('messages.prescribed_medication') }}</h6>
+                                <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                                    @foreach($record->prescription->items as $item)
+                                        <li style="margin-bottom: 4px; color: var(--text-primary);">
+                                            <strong>{{ $item->medication_name }}</strong> — {{ $item->dosage }} | {{ $item->frequency }} ({{ $item->duration }} {{ __('messages.days') }})
+                                        </li>
+                                    @endforeach
+                                </ul>
                             </div>
                         @endif
                     </div>
-                @else
-                    <div class="text-center py-5 text-muted">
-                        <i class="fas fa-file-medical fa-3x mb-3"></i>
-                        <p data-i18n="noMedicalRecordsYet">{{ __('messages.noMedicalRecordsYet') }}</p>
-                    </div>
-                @endif
-            </div>
+                </div>
+            @empty
+                <div class="text-center py-5" style="color: var(--muted); font-size: var(--text-sm);">
+                    <p>{{ __('messages.no_medical_records_found') }}</p>
+                </div>
+            @endforelse
         </div>
     </div>
 
@@ -541,9 +558,9 @@
             </div>
             <div class="card-body">
                 @if($patient->files->count() > 0)
-                    <div class="row g-3">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-md, 16px);">
                         @foreach($patient->files as $file)
-                            <div class="col-md-4">
+                            <div>
                                 <div class="file-card">
                                     <div class="file-icon  ">
                                         <i class="{{ $file->icon_class }}"></i>
@@ -693,10 +710,4 @@
         </div>
     </div>
 </div>
-
-<!-- Back Button -->
-<div class="mt-4">
-    <a href="{{ smartBack('patients.index') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-{{ app()->getLocale() == 'ar' ? 'right' : 'left' }} me-1"></i> {{ __('messages.backToPatients') }}
-    </a>
 @endsection

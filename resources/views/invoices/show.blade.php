@@ -12,17 +12,17 @@
 </div>
 <div class="row">
     <div class="col-lg-9">
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header   py-3 d-flex justify-content-between align-items-center">
+        <div class="card" style="box-shadow: var(--shadow-soft); border-radius: var(--radius, 10px);">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
                     <h5 class="mb-0 text-primary fw-bold">{{ $invoice->invoice_number }}</h5>
                     @switch($invoice->status)
-                        @case('paid') <span class="badge bg-success">{{ __('messages.paid') }}</span> @break
-                        @case('partial') <span class="badge bg-warning text-dark">{{ __('messages.partial') }}</span> @break
-                        @case('overdue') <span class="badge bg-danger">{{ __('messages.overdue') }}</span> @break
-                        @case('sent') <span class="badge bg-info text-dark">{{ __('messages.sent') }}</span> @break
-                        @case('cancelled') <span class="badge bg-secondary">{{ __('messages.cancelled') }}</span> @break
-                        @default <span class="badge   text-dark border">{{ __('messages.draft') }}</span>
+                        @case('paid') <span class="badge" style="background-color: rgba(46, 93, 52, 0.1); color: var(--success, #2e5d34); border-radius: 6px;">{{ __('messages.paid') }}</span> @break
+                        @case('partial') <span class="badge" style="background-color: rgba(191, 140, 48, 0.1); color: var(--warning, #bf8c30); border-radius: 6px;">{{ __('messages.partial') }}</span> @break
+                        @case('overdue') <span class="badge" style="background-color: rgba(139, 58, 58, 0.1); color: var(--danger, #8b3a3a); border-radius: 6px;">{{ __('messages.overdue') }}</span> @break
+                        @case('sent') <span class="badge" style="background-color: rgba(61, 90, 128, 0.1); color: var(--info, #3d5a80); border-radius: 6px;">{{ __('messages.sent') }}</span> @break
+                        @case('cancelled') <span class="badge" style="background-color: rgba(136, 136, 136, 0.1); color: #888; border-radius: 6px; border: 1px solid var(--border-hairline);">{{ __('messages.cancelled') }}</span> @break
+                        @default <span class="badge" style="background-color: rgba(15, 61, 62, 0.05); color: var(--secondary, #0f3d3e); border-radius: 6px;">{{ __('messages.draft') }}</span>
                     @endswitch
                 </div>
                 <div>
@@ -62,8 +62,8 @@
                 </div>
 
                 <div class="table-responsive mb-4">
-                    <table class="table table-bordered">
-                        <thead class="">
+                    <table class="table table-hover align-middle" style="border-bottom: 1px solid var(--border-hairline);">
+                        <thead style="background-color: var(--panel-bg, #fcfbfa); color: var(--secondary); font-weight: 600;">
                             <tr>
                                 <th>{{ __('messages.description') }}</th>
                                 <th class="text-center" width="10%">{{ __('messages.qty') }}</th>
@@ -76,7 +76,7 @@
                             <tr>
                                 <td>
                                     @if($item->service)
-                                        <span class="badge bg-secondary-subtle text-dark me-1">{{ $item->service->code }}</span>
+                                        <span class="badge" style="background-color: rgba(0,0,0,0.04); color: var(--text-secondary); border-radius: 4px;">{{ $item->service->code }}</span>
                                     @endif
                                     {{ $item->description }}
                                 </td>
@@ -138,7 +138,7 @@
     <!-- Sidebar / Actions -->
     <div class="col-lg-3">
         @if($invoice->balance > 0 && $invoice->status != 'cancelled')
-        <div class="card border-0 shadow-sm mb-4">
+        <div class="card" style="box-shadow: var(--shadow-soft); border-radius: var(--radius, 10px);">
             <div class="card-body">
                 <button class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#paymentModal">
                     <i class="fas fa-dollar-sign me-2"></i> {{ __('messages.record_payment') }}
@@ -148,7 +148,7 @@
         @endif
 
         <!-- Payment History -->
-        <div class="card border-0 shadow-sm">
+        <div class="card" style="box-shadow: var(--shadow-soft); border-radius: var(--radius, 10px);">
             <div class="card-header   py-3">
                 <h6 class="mb-0">{{ __('messages.payment_history') }}</h6>
             </div>

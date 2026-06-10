@@ -438,6 +438,11 @@ return [
     'saveRecord' => 'Save Record',
     'updateRecord' => 'Update Record',
     'noMedicalRecords' => 'No medical records found.',
+    'visit_linked' => 'Visit Linked',
+    'diagnosis_notes' => 'Diagnosis & Notes',
+    'prescribed_medication' => 'Prescribed Medication',
+    'no_medical_records_found' => 'No medical records have been recorded yet.',
+    'days' => 'days',
 
     // Invoices
     'scheduleUpdated' => 'Schedule updated successfully!',

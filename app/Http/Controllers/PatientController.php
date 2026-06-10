@@ -62,7 +62,15 @@ class PatientController extends Controller
     public function show(Patient $patient)
     {
         $this->authorize('view', $patient);
-        $patient->load(['appointments.doctor', 'files.uploader']);
+        $patient->load([
+            'appointments.doctor.user',
+            'appointments.vital',
+            'files.uploader',
+            'medicalRecords' => fn($q) => $q->orderBy('created_at', 'desc'),
+            'medicalRecords.doctor.user',
+            'medicalRecords.prescription.items',
+            'medicalRecords.appointment.vital',
+        ]);
         $appointmentStats = [
             'total' => $patient->appointments->count(),
             'completed' => $patient->appointments->where('status', 'completed')->count(),
@@ -131,7 +139,7 @@ class PatientController extends Controller
 
     public function deleteFile(Patient $patient, PatientFile $file)
     {
-        $this->authorize('update', $patient);
+        $this->authorize('deleteFile', Patient::class);
         if ($file->patient_id !== $patient->id) {
             abort(404);
         }

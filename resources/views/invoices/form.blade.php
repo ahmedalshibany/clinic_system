@@ -52,8 +52,8 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-borderless mb-0" id="items-table">
-                        <thead class="table-light">
+                    <table class="table align-middle" id="items-table">
+                        <thead style="background-color: var(--panel-bg, #fcfbfa); color: var(--secondary); font-weight: 600;">
                             <tr>
                                 <th width="35%" data-i18n="serviceDescription">{{ __('messages.serviceDescription') }}</th>
                                 <th width="15%" data-i18n="unitPrice">{{ __('messages.unit_price') }}</th>
@@ -99,7 +99,7 @@
                     </div>
                 </div>
 
-                <hr>
+                <div class="divider" style="height: 1px; background: linear-gradient(90deg, transparent, var(--border-hairline), transparent); margin: var(--space-md) 0;"></div>
                 
                 <div class="d-flex justify-content-between fs-5">
                     <strong data-i18n="total">{{ __('messages.total') }}:</strong>

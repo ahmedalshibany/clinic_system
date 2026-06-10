@@ -14,29 +14,29 @@ class PatientApiController extends Controller
      */
     public function search(Request $request)
     {
-        $term = $request->get('q');
-        
-        $query = Patient::query()
-            ->select('id', 'name', 'patient_code', 'phone');
-
-        if ($term) {
-            $query->where(function($q) use ($term) {
-                $q->where('name', 'like', "%{$term}%")
-                  ->orWhere('patient_code', 'like', "%{$term}%")
-                  ->orWhere('phone', 'like', "%{$term}%");
-            });
+        $user = auth()->user();
+        if (!$user || !in_array($user->role, ['admin', 'doctor', 'receptionist', 'nurse'])) {
+            abort(403, 'Unauthorized API enumeration attempt.');
         }
 
-        $patients = $query->limit(20)->get()->map(function($patient) {
-            return [
-                'id' => $patient->id,
-                'text' => $patient->name . ' (' . $patient->patient_code . ')',
-                'phone' => $patient->phone
-            ];
-        });
+        $term = $request->get('q');
 
-        return response()->json([
-            'results' => $patients
-        ]);
+        $patients = Patient::where(function ($q) use ($term) {
+                if ($term) {
+                    $q->where('name', 'like', "%{$term}%")
+                      ->orWhere('patient_code', 'like', "%{$term}%");
+                }
+            })
+            ->select(['id', 'name', 'patient_code'])
+            ->limit(10)
+            ->get()
+            ->map(function ($patient) {
+                return [
+                    'id' => $patient->id,
+                    'text' => "[{$patient->patient_code}] {$patient->name}",
+                ];
+            });
+
+        return response()->json(['results' => $patients]);
     }
 }

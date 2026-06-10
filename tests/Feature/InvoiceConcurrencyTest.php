@@ -228,7 +228,7 @@ class InvoiceConcurrencyTest extends TestCase
             'status' => 'draft',
         ], $this->admin->id);
 
-        $updated = $this->service->updateInvoice($invoice, [
+        $updated = $this->service->updateInvoice($invoice->id, [
             'items' => [
                 ['description' => 'Updated Item', 'quantity' => 3, 'unit_price' => 33.33],
             ],

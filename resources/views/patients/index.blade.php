@@ -33,7 +33,7 @@
 </div>
 
 <!-- Patients Table -->
-<div class="card fade-in">
+<div class="card fade-in" style="border-bottom: 1px solid var(--border-hairline); border-radius: var(--radius-sm, 6px); overflow: hidden;">
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
