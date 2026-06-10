@@ -104,4 +104,29 @@ class UserController extends Controller
         return redirect()->route('users.index')
                         ->with('success', 'User deleted successfully.');
     }
+
+    public function toggleActive(User $user)
+    {
+        if (auth()->id() === $user->id) {
+            return redirect()->back()->with('error', __('messages.cannot_deactivate_self'));
+        }
+
+        $user->update([
+            'is_active' => !$user->is_active
+        ]);
+
+        return redirect()->back()->with('success', __('messages.user_status_updated'));
+    }
+
+    public function resetPassword(User $user)
+    {
+        $defaultPassword = 'Password123!';
+
+        $user->update([
+            'password' => Hash::make($defaultPassword),
+            'password_change_required' => true,
+        ]);
+
+        return redirect()->back()->with('success', __('messages.user_password_reset_success'));
+    }
 }

@@ -68,10 +68,10 @@
                             <div class="col-md-6">
                                 <select id="role" class="form-select @error('role') is-invalid @enderror" name="role" required>
                                     <option value="">{{ __('messages.selectRole') }}</option>
-                                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                    <option value="doctor" {{ old('role') == 'doctor' ? 'selected' : '' }}>Doctor</option>
-                                    <option value="receptionist" {{ old('role') == 'receptionist' ? 'selected' : '' }}>Receptionist</option>
-                                    <option value="nurse" {{ old('role') == 'nurse' ? 'selected' : '' }}>Nurse</option>
+                                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>{{ __('messages.role_admin') }}</option>
+                                    <option value="doctor" {{ old('role') == 'doctor' ? 'selected' : '' }}>{{ __('messages.role_doctor') }}</option>
+                                    <option value="receptionist" {{ old('role') == 'receptionist' ? 'selected' : '' }}>{{ __('messages.role_receptionist') }}</option>
+                                    <option value="nurse" {{ old('role') == 'nurse' ? 'selected' : '' }}>{{ __('messages.role_nurse') }}</option>
                                 </select>
                                 @error('role')
                                     <span class="invalid-feedback" role="alert">

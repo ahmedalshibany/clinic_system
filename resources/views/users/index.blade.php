@@ -39,12 +39,12 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="">
                     <tr>
-                        <th class="ps-4 py-3" style="width: 50px;">#</th>
-                        <th class="py-3">Name</th>
-                        <th class="py-3">Username</th>
-                        <th class="py-3">Email</th>
-                        <th class="py-3">Role</th>
-                        <th class="pe-4 py-3 text-center">Actions</th>
+                        <th class="ps-4 py-3" style="width: 50px;">{{ __('messages.number') }}</th>
+                        <th class="py-3">{{ __('messages.name') }}</th>
+                        <th class="py-3">{{ __('messages.username') }}</th>
+                        <th class="py-3">{{ __('messages.email') }}</th>
+                        <th class="py-3">{{ __('messages.role') }}</th>
+                        <th class="pe-4 py-3 text-center">{{ __('messages.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,7 +63,7 @@
                             <td>{{ $user->email ?? '-' }}</td>
                             <td>
                                 <span class="badge {{ $user->role === 'admin' ? 'bg-danger-subtle text-danger' : ($user->role === 'doctor' ? 'bg-info-subtle text-info' : 'bg-success-subtle text-success') }} text-capitalize">
-                                    {{ $user->role }}
+                                    {{ __('messages.role_' . $user->role) }}
                                 </span>
                             </td>
                             <td class="pe-4">
@@ -89,7 +89,7 @@
                                 <div class="empty-state">
                                     <i class="fas fa-users"></i>
                                     <h5 data-i18n="noUsers">No users yet</h5>
-                                    <p>Click "Add User" to create one.</p>
+                                    <p data-i18n="clickToAddUser">{{ __('messages.clickToAddUser') }}</p>
                                 </div>
                             </td>
                         </tr>
@@ -100,8 +100,23 @@
 
         <!-- Pagination -->
         @if($users->hasPages())
-        <div class="p-3">
-             {{ $users->links() }}
+        <div class="pagination-controls d-flex justify-content-between align-items-center p-3">
+            <div class="pagination-info">
+                <span data-i18n="showing">{{ __('messages.showing') }}</span> <strong>{{ $users->firstItem() }}-{{ $users->lastItem() }}</strong> <span data-i18n="of">{{ __('messages.of') }}</span> <strong>{{ $users->total() }}</strong> <span data-i18n="usersLabel">{{ __('messages.usersLabel') }}</span>
+            </div>
+            <div class="pagination-buttons d-flex gap-2">
+                @if($users->onFirstPage())
+                    <button class="btn btn-light btn-sm" disabled><i class="fas fa-chevron-left"></i> <span data-i18n="previous">{{ __('messages.previous') }}</span></button>
+                @else
+                    <a href="{{ $users->previousPageUrl() }}" class="btn btn-light btn-sm"><i class="fas fa-chevron-left"></i> <span data-i18n="previous">{{ __('messages.previous') }}</span></a>
+                @endif
+
+                @if($users->hasMorePages())
+                    <a href="{{ $users->nextPageUrl() }}" class="btn btn-light btn-sm"><span data-i18n="next">{{ __('messages.next') }}</span> <i class="fas fa-chevron-right"></i></a>
+                @else
+                    <button class="btn btn-light btn-sm" disabled><span data-i18n="next">{{ __('messages.next') }}</span> <i class="fas fa-chevron-right"></i></button>
+                @endif
+            </div>
         </div>
         @endif
     </div>

@@ -358,6 +358,7 @@ return [
     'termsAndDetails' => 'الشروط والتفاصيل البنكية',
 
     // Common
+    'number' => '#',
     'searchPlaceholder' => 'بحث...',
     'submit' => 'إرسال',
     'saveChanges' => 'حفظ التغييرات',
@@ -513,12 +514,22 @@ return [
 
     // Users
     'createNewUser' => 'إنشاء مستخدم جديد',
+    'clickToAddUser' => 'انقر على "إضافة مستخدم" لإنشاء واحد.',
+    'usersLabel' => 'مستخدمين',
+    'leaveEmptyToKeep' => 'اتركه فارغاً للاحتفاظ بالحالي',
+    'role_admin' => 'مدير النظام',
+    'role_doctor' => 'طبيب',
+    'role_receptionist' => 'موظف استقبال',
+    'role_nurse' => 'ممرض',
     'createUser' => 'إنشاء مستخدم',
     'username' => 'اسم المستخدم',
     'emailAddress' => 'البريد الإلكتروني',
     'password' => 'كلمة المرور',
     'selectRole' => 'اختر الدور',
     'updateUser' => 'تحديث المستخدم',
+    'cannot_deactivate_self' => 'لا يمكنك تعطيل حسابك الخاص.',
+    'user_status_updated' => 'تم تحديث حالة المستخدم بنجاح.',
+    'user_password_reset_success' => 'تم إعادة تعيين كلمة مرور المستخدم بنجاح.',
 
     // Errors
     'forbidden' => 'ممنوع',

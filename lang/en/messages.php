@@ -358,6 +358,7 @@ return [
     'termsAndDetails' => 'Terms & Bank Details',
 
     // Common
+    'number' => '#',
     'searchPlaceholder' => 'Search...',
     'submit' => 'Submit',
     'saveChanges' => 'Save Changes',
@@ -512,12 +513,22 @@ return [
 
     // Users
     'createNewUser' => 'Create New User',
+    'clickToAddUser' => 'Click "Add User" to create one.',
+    'usersLabel' => 'users',
+    'leaveEmptyToKeep' => 'leave empty to keep current',
+    'role_admin' => 'Admin',
+    'role_doctor' => 'Doctor',
+    'role_receptionist' => 'Receptionist',
+    'role_nurse' => 'Nurse',
     'createUser' => 'Create User',
     'username' => 'Username',
     'emailAddress' => 'Email Address',
     'password' => 'Password',
     'selectRole' => 'Select Role',
     'updateUser' => 'Update User',
+    'cannot_deactivate_self' => 'You cannot deactivate your own account.',
+    'user_status_updated' => 'User status updated successfully.',
+    'user_password_reset_success' => 'User password reset successfully.',
 
     // Errors
     'forbidden' => 'Forbidden',
