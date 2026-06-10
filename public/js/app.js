@@ -1072,7 +1072,6 @@ class App {
         this.applyLanguage(this.lang);
         this.applyTheme(this.theme);
         this.bindEvents();
-        this.initCharts();
         this.setupGlobalErrorHandlers();
 
         $(document).on('layout-loaded', () => {
@@ -1093,44 +1092,6 @@ class App {
     }
 
     initCharts() {
-        const $ctx = $('#bookingChart');
-        if ($ctx.length && typeof Chart !== 'undefined') {
-            const isDark = $('html').attr('data-theme') === 'dark';
-            const s = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-            const barColor = isDark ? s('--secondary') || '#2aa88a' : '#2dd4bf';
-            const hoverColor = isDark ? '#34c4a3' : '#00f2fe';
-            const lang = this.lang;
-            const t = (key) => (translations[lang] && translations[lang][key]) ? translations[lang][key] : key;
-            const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-            const labels = dayKeys.map(k => t(k));
-            new Chart($ctx[0], {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: t('patientsChart'),
-                        data: [30, 45, 40, 50, 42, 85, 25],
-                        backgroundColor: barColor,
-                        borderRadius: 50,
-                        barThickness: 12,
-                        hoverBackgroundColor: hoverColor
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { backgroundColor: isDark ? s('--white') || '#1a1a2e' : 'rgba(47, 65, 86, 0.9)', padding: 12, cornerRadius: 8 }
-                    },
-                    scales: {
-                        y: { display: false, grid: { display: false } },
-                        x: { grid: { display: false }, ticks: { color: isDark ? s('--text-secondary') || '#9896a8' : '#94a3b8', font: { family: lang === 'ar' ? "'Tajawal', sans-serif" : "'Plus Jakarta Sans', sans-serif" } } }
-                    },
-                    animation: { duration: 2000, easing: 'easeOutQuart' }
-                }
-            });
-        }
     }
 
     bindEvents() {

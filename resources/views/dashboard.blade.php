@@ -16,7 +16,17 @@
                 <i class="fas fa-sun" id="greeting-icon"></i>
                 <span id="dashboard-greeting" data-i18n="goodMorning">{{ __('Good Morning') }}</span>
             </span>
-            <h1><span data-i18n="welcomeBack">{{ __('Welcome Back,') }}</span> <span class="gradient-text" data-i18n="doctor">{{ __('Doctor') }}</span></h1>
+            <h1 style="word-break: keep-all; text-wrap: balance; line-height: 1.4;"><span class="d-inline-block" style="white-space: nowrap;"><span data-i18n="welcomeBack">{{ __('Welcome Back,') }}</span> <span class="gradient-text">
+                @if(auth()->user()->role === 'admin')
+                    {{ __('messages.role_admin') }}
+                @elseif(auth()->user()->role === 'receptionist')
+                    {{ __('messages.role_receptionist') }}
+                @elseif(auth()->user()->role === 'nurse')
+                    {{ __('messages.role_nurse') }}
+                @else
+                    {{ __('messages.role_doctor') }} {{ auth()->user()->name }}
+                @endif
+            </span></span></h1>
             <p data-i18n="dashboardSubtitle">{{ __("Here's what's happening with your clinic today") }}</p>
         </div>
         <div class="welcome-illustration">
@@ -99,8 +109,8 @@
 <h5 class="alert-heading mb-1" data-i18n="billingActionRequired">{{ __('Billing Action Required') }}</h5>
                                     <p class="mb-0"><span data-i18n="thereAre">{{ __('There are') }}</span> <strong>{{ $readyToBillCount }}</strong> <span data-i18n="completedAppointmentsReady">{{ __('completed appointments ready for invoicing.') }}</span></p>
                 </div>
-                <a href="{{ route('appointments.index', ['status' => 'completed']) }}" class="btn btn-warning text-dark fw-bold" data-i18n="goToBilling">
-                    {{ __('Go to Billing') }} <i class="fas fa-arrow-right ms-2"></i>
+                <a href="{{ route('appointments.index', ['status' => 'completed']) }}" class="btn btn-davinci-primary d-inline-flex align-items-center gap-2" data-i18n="goToBilling">
+                    {{ __('Go to Billing') }} <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
             @else
@@ -130,9 +140,9 @@
         <!-- NURSE DASHBOARD -->
         <div class="col-12 mb-4">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-user-nurse me-2"></i><span data-i18n="triageQueue">{{ __('Triage Queue (To Vitals)') }}</span></h5>
-                    <span class="badge   text-primary">{{ $triageQueue->count() }} <span data-i18n="pending">{{ __('Pending') }}</span></span>
+                <div class="card-header d-flex justify-content-between align-items-center" style="background-color: var(--secondary); color: var(--white);">
+                    <h5 class="mb-0" style="color: var(--white);"><i class="fas fa-user-nurse me-2"></i><span data-i18n="triageQueue">{{ __('Triage Queue (To Vitals)') }}</span></h5>
+                    <span class="badge" style="background-color: rgba(255,255,255,0.2); color: var(--white);">{{ $triageQueue->count() }} <span data-i18n="pending">{{ __('Pending') }}</span></span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -152,10 +162,16 @@
                                     <td>{{ $appt->time->format('H:i') }}</td>
                                     <td class="fw-bold">{{ $appt->patient->name }}</td>
                                     <td>{{ $appt->doctor->name }}</td>
-                                    <td><span class="badge bg-info" data-i18n="confirmed">{{ __('Confirmed') }}</span></td>
                                     <td>
-                                        <a href="{{ route('nurse.vitals.create', $appt->id) }}" class="btn btn-success btn-sm text-white" data-i18n="recordVitals">
-                                            <i class="fas fa-heartbeat me-1"></i> {{ __('Record Vitals') }}
+                                        @if($appt->status === 'checked_in')
+                                        <span class="badge" style="background-color: rgba(42,168,138,0.12); color: var(--secondary);" data-i18n="checked_in">{{ __('messages.checked_in') }}</span>
+                                        @else
+                                        <span class="badge" style="background-color: rgba(61,90,128,0.12); color: var(--info);" data-i18n="confirmed">{{ __('Confirmed') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('nurse.vitals.create', $appt->id) }}" class="btn btn-davinci-primary btn-sm d-inline-flex align-items-center gap-1" data-i18n="recordVitals">
+                                            <i class="fas fa-heartbeat"></i> {{ __('Record Vitals') }}
                                         </a>
                                     </td>
                                 </tr>
@@ -173,9 +189,9 @@
 
         <div class="col-12">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0" data-i18n="waitingRoomReady"><i class="fas fa-chair me-2"></i>{{ __('Waiting Room (Ready for Doctor)') }}</h5>
-                    <span class="badge bg-dark text-white" data-i18n="waiting">{{ $waitingList->count() }} {{ __('Waiting') }}</span>
+                <div class="card-header d-flex justify-content-between align-items-center" style="background-color: rgba(212,143,56,0.1); color: #b07d2a;">
+                    <h5 class="mb-0" style="color: #b07d2a;"><i class="fas fa-chair me-2"></i><span data-i18n="waitingRoomReady">{{ __('Waiting Room (Ready for Doctor)') }}</span></h5>
+                    <span class="badge" style="background-color: rgba(212,143,56,0.15); color: #b07d2a;" data-i18n="waiting">{{ $waitingList->count() }} {{ __('Waiting') }}</span>
                 </div>
                 <div class="card-body p-0">
                      <div class="table-responsive">
@@ -194,7 +210,7 @@
                                     <td>{{ $appt->time->format('H:i') }}</td>
                                     <td class="fw-bold">{{ $appt->patient->name }}</td>
                                     <td>{{ $appt->doctor->name }}</td>
-                                    <td><span class="badge bg-warning text-dark" data-i18n="waiting">{{ __('Waiting') }}</span></td>
+                                    <td><span class="badge" style="background-color: rgba(212,143,56,0.12); color: #b07d2a;" data-i18n="waiting">{{ __('Waiting') }}</span></td>
                                 </tr>
                                 @empty
                                 <tr>
@@ -332,7 +348,7 @@
                     <p data-i18n="latestAppointments">{{ __('Latest appointments in your clinic') }}</p>
                 </div>
             </div>
-            <a href="{{ route('appointments.index') }}" class="panel-action">
+            <a href="{{ route('appointments.index') }}" class="btn btn-davinci-primary d-inline-flex align-items-center gap-2">
                 <span data-i18n="viewAll">{{ __('View All') }}</span>
                 <i class="fas fa-arrow-right"></i>
             </a>
@@ -344,12 +360,14 @@
                         $statusColors = [
                             'pending' => 'warning',
                             'confirmed' => 'info',
+                            'checked_in' => 'info',
                             'completed' => 'success',
                             'cancelled' => 'danger'
                         ];
                         $statusIcons = [
                             'pending' => 'fa-clock',
                             'confirmed' => 'fa-check-circle',
+                            'checked_in' => 'fa-check-circle',
                             'completed' => 'fa-check-double',
                             'cancelled' => 'fa-times-circle'
                         ];
@@ -369,7 +387,8 @@
                                 <span class="activity-doctor">
                                     <i class="fas fa-user-md me-1"></i>{{ $appt->doctor->name ?? __('Unknown') }}
                                 </span>
-                                <span class="badge bg-{{ $color }}-subtle text-{{ $color }}" data-i18n="{{ strtolower($appt->status) }}">{{ ucfirst($appt->status) }}</span>
+                                @php $statusLabel = $appt->status === 'checked_in' ? __('messages.checked_in') : ucfirst($appt->status); @endphp
+                                <span class="badge bg-{{ $color }}-subtle text-{{ $color }}" data-i18n="{{ strtolower($appt->status) }}">{{ $statusLabel }}</span>
                             </div>
                         </div>
                     </a>
@@ -526,7 +545,8 @@ if (revenueCtx) {
                     padding: 12,
                     callbacks: {
                         label: function(ctx) {
-                            return t('revenue') + ': $' + ctx.parsed.y.toLocaleString();
+                            let currencySymbol = "{{ \App\Models\Setting::get('currency_symbol', 'ر.ي') }}";
+                            return ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() + ' ' + currencySymbol;
                         }
                     }
                 }

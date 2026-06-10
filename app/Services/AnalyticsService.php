@@ -98,13 +98,24 @@ class AnalyticsService
 
     public function getAppointmentCountsForDoctor(int $doctorId): array
     {
-        $query = Appointment::where('doctor_id', $doctorId);
-        return [
-            'total' => $query->count(),
-            'today' => (clone $query)->whereDate('date', today())->count(),
-            'waiting' => (clone $query)->whereDate('date', today())->where('status', 'waiting')->count(),
-            'week' => (clone $query)->whereBetween('date', [now()->startOfWeek(), now()->endOfWeek()])->count(),
-            'month' => (clone $query)->whereMonth('date', now()->month)->count(),
-        ];
+        $now = now();
+        $today = $now->toDateString();
+        $startOfWeek = $now->startOfWeek()->toDateString();
+        $startOfMonth = $now->startOfMonth()->toDateString();
+
+        return Appointment::where('doctor_id', $doctorId)
+            ->selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN DATE(date) = ? THEN 1 END) as today,
+                COUNT(CASE WHEN status = 'waiting' AND DATE(date) = ? THEN 1 END) as waiting,
+                COUNT(CASE WHEN DATE(date) >= ? THEN 1 END) as week,
+                COUNT(CASE WHEN DATE(date) >= ? THEN 1 END) as month,
+                COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending,
+                COUNT(CASE WHEN status = 'confirmed' THEN 1 END) as confirmed,
+                COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed,
+                COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled
+            ", [$today, $today, $startOfWeek, $startOfMonth])
+            ->first()
+            ->toArray();
     }
 }

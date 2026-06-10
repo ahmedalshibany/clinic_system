@@ -481,6 +481,62 @@ p {
     transform: none;
 }
 
+/* Unified primary action — flat, high-contrast, geometric */
+.btn-davinci-primary {
+    background: var(--secondary);
+    color: var(--white);
+    border: 1px solid transparent;
+    padding: var(--space-md) var(--space-xl);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: var(--text-sm);
+    text-decoration: none;
+    line-height: 1.4;
+    box-shadow: var(--shadow-subtle);
+    cursor: pointer;
+    transition: background-color var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out);
+}
+
+.btn-davinci-primary:hover {
+    background: #0b2d2e;
+    color: var(--white);
+    text-decoration: none;
+    box-shadow: var(--shadow-soft);
+}
+
+.btn-davinci-primary:active {
+    background: #081f20;
+    box-shadow: none;
+    transition-duration: 50ms;
+}
+
+.btn-davinci-primary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--secondary);
+}
+
+.btn-davinci-primary:disabled,
+.btn-davinci-primary.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+[data-theme="dark"] .btn-davinci-primary {
+    background: var(--secondary);
+    color: #0a0a14;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .btn-davinci-primary:hover {
+    background: #34c4a3;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .btn-davinci-primary:active {
+    background: #238a72;
+}
+
 /* Soft buttons with natural colors */
 .btn-soft-primary {
     background: rgba(15, 61, 62, 0.08);

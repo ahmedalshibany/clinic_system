@@ -80,14 +80,12 @@ class DashboardController extends Controller
                 $waitingPatients = $counts['waiting'];
                 $weekAppointments = $counts['week'];
                 $monthAppointments = $counts['month'];
+                $pending = $counts['pending'];
+                $confirmed = $counts['confirmed'];
+                $completed = $counts['completed'];
+                $cancelled = $counts['cancelled'];
 
-                $apptQuery = Appointment::where('doctor_id', $doctor->id);
-                $pending = (clone $apptQuery)->where('status', 'pending')->count();
-                $confirmed = (clone $apptQuery)->where('status', 'confirmed')->count();
-                $completed = (clone $apptQuery)->where('status', 'completed')->count();
-                $cancelled = (clone $apptQuery)->where('status', 'cancelled')->count();
-
-                $recentAppointments = (clone $apptQuery)
+                $recentAppointments = Appointment::where('doctor_id', $doctor->id)
                     ->with(['patient', 'doctor'])
                     ->orderBy('date', 'desc')
                     ->orderBy('time', 'desc')
