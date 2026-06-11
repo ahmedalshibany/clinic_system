@@ -23,7 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
         @endif
 
         @if($errors->any())
-            window.toast.error({!! json_encode($errors->first()) !!});
+            @foreach($errors->all() as $error)
+                window.toast.error({!! json_encode($error) !!});
+            @endforeach
         @endif
     }, 50);
 });

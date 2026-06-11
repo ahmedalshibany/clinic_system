@@ -133,7 +133,8 @@ class ScheduleController extends Controller
             ->exists();
 
         if ($hasActive) {
-            return back()->withErrors(['error' => __('messages.leaveConflict')]);
+            return back()->withErrors(['error' => __('messages.leaveConflict')])
+                ->with('warning', __('messages.leaveConflictWarning'));
         }
 
         $doctor->leaves()->create($validated);

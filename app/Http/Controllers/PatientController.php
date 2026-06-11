@@ -77,6 +77,15 @@ class PatientController extends Controller
             'upcoming' => $patient->appointments->where('date', '>=', now()->toDateString())
                 ->whereIn('status', ['pending', 'confirmed'])->count(),
         ];
+
+        if ($patient->known_allergies) {
+            session()->flash('warning', __('messages.patientAllergyWarning', ['allergies' => $patient->known_allergies]));
+        }
+
+        if ($patient->insurance_expiry_date && \Carbon\Carbon::parse($patient->insurance_expiry_date)->diffInDays(now()) <= 30) {
+            session()->flash('warning', __('messages.insuranceExpiryWarning', ['date' => $patient->insurance_expiry_date]));
+        }
+
         return view('patients.show', compact('patient', 'appointmentStats'));
     }
 

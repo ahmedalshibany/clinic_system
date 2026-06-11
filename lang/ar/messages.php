@@ -728,4 +728,19 @@ return [
     'status_overdue'      => 'متأخر',
     'status_partial'      => 'مدفوع جزئياً',
     'status_sent'         => 'مرسل',
+
+    // Warning & Info Notifications
+    'doctorNearCapacity' => 'الطبيب يقترب من الطاقة الاستيعابية القصوى لهذا التاريخ.',
+    'invoiceDraftInfo' => 'هذه الفاتورة في حالة مسودة ولم يتم إنهاؤها بعد.',
+    'patientAllergyWarning' => 'المريض يعاني من حساسية معروفة: :allergies',
+    'insuranceExpiryWarning' => 'تنتهي صلاحية بوليصة التأمين في :date',
+    'patientOutstandingBalance' => 'لدى المريض رصيد مستحق قدره :amount',
+    'invoiceAlreadyExists' => 'توجد فاتورة بالفعل لهذا الموعد',
+    'invoiceZeroItems' => 'هذه الفاتورة لا تحتوي على بنود',
+    'leaveConflictWarning' => 'تتعارض الإجازة مع مواعيد نشطة — يجب إعادة الجدولة',
+    'vitalsLocked' => 'العلامات الحيوية مقفلة من قبل الطبيب. اطلب من الطبيب فتحها.',
+    'queuePositionInfo' => 'المريض رقم :position في قائمة الانتظار',
+    'queueEmptyInfo' => 'قائمة الانتظار فارغة اليوم',
+    'noWorkingDaysInfo' => 'لم يتم تكوين أيام عمل لهذا الطبيب',
+    'noPrescriptionInfo' => 'لا توجد وصفة طبية مرفقة بهذا السجل',
 ];

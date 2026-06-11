@@ -54,6 +54,11 @@ class DoctorController extends Controller
     {
         $this->authorize('view', $doctor);
         $doctor->load('appointments.patient');
+
+        if ($doctor->schedules()->count() === 0) {
+            session()->flash('info', __('messages.noWorkingDaysInfo'));
+        }
+
         return view('doctors.show', compact('doctor'));
     }
 

@@ -24,7 +24,8 @@ class NurseController extends Controller
     {
         $this->authorize('create', Vital::class);
         if ($appointment->status !== 'pending' && !$appointment->vitals_unlocked) {
-            return back()->with('error', __('messages.vitalsNotAllowed'));
+            return back()->with('error', __('messages.vitalsNotAllowed'))
+                ->with('warning', __('messages.vitalsLocked'));
         }
         return view('nurse.vitals.create', compact('appointment'));
     }

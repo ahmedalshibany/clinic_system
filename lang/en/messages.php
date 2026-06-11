@@ -728,4 +728,19 @@ return [
     'status_overdue'      => 'Overdue',
     'status_partial'      => 'Partial',
     'status_sent'         => 'Sent',
+
+    // Warning & Info Notifications
+    'doctorNearCapacity' => 'Doctor is nearing full capacity for this date.',
+    'invoiceDraftInfo' => 'This invoice is in draft status and has not been finalized.',
+    'patientAllergyWarning' => 'Patient has known allergies: :allergies',
+    'insuranceExpiryWarning' => 'Insurance policy expires on :date',
+    'patientOutstandingBalance' => 'Patient has outstanding balance of :amount',
+    'invoiceAlreadyExists' => 'An invoice already exists for this appointment',
+    'invoiceZeroItems' => 'This invoice has no line items',
+    'leaveConflictWarning' => 'Leave overlaps with active appointments — reschedule required',
+    'vitalsLocked' => 'Vitals are locked by doctor. Ask doctor to unlock.',
+    'queuePositionInfo' => 'Patient is #:position in queue',
+    'queueEmptyInfo' => 'Queue is empty for today',
+    'noWorkingDaysInfo' => 'No working days configured for this doctor',
+    'noPrescriptionInfo' => 'No prescription attached to this record',
 ];

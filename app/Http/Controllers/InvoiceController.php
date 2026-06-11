@@ -45,7 +45,8 @@ class InvoiceController extends Controller
     {
         $this->authorize('create', Invoice::class);
         if ($appointment->invoice) {
-            return redirect()->route('invoices.show', $appointment->invoice);
+            return redirect()->route('invoices.show', $appointment->invoice)
+                ->with('warning', __('messages.invoiceAlreadyExists'));
         }
         $patients = Patient::select('id', 'name', 'patient_code')->get();
         $services = Service::active()->get();
@@ -77,6 +78,11 @@ class InvoiceController extends Controller
     {
         $this->authorize('view', $invoice);
         $invoice->load(['items', 'patient', 'payments', 'creator']);
+
+        if ($invoice->status === 'draft') {
+            session()->flash('info', __('messages.invoiceDraftInfo'));
+        }
+
         return view('invoices.show', compact('invoice'));
     }
 
@@ -130,6 +136,9 @@ class InvoiceController extends Controller
     {
         $this->authorize('update', $invoice);
         if ($invoice->status == 'draft') {
+            if ($invoice->items->count() === 0) {
+                session()->flash('warning', __('messages.invoiceZeroItems'));
+            }
             $invoice->update(['status' => 'sent']);
         }
         return back()->with('success', __('messages.invoiceMarkedSent'));

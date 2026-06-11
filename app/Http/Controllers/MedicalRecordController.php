@@ -101,7 +101,7 @@ class MedicalRecordController extends Controller
         $this->authorize('view', $medicalRecord);
         $medicalRecord->load(['patient', 'doctor', 'prescription.items']);
         if (!$medicalRecord->prescription) {
-            return back()->with('error', 'No prescription found for this record.');
+            return back()->with('info', __('messages.noPrescriptionInfo'));
         }
         return view('medical_records.print_prescription', compact('medicalRecord'));
     }

@@ -47,7 +47,21 @@ class AppointmentController extends Controller
         $validated = $request->validated();
 
         try {
-            $this->appointmentService->createAppointment($validated);
+            $appointment = $this->appointmentService->createAppointment($validated);
+
+            $doctorApptsToday = Appointment::where('doctor_id', $validated['doctor_id'])
+                ->whereDate('date', $validated['date'])
+                ->whereNotIn('status', ['cancelled', 'no_show'])
+                ->count();
+
+            $schedule = \App\Models\DoctorSchedule::where('doctor_id', $validated['doctor_id'])
+                ->where('day_of_week', \Carbon\Carbon::parse($validated['date'])->dayOfWeek)
+                ->first();
+
+            if ($schedule && $schedule->max_appointments && $doctorApptsToday >= $schedule->max_appointments * 0.8) {
+                session()->flash('warning', __('messages.doctorNearCapacity'));
+            }
+
             return redirect()->route('appointments.index')
                 ->with('success', __('messages.appointmentBooked'));
         } catch (\Exception $e) {
@@ -102,6 +116,14 @@ class AppointmentController extends Controller
     {
         $this->authorize('checkIn', $appointment);
         $this->appointmentService->updateStatus($appointment, 'checked_in');
+
+        $position = Appointment::whereDate('date', now()->today())
+            ->where('time', '<', $appointment->time)
+            ->whereIn('status', ['checked_in', 'waiting'])
+            ->count() + 1;
+
+        session()->flash('info', __('messages.queuePositionInfo', ['position' => $position]));
+
         return back()->with('success', __('messages.patientCheckedIn'));
     }
 
@@ -120,6 +142,15 @@ class AppointmentController extends Controller
         ]);
 
         $this->appointmentService->updateStatus($appointment, 'completed', ['diagnosis' => $request->diagnosis]);
+
+        $outstandingBalance = $appointment->patient->invoices()
+            ->whereIn('status', ['sent', 'partial', 'overdue'])
+            ->sum(\Illuminate\Support\Facades\DB::raw('total - paid_amount'));
+
+        if ($outstandingBalance > 0) {
+            session()->flash('warning', __('messages.patientOutstandingBalance', ['amount' => number_format($outstandingBalance, 2)]));
+        }
+
         return back()->with('success', __('messages.visitCompleted'));
     }
 
@@ -214,6 +245,10 @@ class AppointmentController extends Controller
         }
 
         $appointments = $query->orderBy('time')->get();
+
+        if ($appointments->isEmpty()) {
+            session()->flash('info', __('messages.queueEmptyInfo'));
+        }
 
         $doctors = Doctor::where('is_active', true)->orderBy('name')->get();
 
