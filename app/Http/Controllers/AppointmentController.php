@@ -92,7 +92,7 @@ class AppointmentController extends Controller
             return redirect()->route('appointments.index')
                 ->with('success', __('messages.appointmentDeleted'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Error deleting appointment: ' . $e->getMessage());
+            return back()->with('error', __('messages.appointmentDeleteError') . ' ' . $e->getMessage());
         }
     }
 
@@ -102,14 +102,14 @@ class AppointmentController extends Controller
     {
         $this->authorize('checkIn', $appointment);
         $this->appointmentService->updateStatus($appointment, 'checked_in');
-        return back()->with('success', 'Patient checked in successfully.');
+        return back()->with('success', __('messages.patientCheckedIn'));
     }
 
     public function startVisit(Appointment $appointment)
     {
         $this->authorize('startVisit', $appointment);
         $this->appointmentService->updateStatus($appointment, 'in_progress');
-        return back()->with('success', 'Visit started.');
+        return back()->with('success', __('messages.visitStarted'));
     }
 
     public function complete(Request $request, Appointment $appointment)
@@ -120,14 +120,14 @@ class AppointmentController extends Controller
         ]);
 
         $this->appointmentService->updateStatus($appointment, 'completed', ['diagnosis' => $request->diagnosis]);
-        return back()->with('success', 'Visit completed and diagnosis saved.');
+        return back()->with('success', __('messages.visitCompleted'));
     }
 
     public function markNoShow(Appointment $appointment)
     {
         $this->authorize('markNoShow', $appointment);
         $this->appointmentService->updateStatus($appointment, 'no_show');
-        return back()->with('success', 'Marked as No Show.');
+        return back()->with('success', __('messages.markedNoShow'));
     }
 
     public function reopenVitals(Appointment $appointment)
@@ -139,7 +139,7 @@ class AppointmentController extends Controller
         }
 
         $this->appointmentService->reopenVitals($appointment);
-        return back()->with('success', 'Vitals re-opened for nurse triage.');
+        return back()->with('success', __('messages.vitalsReopened'));
     }
 
     /**

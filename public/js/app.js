@@ -1270,7 +1270,7 @@ class ToastSystem {
 
         const icons = {
             success: 'fa-check-circle',
-            error: 'fa-exclamation-circle',
+            error: 'fa-exclamation-triangle',
             warning: 'fa-exclamation-triangle',
             info: 'fa-info-circle'
         };
@@ -1297,6 +1297,9 @@ class ToastSystem {
 
         toast.innerHTML = `
             <div class="toast-icon">
+                <svg class="toast-timer-ring" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                </svg>
                 <i class="fas ${icon}"></i>
             </div>
             <div class="toast-content">
@@ -1305,9 +1308,6 @@ class ToastSystem {
             </div>
             <div class="toast-close" onclick="this.parentElement.remove()">
                 <i class="fas fa-times"></i>
-            </div>
-            <div class="toast-progress">
-                <div class="toast-progress-bar"></div>
             </div>
         `;
 
@@ -1320,7 +1320,7 @@ class ToastSystem {
                     if (toast.parentElement) toast.remove();
                 });
             }
-        }, 4000);
+        }, 3000);
     }
 
     success(message) { this.show(message, 'success'); }

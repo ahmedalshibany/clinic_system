@@ -100,9 +100,9 @@ class PatientController extends Controller
         $this->authorize('delete', $patient);
         try {
             $this->patientService->deletePatient($patient);
-            return back()->with('success', 'Patient deleted successfully.');
+            return back()->with('success', __('messages.patientDeleted'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Error: ' . $e->getMessage());
+            return back()->with('error', __('messages.systemError'));
         }
     }
 

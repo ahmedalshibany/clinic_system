@@ -63,7 +63,7 @@ class UserController extends Controller
         User::create($validated);
 
         return redirect()->route('users.index')
-                        ->with('success', 'User created successfully.');
+                        ->with('success', __('messages.userCreated'));
     }
 
     public function edit(User $user)
@@ -94,7 +94,7 @@ class UserController extends Controller
         $user->update($validated);
 
         return redirect()->route('users.index')
-                        ->with('success', 'User updated successfully.');
+                        ->with('success', __('messages.userUpdated'));
     }
 
     public function destroy(User $user)
@@ -104,11 +104,11 @@ class UserController extends Controller
         try {
             $user->delete();
         } catch (QueryException $e) {
-            return back()->with('error', 'Cannot delete this user because they have related records (appointments, vitals, etc.). Deactivate the user instead.');
+            return back()->with('error', __('messages.userDeleteWithRecords'));
         }
 
         return redirect()->route('users.index')
-                        ->with('success', 'User deleted successfully.');
+                        ->with('success', __('messages.userDeleted'));
     }
 
     public function toggleActive(User $user)

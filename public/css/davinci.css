@@ -140,6 +140,7 @@
 
     /* Typography - Single Sans Family (Product Register) */
     --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-heading: var(--font-display);
     --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-en: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-ar: 'Tajawal', Tahoma, 'Segoe UI', 'Arial', sans-serif;

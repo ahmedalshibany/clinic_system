@@ -61,7 +61,7 @@ class ServiceController extends Controller
         Service::create($validated);
 
         return redirect()->route('services.index')
-            ->with('success', 'Service created successfully.');
+            ->with('success', __('messages.serviceCreated'));
     }
 
     public function update(Request $request, Service $service)
@@ -81,7 +81,7 @@ class ServiceController extends Controller
         $service->update($validated);
 
         return redirect()->route('services.index')
-            ->with('success', 'Service updated successfully.');
+            ->with('success', __('messages.serviceUpdated'));
     }
 
     public function destroy(Service $service)
@@ -90,6 +90,6 @@ class ServiceController extends Controller
         $service->delete();
 
         return redirect()->route('services.index')
-            ->with('success', 'Service deleted successfully.');
+            ->with('success', __('messages.serviceDeleted'));
     }
 }

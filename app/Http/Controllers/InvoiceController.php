@@ -67,7 +67,7 @@ class InvoiceController extends Controller
         $validated = $request->validated();
         try {
             $this->invoiceService->createInvoice($validated, Auth::id());
-            return redirect()->route('invoices.index')->with('success', 'Invoice created successfully.');
+            return redirect()->route('invoices.index')->with('success', __('messages.invoiceCreated'));
         } catch (\Exception $e) {
             return back()->with('error', 'Error creating invoice: ' . $e->getMessage())->withInput();
         }
@@ -84,7 +84,7 @@ class InvoiceController extends Controller
     {
         $this->authorize('update', $invoice);
         if ($invoice->status == 'paid' || $invoice->status == 'cancelled') {
-             return redirect()->route('invoices.show', $invoice)->with('error', 'Cannot edit paid or cancelled invoices.');
+             return redirect()->route('invoices.show', $invoice)->with('error', __('messages.invoiceEditLocked'));
         }
         $patients = Patient::select('id', 'name', 'patient_code')->get();
         $services = Service::active()->get();
@@ -97,7 +97,7 @@ class InvoiceController extends Controller
         $validated = $request->validated();
         try {
             $this->invoiceService->updateInvoice($invoice->id, $validated);
-            return redirect()->route('invoices.show', $invoice)->with('success', 'Invoice updated successfully.');
+            return redirect()->route('invoices.show', $invoice)->with('success', __('messages.invoiceUpdated'));
         } catch (\Exception $e) {
             return back()->with('error', 'Error updating invoice: ' . $e->getMessage())->withInput();
         }
@@ -108,7 +108,7 @@ class InvoiceController extends Controller
         $this->authorize('delete', $invoice);
         try {
             $this->invoiceService->deleteInvoice($invoice);
-            return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
+            return redirect()->route('invoices.index')->with('success', __('messages.invoiceDeleted'));
         } catch (\Exception $e) {
             return back()->with('error', 'Error deleting invoice: ' . $e->getMessage());
         }
@@ -120,7 +120,7 @@ class InvoiceController extends Controller
         $validated = $request->validated();
         try {
             $this->invoiceService->addPayment($invoice, $validated, Auth::id());
-            return back()->with('success', 'Payment recorded successfully.');
+            return back()->with('success', __('messages.paymentRecorded'));
         } catch (\Exception $e) {
             return back()->withErrors(['amount' => $e->getMessage()])->withInput();
         }
@@ -132,7 +132,7 @@ class InvoiceController extends Controller
         if ($invoice->status == 'draft') {
             $invoice->update(['status' => 'sent']);
         }
-        return back()->with('success', 'Invoice marked as sent.');
+        return back()->with('success', __('messages.invoiceMarkedSent'));
     }
 
     public function print(Invoice $invoice)

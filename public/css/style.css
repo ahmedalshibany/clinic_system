@@ -539,38 +539,6 @@ textarea.form-control {
     }
 }
 
-.custom-alert {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    right: auto;
-    z-index: 9999;
-    box-shadow: var(--shadow-hover);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg) var(--space-xl);
-    border: none;
-    min-width: 300px;
-    animation: slideInDownCenter 0.3s ease forwards;
-}
-
-[dir="rtl"] .custom-alert {
-    left: 50%;
-    right: auto;
-}
-
-@keyframes slideInDownCenter {
-    from {
-        transform: translate(-50%, -100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translate(-50%, 0);
-        opacity: 1;
-    }
-}
-
 /* Unified soft buttons — icon-only action buttons with consistent 38×38px, var(--radius), subtle lift */
 .btn-soft-primary,
 .btn-soft-danger,
@@ -925,193 +893,210 @@ textarea.form-control {
     background: rgba(167, 139, 250, 0.28);
 }
 
-@media (max-width: 768px) {
-    .toast-container {
-        right: 12px;
-        left: 12px;
-        max-width: none;
-        bottom: 20px;
-    }
-}
-
+/* Unified High-Fidelity Floating Toast Container */
 .toast-container {
     position: fixed;
     top: 24px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10000;
+    z-index: 11000;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    max-width: 360px;
+    width: calc(100% - 48px);
     pointer-events: none;
 }
 
+/* Geometric Notification Base Card */
 .toast-notification {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-medium);
-    padding: var(--space-lg);
-    min-width: 320px;
-    max-width: 400px;
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
+    border: 1px solid var(--border-hairline) !important;
+    border-inline-start: 5px solid currentColor !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 30px rgba(15, 61, 62, 0.06) !important;
+    padding: 14px 18px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
     pointer-events: auto;
-    animation: slideInToast 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
     position: relative;
     overflow: hidden;
 }
 
-[data-theme="dark"] .toast-notification {
-    background: rgba(30, 41, 59, 0.9);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #f1f5f8;
-}
-
-@keyframes slideInToast {
-    from {
-        transform: translateY(-100%) scale(0.9);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOutToast {
-    to {
-        transform: translateY(-100%) scale(0.9);
-        opacity: 0;
-    }
-}
-
-.toast-notification.closing {
-    animation: slideOutToast 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-
+/* Enforce Strict Text & Icon Order Alignment */
 .toast-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-}
-
-.toast-notification.success .toast-icon {
-    background: rgba(74, 168, 126, 0.15);
-    color: #4aa87e;
-}
-
-.toast-notification.error .toast-icon {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-}
-
-.toast-notification.warning .toast-icon {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-}
-
-.toast-notification.info .toast-icon {
-    background: rgba(47, 65, 86, 0.15);
-    color: #2F4156;
+    order: 1;
+    position: relative;
 }
 
 .toast-content {
     flex: 1;
-    padding-right: 20px;
-}
-
-[dir="rtl"] .toast-content {
-    padding-right: 0;
-    padding-left: 20px;
+    order: 2;
+    text-align: start !important;
 }
 
 .toast-title {
+    font-family: var(--font-heading), sans-serif;
     font-weight: 700;
-    font-size: 0.95rem;
-    margin-bottom: 4px;
-    color: var(--primary);
-}
-
-[data-theme="dark"] .toast-title {
-    color: #f1f5f8;
-}
-
-.toast-message {
-    font-size: 0.875rem;
-    color: var(--light-text);
+    font-size: 14px;
+    margin: 0;
     line-height: 1.4;
 }
 
-[data-theme="dark"] .toast-message {
-    color: #94a3b8;
+.toast-message {
+    font-size: var(--text-xs);
+    line-height: 1.5;
 }
 
+/* Global Close Trigger Alignment */
 .toast-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
+    order: 3;
     cursor: pointer;
-    color: var(--light-text);
+    background: transparent;
+    border: none;
+    font-size: 0.85rem;
     padding: 4px;
-    border-radius: 50%;
-    transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
-    width: 24px;
-    height: 24px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+.toast-close:hover { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════
+   TYPE: Action Success — Dark Slate Surface
+   Background: #1c2d30
+   Stripe + Icon: fa-check-circle #3a8a50 (subdued forest green)
+   Text: #fcfbfa
+   ═══════════════════════════════════════════════════════════ */
+.toast-notification.success {
+    background: #1c2d30 !important;
+    color: #3a8a50 !important;
+}
+.toast-notification.success .toast-title {
+    color: #fcfbfa !important;
+}
+.toast-notification.success .toast-message {
+    color: #fcfbfa !important;
+}
+.toast-notification.success .toast-close {
+    color: #fcfbfa !important;
+    opacity: 0.5;
+}
+.toast-notification.success .toast-close:hover {
+    opacity: 1;
 }
 
-[dir="rtl"] .toast-close {
-    right: auto;
-    left: 12px;
+/* ═══════════════════════════════════════════════════════════
+   TYPE: System Failure — Light Banner with Terracotta Accent
+   Background: #f6f0e8
+   Status line: #b34828
+   Icon: fa-exclamation-triangle #b34828
+   Text: #333333
+   ═══════════════════════════════════════════════════════════ */
+.toast-notification.error {
+    background: #f6f0e8 !important;
+    color: #b34828 !important;
+    border-inline-start-color: #b34828 !important;
+}
+.toast-notification.error .toast-title {
+    color: #333333 !important;
+}
+.toast-notification.error .toast-message {
+    color: #333333 !important;
+}
+.toast-notification.error .toast-close {
+    color: #333333 !important;
+    opacity: 0.5;
+}
+.toast-notification.error .toast-close:hover {
+    opacity: 1;
 }
 
-.toast-close:hover {
-    background: rgba(0, 0, 0, 0.05);
-    color: var(--primary);
+/* ═══════════════════════════════════════════════════════════
+   TYPE: Warning — Yellow Ochre / Amber
+   ═══════════════════════════════════════════════════════════ */
+.toast-notification.warning {
+    background: #fdf6ec !important;
+    color: #bf8c30 !important;
+    border-inline-start-color: #bf8c30 !important;
+}
+.toast-notification.warning .toast-title {
+    color: #1a1a1a !important;
+}
+.toast-notification.warning .toast-message {
+    color: #555555 !important;
+}
+.toast-notification.warning .toast-close {
+    color: #a09080 !important;
+}
+.toast-notification.warning .toast-close:hover {
+    color: #1a1a1a !important;
 }
 
-.toast-progress {
+/* ═══════════════════════════════════════════════════════════
+   TYPE: Info — Prussian Blue / Slate
+   ═══════════════════════════════════════════════════════════ */
+.toast-notification.info {
+    background: #f2f4f8 !important;
+    color: #3d5a80 !important;
+    border-inline-start-color: #3d5a80 !important;
+}
+.toast-notification.info .toast-title {
+    color: #1a1a1a !important;
+}
+.toast-notification.info .toast-message {
+    color: #555555 !important;
+}
+.toast-notification.info .toast-close {
+    color: #a09080 !important;
+}
+.toast-notification.info .toast-close:hover {
+    color: #1a1a1a !important;
+}
+
+/* Circular Timer Ring — replaces progress bar */
+.toast-timer-ring {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: rgba(0, 0, 0, 0.05);
+    inset: -5px;
+    width: calc(100% + 10px);
+    height: calc(100% + 10px);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: center;
+    stroke-dasharray: 62.83;
+    animation: toastTimer 3s linear forwards;
+    opacity: 0.4;
 }
 
-.toast-progress-bar {
-    height: 100%;
-    width: 100%;
-    background: currentColor;
-    transform-origin: left;
-    animation: toastProgress 4s linear forwards;
+/* Keyframe for timer ring depletion */
+@keyframes toastTimer {
+    to { stroke-dashoffset: 62.83; }
 }
 
-[dir="rtl"] .toast-progress-bar {
-    transform-origin: right;
+/* Entry & Exit Animation */
+@keyframes slideInToast {
+    from { transform: translateY(-24px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
-
-@keyframes toastProgress {
-    from {
-        transform: scaleX(1);
-    }
-
-    to {
-        transform: scaleX(0);
-    }
+@keyframes slideOutToast {
+    to { transform: translateY(-24px); opacity: 0; }
+}
+.toast-notification {
+    animation: slideInToast 0.35s var(--ease-out);
+}
+.toast-notification.closing {
+    animation: slideOutToast 0.25s var(--ease-out) forwards;
 }
 
 /* Fade-in animation for card panels & tab transitions */
@@ -1172,22 +1157,6 @@ textarea.form-control {
 
 [data-theme="dark"] .autocomplete-item:hover {
     background: rgba(255, 255, 255, 0.05);
-}
-
-.toast-notification.success .toast-progress-bar {
-    background: #4aa87e;
-}
-
-.toast-notification.error .toast-progress-bar {
-    background: #ef4444;
-}
-
-.toast-notification.warning .toast-progress-bar {
-    background: #f59e0b;
-}
-
-.toast-notification.info .toast-progress-bar {
-    background: #2F4156;
 }
 
 /* RTL Modal Header - Move close button to left, keep title on right */

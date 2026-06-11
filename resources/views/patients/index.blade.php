@@ -5,19 +5,6 @@
 @section('page-i18n', 'patients')
 
 @section('content')
-<!-- Flash Messages -->
-
-
-@if($errors->any())
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i>
-        @foreach($errors->all() as $error)
-            {{ $error }}<br>
-        @endforeach
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
-
 <!-- Action Toolbar -->
 <div class="action-toolbar d-flex gap-3 flex-wrap align-items-center justify-content-between mb-4 fade-in">
     <form action="{{ route('patients.index') }}" method="GET" class="search-box">

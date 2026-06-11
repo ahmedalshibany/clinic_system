@@ -55,7 +55,7 @@ class MedicalRecordController extends Controller
             return back()->withInput()->with('error', 'Error creating medical record: ' . $e->getMessage());
         }
         return redirect()->route('patients.show', $request->patient_id)
-            ->with('success', 'Medical record created successfully.');
+            ->with('success', __('messages.medicalRecordCreated'));
     }
 
     public function show(MedicalRecord $medicalRecord)
@@ -81,7 +81,7 @@ class MedicalRecordController extends Controller
             return back()->withInput()->with('error', 'Error updating medical record: ' . $e->getMessage());
         }
         return redirect()->route('medical-records.show', $medicalRecord)
-            ->with('success', 'Medical record updated successfully.');
+            ->with('success', __('messages.medicalRecordUpdated'));
     }
 
     public function destroy(MedicalRecord $medicalRecord)
@@ -93,7 +93,7 @@ class MedicalRecordController extends Controller
             return back()->with('error', 'Error deleting medical record: ' . $e->getMessage());
         }
         return redirect()->route('medical-records.index')
-            ->with('success', 'Medical record deleted successfully.');
+            ->with('success', __('messages.medicalRecordDeleted'));
     }
 
     public function printPrescription(MedicalRecord $medicalRecord)
