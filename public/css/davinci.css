@@ -56,11 +56,11 @@
     /* Secondary - Verdigris (aged copper patina) */
     --secondary: #0f3d3e;
     --secondary-light: #1d5c5f;
+    --secondary-rgb: 15, 61, 62;
 
     /* Accent - Burnt Sienna (Da Vinci's favorite) */
     --accent: #a0522d;
     --accent-light: #cd853f;
-    --accent-glow: rgba(205, 133, 63, 0.15);
 
     /* Tertiary - Raw Umber */
     --tertiary: #5c4033;
@@ -168,83 +168,73 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   DARK THEME - "Midnight Verdigris" Edition
-   Brand-consistent dark palette with premium hierarchical contrast
+   DARK THEME - "Matte Slate" Edition
+   Solid, matte, geometric minimalism. Zero glow, zero gradient.
    ═══════════════════════════════════════════════════════════════════════════════ */
 [data-theme="dark"] {
-    /* Primary - Soft Moonlight */
-    --primary: #eeecf2;
-    --primary-light: #d8d5e6;
+    /* Primary - Soft Bone White */
+    --primary: #e4e4e6;
+    --primary-light: #d0d0d4;
 
-    /* Secondary - Verdigris Jade (brand hue preserved from light mode) */
+    /* Secondary - Verdigris Jade */
     --secondary: #2aa88a;
-    --secondary-light: #34c4a3;
-    --secondary-glow: rgba(42, 168, 138, 0.15);
+    --secondary-light: #3bc9a0;
+    --secondary-rgb: 42, 168, 138;
 
     /* Accent - Warm Gold */
     --accent: #d4a050;
     --accent-light: #e0b870;
-    --accent-glow: rgba(212, 160, 80, 0.15);
 
-    /* Tertiary - Dusty Lavender */
-    --tertiary: #8b7fa8;
-    --tertiary-light: #a898c4;
-    --tertiary-glow: rgba(139, 127, 168, 0.15);
+    /* Tertiary - Near-Neutral Muted */
+    --tertiary: #5a5a5e;
+    --tertiary-light: #6a6a6e;
 
-    /* Semantic - Medical-appropriate dark tones */
-    --success: #2ecc71;
-    --warning: #f0ad4e;
-    --danger: #e74c3c;
-    --info: #5dade2;
+    /* Semantic - Desaturated for clinical readability, no glow */
+    --success: #4a8a6a;
+    --warning: #b08a4a;
+    --danger: #b04a4a;
+    --info: #4a7a9a;
 
-    /* Backgrounds - Luminance hierarchy (7 steps, each distinctly lighter) */
-    --white: #0d0d1a;
-    --cream: #111122;
-    --sand: #151528;
-    --stone: #1c1c30;
-    --clay: #24243a;
+    /* Backgrounds - Strict luminance hierarchy (6 solid matte steps) */
+    --white: #121316;
+    --cream: #18191d;
+    --sand: #1e1f24;
+    --stone: #25262c;
+    --clay: #2d2e35;
 
     /* Text Colors - Strict luminance scale for clear hierarchy */
-    --dark: #eeecf2;
-    /* Headings, bold — ~16:1 */
-    --text-primary: #e2e0e8;
-    /* Body text — ~13:1 */
-    --text-secondary: #a8a4b8;
-    /* Secondary info — ~8:1 */
-    --light-text: #8a87a0;
-    /* Tertiary/metadata — ~5.5:1 */
+    --dark: #e8e8ea;
+    /* Headings, bold — ~15:1 */
+    --text-primary: #d4d4d6;
+    /* Body text — ~14:1 */
+    --text-secondary: #9a9a9e;
+    /* Secondary info — ~7:1 */
+    --light-text: #78787d;
+    /* Tertiary/metadata — ~5:1 */
 
     /* Muted / Placeholder — WCAG AA 4.5:1 minimum */
-    --muted: #7a7790;
-    /* ~4.6:1 ✅ */
+    --muted: #636468;
+    /* ~4.5:1 ✅ */
     --text-muted: var(--muted);
-    --card-bg: #1c1c30;
-    --panel-bg: #151528;
+    --card-bg: #121316;
+    --panel-bg: #18191d;
 
     /* Surface Colors */
-    --beige: #0d0d1a;
-    --body-bg: #07070d;
-    --input-bg: rgba(255, 255, 255, 0.04);
+    --beige: #121316;
+    --body-bg: #0c0d10;
+    --input-bg: #1c1d22;
 
-    /* Shadows - Deeper, with subtle jade glow */
-    --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.5);
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.55), 0 0 40px rgba(42, 168, 138, 0.02);
-    --shadow-medium: 0 8px 40px rgba(0, 0, 0, 0.6), 0 0 60px rgba(42, 168, 138, 0.04);
-    --shadow-hover: 0 16px 60px rgba(0, 0, 0, 0.7), 0 0 80px rgba(42, 168, 138, 0.06);
+    /* Shadows - Pure black drop, no colored glow */
+    --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.5);
+    --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.55);
+    --shadow-hover: 0 6px 12px rgba(0, 0, 0, 0.6);
+    --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.65);
 
-    /* Layout-specific dark tokens */
-    --glass-bg: rgba(10, 10, 20, 0.95);
-    --glass-border: rgba(255, 255, 255, 0.06);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-    --neon-accent: #2aa88a;
-    --primary-gradient: linear-gradient(135deg, #2aa88a 0%, #34c4a3 100%);
-    --sidebar-bg: linear-gradient(180deg, #090912 0%, #0d0d1a 50%, #090912 100%);
-
-    /* Borders with subtle visibility */
-    --border-hairline: rgba(255, 255, 255, 0.04);
-    --border-light: rgba(255, 255, 255, 0.07);
-    --border-medium: rgba(255, 255, 255, 0.10);
-    --border-glow: rgba(42, 168, 138, 0.25);
+    /* Borders - Micro-thin geometry, slightly bolder for clarity */
+    --border-hairline: rgba(255, 255, 255, 0.06);
+    --border-light: rgba(255, 255, 255, 0.10);
+    --border-medium: rgba(255, 255, 255, 0.16);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -425,6 +415,27 @@ p {
     pointer-events: none;
 }
 
+/* btn-outline-primary — use brand secondary instead of Bootstrap blue */
+.btn-outline-primary {
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+}
+.btn-outline-primary:hover {
+    background: var(--secondary);
+    color: var(--white);
+    border-color: var(--secondary);
+}
+
+/* Active working day buttons (btn-check pattern) */
+.btn-check:checked + .btn-outline-primary {
+    background: var(--secondary) !important;
+    color: var(--white) !important;
+    border-color: var(--secondary) !important;
+}
+.btn-check:checked + .btn-outline-primary:focus-visible {
+    box-shadow: 0 0 0 2px var(--secondary) !important;
+}
+
 .btn-light {
     background: var(--cream);
     color: var(--text-primary);
@@ -446,7 +457,7 @@ p {
 
 .btn-light:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px var(--accent-glow), 0 0 0 1px var(--border-medium);
+    box-shadow: 0 0 0 2px var(--accent);
 }
 
 .btn-light:disabled,
@@ -472,7 +483,7 @@ p {
 
 .btn-outline-secondary:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px var(--accent-glow), 0 0 0 1px var(--secondary);
+    box-shadow: 0 0 0 2px var(--accent);
 }
 
 .btn-outline-secondary:active {
@@ -531,17 +542,15 @@ p {
 
 [data-theme="dark"] .btn-davinci-primary {
     background: var(--secondary);
-    color: #0a0a14;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    color: var(--white);
 }
 
 [data-theme="dark"] .btn-davinci-primary:hover {
-    background: #34c4a3;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    background: var(--secondary-light);
 }
 
 [data-theme="dark"] .btn-davinci-primary:active {
-    background: #238a72;
+    background: #3a5a7a;
 }
 
 /* Soft buttons with natural colors */
@@ -599,9 +608,7 @@ p {
 .form-control:focus {
     outline: none;
     border-color: var(--secondary);
-    box-shadow:
-        0 0 0 3px var(--accent-glow),
-        var(--shadow-subtle);
+    box-shadow: 0 0 0 2px var(--secondary);
 }
 
 .form-control::placeholder {
@@ -678,6 +685,11 @@ p {
     border-radius: var(--radius-full);
 }
 
+.bg-primary-soft {
+    background: rgba(15, 61, 62, 0.06) !important;
+    color: var(--secondary) !important;
+}
+
 .bg-success {
     background: rgba(46, 93, 52, 0.12) !important;
     color: var(--success) !important;
@@ -694,8 +706,8 @@ p {
 }
 
 .bg-info {
-    background: rgba(61, 90, 128, 0.12) !important;
-    color: var(--info) !important;
+    background: rgba(var(--secondary-rgb), 0.12) !important;
+    color: var(--secondary) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -758,129 +770,121 @@ p {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   DARK THEME - "Midnight Aurora" Component Styles
+   DARK THEME - "Matte Slate" Component Styles
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-/* Cards with glass effect */
+/* Cards - Solid matte, no glass */
 [data-theme="dark"] .card {
-    background: linear-gradient(145deg, rgba(20, 20, 35, 0.95) 0%, rgba(15, 15, 25, 0.98) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(10px);
+    background: var(--white);
+    border: 1px solid var(--border-hairline);
 }
 
 [data-theme="dark"] .card:hover {
-    border-color: var(--border-glow);
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(42, 168, 138, 0.05);
+    border-color: var(--border-light);
+    box-shadow: var(--shadow-hover);
 }
 
 /* Buttons — dark theme */
 [data-theme="dark"] .btn-primary {
     background: var(--secondary);
     border: 1px solid transparent;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="dark"] .btn-primary:hover {
-    background: #239977;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    background: var(--secondary-light);
 }
 
 [data-theme="dark"] .btn-soft-primary {
     background: rgba(42, 168, 138, 0.12);
-    color: #34c4a3;
+    color: var(--secondary-light);
     border: 1px solid rgba(42, 168, 138, 0.2);
 }
 
 [data-theme="dark"] .btn-soft-primary:hover {
     background: rgba(42, 168, 138, 0.2);
-    border-color: rgba(42, 168, 138, 0.4);
-    box-shadow: 0 0 20px rgba(42, 168, 138, 0.15);
+    border-color: rgba(42, 168, 138, 0.35);
 }
 
 [data-theme="dark"] .btn-soft-secondary {
-    background: rgba(212, 160, 80, 0.12);
-    color: #d4a050;
-    border: 1px solid rgba(212, 160, 80, 0.2);
+    background: rgba(138, 138, 142, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(138, 138, 142, 0.2);
 }
 
 [data-theme="dark"] .btn-soft-secondary:hover {
-    background: rgba(212, 160, 80, 0.25);
-    color: #0d0d1a !important;
-    border-color: rgba(212, 160, 80, 0.5);
-    box-shadow: 0 0 20px rgba(212, 160, 80, 0.25);
+    background: rgba(138, 138, 142, 0.25);
+    color: var(--white) !important;
+    border-color: rgba(138, 138, 142, 0.4);
 }
 
 [data-theme="dark"] .btn-soft-danger {
-    background: rgba(239, 68, 68, 0.12);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.2);
+    background: rgba(176, 74, 74, 0.12);
+    color: var(--danger);
+    border: 1px solid rgba(176, 74, 74, 0.2);
 }
 
 [data-theme="dark"] .btn-soft-danger:hover {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: rgba(239, 68, 68, 0.4);
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
+    background: rgba(176, 74, 74, 0.2);
+    border-color: rgba(176, 74, 74, 0.35);
 }
 
 [data-theme="dark"] .btn-outline-secondary {
     background: transparent;
-    color: #2aa88a;
+    color: var(--secondary);
     border: 1px solid rgba(42, 168, 138, 0.35);
 }
 
 [data-theme="dark"] .btn-outline-secondary:hover {
     background: rgba(42, 168, 138, 0.1);
-    color: #34c4a3;
-    border-color: #2aa88a;
-    box-shadow: 0 0 20px rgba(42, 168, 138, 0.1);
+    color: var(--secondary-light);
+    border-color: var(--secondary);
 }
 
 [data-theme="dark"] .btn-outline-secondary:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(42, 168, 138, 0.3), 0 0 0 1px #2aa88a;
+    box-shadow: 0 0 0 3px rgba(42, 168, 138, 0.3), 0 0 0 1px var(--secondary);
 }
 
-
-
-/* Form inputs with subtle glow on focus */
+/* Form inputs - Solid matte, sharp focus ring */
 [data-theme="dark"] .form-control,
 [data-theme="dark"] .form-select {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--input-bg);
+    border: 1px solid var(--border-medium);
     color: var(--text-primary);
 }
 
 [data-theme="dark"] .form-control:focus,
 [data-theme="dark"] .form-select:focus {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(42, 168, 138, 0.5);
-    box-shadow: 0 0 0 3px rgba(42, 168, 138, 0.1), 0 0 20px rgba(42, 168, 138, 0.08);
+    background: var(--sand);
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 2px rgba(42, 168, 138, 0.25);
 }
 
 [data-theme="dark"] .form-control::placeholder {
     color: var(--muted);
 }
 
-/* Tables with subtle hierarchy */
+/* Tables - Geometric, no tinted headers */
 [data-theme="dark"] .table {
     --bs-table-bg: transparent;
 }
 
-[data-theme="dark"] .table thead {
-    background: rgba(42, 168, 138, 0.06);
+[data-theme="dark"] .table thead,
+[data-theme="dark"] .table thead.table-light {
+    background: var(--cream);
 }
 
 [data-theme="dark"] .table thead th {
-    color: var(--text-primary);
-    border-bottom: 1px solid rgba(42, 168, 138, 0.12);
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-light);
 }
 
 [data-theme="dark"] .table tbody tr {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--border-hairline);
 }
 
 [data-theme="dark"] .table tbody tr:hover {
-    background: rgba(42, 168, 138, 0.04);
+    background: var(--sand);
 }
 
 /* Fix text colors in tables for dark theme */
@@ -890,78 +894,150 @@ p {
     color: var(--text-primary) !important;
 }
 
+/* Ensure warning/info/success buttons use proper dark text in dark mode */
+[data-theme="dark"] .btn-warning {
+    color: #1a1a1a !important;
+}
+[data-theme="dark"] .btn-warning.text-dark {
+    color: #1a1a1a !important;
+}
+[data-theme="dark"] .btn-info {
+    color: var(--white) !important;
+}
+[data-theme="dark"] .btn-success {
+    color: var(--white) !important;
+}
+
+/* Doctor show page - schedule rows, avatar, tabs, alerts */
+[data-theme="dark"] .bg-light {
+    background: var(--cream) !important;
+}
+[data-theme="dark"] .bg-primary-soft {
+    background: rgba(42, 168, 138, 0.1) !important;
+}
+[data-theme="dark"] .border-primary {
+    border-color: var(--secondary) !important;
+}
+[data-theme="dark"] .btn-outline-primary {
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+}
+[data-theme="dark"] .btn-outline-primary:hover {
+    background: var(--secondary);
+    color: var(--white);
+}
+[data-theme="dark"] .btn-check:checked + .btn-outline-primary {
+    background: var(--secondary) !important;
+    color: var(--body-bg) !important;
+    border-color: var(--secondary) !important;
+}
+[data-theme="dark"] .btn-check:checked + .btn-outline-primary:focus-visible {
+    box-shadow: 0 0 0 2px var(--secondary) !important;
+}
+
+/* Alerts - matte solid surfaces for dark mode */
+[data-theme="dark"] .alert-info {
+    background: rgba(74, 122, 154, 0.12);
+    border-color: rgba(74, 122, 154, 0.2);
+    color: var(--text-primary);
+}
+[data-theme="dark"] .alert-warning {
+    background: rgba(176, 138, 74, 0.12);
+    border-color: rgba(176, 138, 74, 0.2);
+    color: var(--text-primary);
+}
+[data-theme="dark"] .alert-success {
+    background: rgba(74, 138, 106, 0.12);
+    border-color: rgba(74, 138, 106, 0.2);
+    color: var(--text-primary);
+}
+[data-theme="dark"] .alert-danger {
+    background: rgba(176, 74, 74, 0.12);
+    border-color: rgba(176, 74, 74, 0.2);
+    color: var(--text-primary);
+}
+
 [data-theme="dark"] .table .text-secondary {
     color: var(--text-secondary) !important;
 }
 
-/* Badges with glow */
+/* Badges - Flat color chips, no glow */
 [data-theme="dark"] .badge.bg-success,
 [data-theme="dark"] .badge.bg-success-subtle {
-    background: rgba(46, 204, 113, 0.15) !important;
-    color: #2ecc71 !important;
-    box-shadow: 0 0 10px rgba(46, 204, 113, 0.15);
+    background: rgba(74, 138, 106, 0.15) !important;
+    color: var(--success) !important;
 }
 
 [data-theme="dark"] .badge.bg-warning,
 [data-theme="dark"] .badge.bg-warning-subtle {
-    background: rgba(240, 173, 78, 0.15) !important;
-    color: #f0ad4e !important;
-    box-shadow: 0 0 10px rgba(240, 173, 78, 0.15);
+    background: rgba(176, 138, 74, 0.15) !important;
+    color: var(--warning) !important;
 }
 
 [data-theme="dark"] .badge.bg-danger,
 [data-theme="dark"] .badge.bg-danger-subtle {
-    background: rgba(231, 76, 60, 0.15) !important;
-    color: #e74c3c !important;
-    box-shadow: 0 0 10px rgba(231, 76, 60, 0.15);
+    background: rgba(176, 74, 74, 0.15) !important;
+    color: var(--danger) !important;
 }
 
 [data-theme="dark"] .badge.bg-info,
 [data-theme="dark"] .badge.bg-info-subtle {
-    background: rgba(93, 173, 226, 0.15) !important;
-    color: #5dade2 !important;
-    box-shadow: 0 0 10px rgba(93, 173, 226, 0.15);
+    background: rgba(var(--secondary-rgb), 0.15) !important;
+    color: var(--secondary) !important;
 }
 
 [data-theme="dark"] .badge.bg-secondary,
 [data-theme="dark"] .badge.bg-secondary-subtle {
-    background: rgba(139, 127, 168, 0.15) !important;
-    color: #a898c4 !important;
+    background: rgba(90, 90, 94, 0.15) !important;
+    color: var(--tertiary-light) !important;
 }
 
-/* Modals with glass effect */
+/* Bootstrap toggle switches - use brand secondary instead of blue */
+.form-check-input:checked[type=checkbox] {
+    background-color: var(--secondary) !important;
+    border-color: var(--secondary) !important;
+}
+.form-check-input:focus {
+    box-shadow: 0 0 0 2px rgba(var(--secondary-rgb), 0.25);
+    border-color: var(--secondary);
+}
+[data-theme="dark"] .form-check-input:focus {
+    box-shadow: 0 0 0 2px rgba(42, 168, 138, 0.25);
+    border-color: var(--secondary);
+}
+
+/* Modals - Solid matte, no glass */
 [data-theme="dark"] .modal-content {
-    background: linear-gradient(145deg, rgba(17, 17, 34, 0.98) 0%, rgba(13, 13, 26, 0.99) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7), 0 0 60px rgba(42, 168, 138, 0.03);
+    background: var(--white);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-elevated);
 }
 
 [data-theme="dark"] .modal-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--border-hairline);
 }
 
 [data-theme="dark"] .modal-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--border-hairline);
 }
 
-/* Scrollbar styling */
+/* Scrollbar - Matte grey, no tint */
 [data-theme="dark"] ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--body-bg);
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
-    background: rgba(42, 168, 138, 0.25);
+    background: var(--clay);
     border-radius: 4px;
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-    background: rgba(42, 168, 138, 0.45);
+    background: var(--stone);
 }
 
 /* Action toolbar */
@@ -972,29 +1048,30 @@ p {
 
 /* Search box */
 [data-theme="dark"] .search-box input {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.08);
+    background: var(--input-bg);
+    border-color: var(--border-medium);
 }
 
 [data-theme="dark"] .search-box input:focus {
-    border-color: rgba(42, 168, 138, 0.4);
-    box-shadow: 0 0 15px rgba(42, 168, 138, 0.1);
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 2px rgba(42, 168, 138, 0.2);
 }
 
 /* Pagination */
 [data-theme="dark"] .pagination-controls {
-    background: rgba(255, 255, 255, 0.02);
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: transparent;
+    border-top: 1px solid var(--border-hairline);
 }
 
 [data-theme="dark"] .pagination-buttons button:not(:disabled):hover {
-    background: rgba(42, 168, 138, 0.1);
-    color: #34c4a3;
+    background: var(--sand);
+    color: var(--secondary);
 }
 
 /* Empty state */
 [data-theme="dark"] .empty-state i {
-    color: rgba(42, 168, 138, 0.35);
+    color: var(--text-muted);
+    opacity: 0.4;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -1076,6 +1153,24 @@ p {
 [dir="rtl"] .settings-nav-item.active {
     border-left: none;
     border-right: 3px solid var(--secondary);
+}
+
+/* RTL button group — working days direction */
+[dir="rtl"] .btn-group {
+    direction: rtl;
+}
+[dir="rtl"] .btn-group > .btn {
+    border-radius: 0 !important;
+}
+[dir="rtl"] .btn-group > .btn:first-child:not(:last-child) {
+    border-radius: 0 6px 6px 0 !important;
+}
+[dir="rtl"] .btn-group > .btn:last-child:not(:first-child) {
+    border-radius: 6px 0 0 6px !important;
+}
+[dir="rtl"] .btn-group > .btn:not(:first-child) {
+    margin-left: 0;
+    margin-right: -1px;
 }
 
 /* Settings Card — Content Panes */
@@ -1174,7 +1269,7 @@ p {
 
 .toggle-switch input:focus-visible + .toggle-track {
     outline: none;
-    box-shadow: 0 0 0 3px var(--accent-glow);
+    box-shadow: 0 0 0 2px var(--accent);
 }
 
 .toggle-label {
@@ -1237,7 +1332,7 @@ p {
 
 [data-theme="dark"] .settings-card .card-header i,
 [data-theme="dark"] .settings-card .card-header h6 {
-    color: var(--secondary-light);
+    color: var(--secondary);
 }
 
 [data-theme="dark"] .settings-card .card-header {
@@ -1249,15 +1344,15 @@ p {
 }
 
 [data-theme="dark"] .settings-divider {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--border-hairline);
 }
 
 [data-theme="dark"] .toggle-track {
-    background: rgba(255, 255, 255, 0.10);
+    background: var(--stone);
 }
 
 [data-theme="dark"] .toggle-switch input:checked + .toggle-track {
-    background: var(--secondary-light);
+    background: var(--secondary);
 }
 
 [data-theme="dark"] .toggle-label {

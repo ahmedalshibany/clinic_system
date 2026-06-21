@@ -23,6 +23,9 @@
         color: var(--dark);
         text-decoration: none;
     }
+    [data-theme="dark"] .fc-daygrid-day-number {
+        color: var(--text-primary);
+    }
     .fc-col-header-cell-cushion {
         color: var(--dark);
         text-decoration: none;
@@ -33,16 +36,60 @@
     .fc-button-primary {
         background-color: var(--primary) !important;
         border-color: var(--primary) !important;
+        color: var(--white) !important;
+    }
+    .fc-button-primary:not(:disabled):hover {
+        background-color: var(--secondary) !important;
+        border-color: var(--secondary) !important;
     }
     .fc-button-primary:not(:disabled):active, 
     .fc-button-primary:not(:disabled).fc-button-active {
         background-color: var(--secondary) !important;
         border-color: var(--secondary) !important;
     }
+    [data-theme="dark"] .fc-button-primary {
+        background-color: var(--secondary) !important;
+        border-color: var(--secondary) !important;
+    }
+    [data-theme="dark"] .fc-button-primary:not(:disabled):hover {
+        background-color: var(--secondary-light) !important;
+        border-color: var(--secondary-light) !important;
+    }
+    [data-theme="dark"] .fc-button-primary:not(:disabled):active, 
+    [data-theme="dark"] .fc-button-primary:not(:disabled).fc-button-active {
+        background-color: var(--secondary-light) !important;
+        border-color: var(--secondary-light) !important;
+    }
+    .fc-button-primary:disabled {
+        opacity: 0.4 !important;
+    }
     .fc-toolbar-title {
         font-size: 1.5rem !important;
         font-weight: 700;
         color: var(--dark);
+    }
+    [data-theme="dark"] .fc-toolbar-title {
+        color: var(--text-primary);
+    }
+    [data-theme="dark"] .fc-daygrid-day-number {
+        color: var(--text-primary);
+    }
+    [data-theme="dark"] .fc-col-header-cell-cushion {
+        color: var(--text-primary);
+    }
+    [data-theme="dark"] .fc-theme-bootstrap5 .fc-day {
+        background: transparent;
+    }
+    [data-theme="dark"] .fc-theme-bootstrap5 .fc-day-other {
+        background: rgba(255,255,255,0.02);
+    }
+    [data-theme="dark"] .fc-theme-bootstrap5 .fc-popover {
+        background: var(--white);
+        border-color: var(--border-medium);
+    }
+    [data-theme="dark"] .fc-theme-bootstrap5 .fc-popover-header {
+        background: var(--cream);
+        color: var(--text-primary);
     }
     .legend-item {
         display: flex;

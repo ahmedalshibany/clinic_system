@@ -269,7 +269,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   DARK THEME — Midnight Aurora
+   DARK THEME — Matte Slate
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 [data-theme="dark"] .report-section-header h5 {
@@ -282,21 +282,21 @@
 
 [data-theme="dark"] .reports-interactive-card {
   background: var(--white);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border-hairline);
 }
 
 [data-theme="dark"] .reports-interactive-card:hover {
-  border-color: rgba(42, 168, 138, 0.18);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(42, 168, 138, 0.05);
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-hover);
 }
 
 [data-theme="dark"] .report-card-icon {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-light);
+  background: var(--cream);
+  border: 1px solid var(--border-hairline);
 }
 
 [data-theme="dark"] .reports-interactive-card:hover .report-card-icon {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--sand);
 }
 
 [data-theme="dark"] .reports-interactive-card h6 {
@@ -318,11 +318,11 @@
 }
 
 [data-theme="dark"] .report-action-link {
-  color: #2aa88a;
+  color: var(--secondary);
 }
 
 [data-theme="dark"] .report-action-plate:hover .report-action-link {
-  color: #34c4a3;
+  color: var(--secondary-light);
 }
 
 

@@ -439,30 +439,7 @@ const translateMonthLabel = (label) => {
     return label;
 };
 
-function getChartColors() {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const s = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-    return {
-        grid: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-        tick: isDark ? s('--text-secondary') : '#888888',
-        border: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-        tooltipBg: isDark ? s('--white') : '#ffffff',
-        tooltipText: isDark ? s('--text-primary') : '#2c2c2c',
-        tooltipBorder: isDark ? 'rgba(42,168,138,0.2)' : 'rgba(0,0,0,0.1)',
-        pointBg: isDark ? s('--secondary') : '#0f3d3e',
-        pointBorder: isDark ? s('--body-bg') : '#ffffff',
-        fillGradient: isDark ? 'rgba(42,168,138,0.08)' : 'rgba(15,61,62,0.08)',
-        lineColor: isDark ? s('--secondary') : '#0f3d3e',
-        pending: isDark ? '#f0ad4e' : 'rgba(191,140,48,0.85)',
-        confirmed: isDark ? '#2ecc71' : 'rgba(46,93,52,0.85)',
-        completed: isDark ? '#5dade2' : 'rgba(61,90,128,0.85)',
-        cancelled: isDark ? '#e74c3c' : 'rgba(139,58,58,0.85)',
-        chartBar: isDark ? s('--secondary') : '#2dd4bf',
-        chartBarHover: isDark ? '#34c4a3' : '#00f2fe',
-    };
-}
-
-const cc = getChartColors();
+const cc = Utils.getChartColors();
 
 // Status Chart (doughnut)
 const statusCtx = document.getElementById('statusChart');

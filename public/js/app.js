@@ -1126,7 +1126,8 @@ class App {
     }
 
     applyTheme(theme) {
-        $('html').attr('data-theme', theme);
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-bs-theme', theme);
         const $btn = $('#themeToggle');
         if ($btn.length) {
             $btn.html(theme === 'dark' ? '<i class="fas fa-sun text-warning"></i>' : '<i class="fas fa-moon"></i>');

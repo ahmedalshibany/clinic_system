@@ -14,7 +14,7 @@
         margin-bottom: 1.5rem;
     }
     [data-theme="dark"] .patient-header {
-        background: linear-gradient(135deg, #0f0f1e 0%, #0d2e2a 100%);
+        background: var(--cream);
     }
     .patient-header .badge.text-dark,
     .patient-header .text-dark {
@@ -148,6 +148,34 @@
         font-size: 0.75rem;
         color: var(--muted);
         text-transform: uppercase;
+    }
+
+    /* Dark mode overrides */
+    [data-theme="dark"] .nav-tabs-custom {
+        background: var(--cream);
+    }
+    [data-theme="dark"] .nav-tabs-custom .nav-link {
+        color: var(--text-secondary);
+    }
+    [data-theme="dark"] .nav-tabs-custom .nav-link.active {
+        background: var(--secondary);
+        color: var(--white);
+    }
+    [data-theme="dark"] .nav-tabs-custom .nav-link:hover:not(.active) {
+        background: var(--sand);
+    }
+    [data-theme="dark"] .info-card {
+        background: var(--cream);
+    }
+    [data-theme="dark"] .info-card h6 {
+        color: var(--text-secondary);
+    }
+    [data-theme="dark"] .file-card {
+        background: var(--cream);
+    }
+    [data-theme="dark"] .file-card:hover {
+        box-shadow: none;
+        background: var(--sand);
     }
 </style>
 @endsection
@@ -500,7 +528,7 @@
                             {{ $record->created_at->format('Y-m-d — h:i A') }} | {{ __('messages.doctor') }}: {{ $record->doctor->user->name ?? $record->doctor->name }}
                         </h4>
                         @if($record->appointment_id)
-                            <span style="font-size: var(--text-xs); background-color: rgba(15,61,62,0.05); color: var(--secondary); padding: 2px 8px; border-radius: 4px;">
+                            <span style="font-size: var(--text-xs); background-color: rgba(42, 168, 138, 0.1); color: var(--secondary); padding: 2px 8px; border-radius: 4px;">
                                 {{ __('messages.visit_linked') }}
                             </span>
                         @endif
@@ -526,7 +554,7 @@
                         </div>
 
                         @if($record->prescription && $record->prescription->items->count() > 0)
-                            <div class="prescription-box" style="margin-top: 12px; padding: 10px; background-color: var(--accent-glow); border-left: 3px solid var(--accent); border-radius: 4px;">
+                            <div class="prescription-box" style="margin-top: 12px; padding: 10px; background-color: rgba(212, 160, 80, 0.1); border-left: 3px solid var(--accent); border-radius: 4px;">
                                 <h6 style="font-size: var(--text-sm); color: var(--accent); font-weight: 600; margin-bottom: 6px;">{{ __('messages.prescribed_medication') }}</h6>
                                 <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
                                     @foreach($record->prescription->items as $item)

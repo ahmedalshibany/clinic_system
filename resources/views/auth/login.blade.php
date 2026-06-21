@@ -6,13 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title data-i18n="appTitle">Clinic System - Login</title>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('clinic_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+    </script>
     <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/fontawesome-local.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
 
-<body>
+<body style="background: var(--body-bg); color: var(--text-primary); min-height: 100vh;">
 
     <button class="lang-toggle" id="langToggle" onclick="toggleLanguage()">
         <i class="fas fa-globe"></i>

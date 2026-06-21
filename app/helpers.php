@@ -29,6 +29,11 @@ if (!function_exists('smartBack')) {
             return route($defaultRoute, $params);
         }
 
+        // Prevent returning to create pages (avoids patient → create → patient back → create loop)
+        if (preg_match('#/(create)($|/|\?)#', $prevBase)) {
+            return route($defaultRoute, $params);
+        }
+
         return $prev;
     }
 }

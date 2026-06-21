@@ -269,35 +269,9 @@ function applyQuickFilter(filterValue) {
 @section('scripts')
 <script src="{{ asset('vendor/chartjs/chart.min.js') }}"></script>
 <script>
-    function getChartColors() {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const s = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-        const secondary = s('--secondary');
-        const success = s('--success');
-        const info = s('--info');
-        const warning = s('--warning');
-        const danger = s('--danger');
-        return {
-            grid: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-            tick: isDark ? s('--text-secondary') : '#555555',
-            border: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-            tooltipBg: isDark ? s('--white') : '#ffffff',
-            tooltipText: isDark ? s('--text-primary') : '#2c2c2c',
-            lineColor: secondary || '#0f3d3e',
-            fillGradient: isDark ? (secondary ? secondary + '20' : 'rgba(15,61,62,0.08)') : 'rgba(15,61,62,0.08)',
-            doughnutColors: [
-                secondary || '#0f3d3e',
-                success || '#2e5d34',
-                info || '#3d5a80',
-                warning || '#bf8c30',
-                danger || '#8b3a3a'
-            ]
-        };
-    }
-
     const isRtl = document.documentElement.dir === 'rtl';
     const chartFont = isRtl ? 'Tajawal' : 'Plus Jakarta Sans';
-    const cc = getChartColors();
+    const cc = Utils.getChartColors();
 
     const ctx = document.getElementById('revenueChart');
     if (ctx) {

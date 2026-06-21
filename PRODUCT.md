@@ -21,8 +21,8 @@ Inspired by Renaissance compositional principles applied to modern UI:
 
 - **Proportions:** Golden Ratio (φ = 1.618) spacing scale
 - **Typography:** Perfect Fourth (1.333) scale with a single sans family
-- **Color:** Chiaroscuro — high-contrast chiaroscuro with warm parchment tones (light) and deep space with aurora accents (dark)
-- **Shadows:** Sfumato — soft, layered, graduated shadows without harsh edges
+- **Color:** Chiaroscuro — high-contrast chiaroscuro with warm parchment tones (light) and solid matte charcoal with steel blue accents (dark)
+- **Shadows:** Sfumato — soft, layered, graduated shadows without harsh edges; dark mode uses pure black drop shadows, no colored glow
 - **Radii:** Organic curves from 6px to 32px
 
 ### Color Register — Light Mode "Chiaroscuro"
@@ -43,22 +43,22 @@ Inspired by Renaissance compositional principles applied to modern UI:
 | `--danger` | `#8b3a3a` | Destructive states |
 | `--info` | `#3d5a80` | Informational states |
 
-### Color Register — Dark Mode "Midnight Aurora"
+### Color Register — Dark Mode "Matte Slate"
 
 | Token | Value | Usage |
 |---|---|---|
-| `--primary` | `#e8e4f0` | Headings, primary text |
-| `--secondary` | `#00d4aa` | Accent surfaces (aurora cyan) |
-| `--accent` | `#ffd700` | Highlights (warm gold) |
-| `--tertiary` | `#a855f7` | Decorative (electric purple) |
-| `--white` | `#0f0f1a` | Card surfaces (deep space) |
-| `--body-bg` | `#0a0a14` | Page background |
-| `--text-primary` | `#e4e3ea` | Body text (soft moonlight) |
-| `--text-secondary` | `#9896a8` | Secondary text |
-| `--success` | `#10b981` | Positive states |
-| `--warning` | `#fbbf24` | Warning states |
-| `--danger` | `#ef4444` | Destructive states |
-| `--info` | `#3b82f6` | Informational states |
+| `--primary` | `#e4e4e6` | Headings, primary text |
+| `--secondary` | `#4a6a8a` | Accent surfaces, links, focus rings (flat steel blue) |
+| `--accent` | `#8a8a8e` | Highlights, decorative elements (muted neutral) |
+| `--tertiary` | `#5a5a5e` | Muted decorative elements |
+| `--white` | `#121316` | Card surfaces (solid matte) |
+| `--body-bg` | `#0c0d10` | Page background (deep charcoal matte) |
+| `--text-primary` | `#d4d4d6` | Body text (soft bone white) |
+| `--text-secondary` | `#9a9a9e` | Secondary text |
+| `--success` | `#4a8a6a` | Positive states (desaturated) |
+| `--warning` | `#b08a4a` | Warning states (desaturated) |
+| `--danger` | `#b04a4a` | Destructive states (desaturated) |
+| `--info` | `#4a7a9a` | Informational states (desaturated) |
 
 ### Typography
 

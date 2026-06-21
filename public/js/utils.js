@@ -98,4 +98,39 @@ class Utils {
     static hideLoading(target = 'body') {
         $(target).find('.loading-overlay').remove();
     }
+
+    static getChartColors() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const s = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+        const secondary = s('--secondary');
+        const success = s('--success');
+        const info = s('--info');
+        const warning = s('--warning');
+        const danger = s('--danger');
+        return {
+            grid: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+            tick: isDark ? s('--text-secondary') : '#888888',
+            border: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+            tooltipBg: isDark ? s('--white') : '#ffffff',
+            tooltipText: isDark ? s('--text-primary') : '#2c2c2c',
+            tooltipBorder: isDark ? 'rgba(42,168,138,0.2)' : 'rgba(0,0,0,0.1)',
+            pointBg: isDark ? secondary : '#2aa88a',
+            pointBorder: isDark ? s('--body-bg') : '#ffffff',
+            fillGradient: isDark ? (secondary ? secondary + '20' : 'rgba(42,168,138,0.08)') : 'rgba(42,168,138,0.08)',
+            lineColor: secondary || '#2aa88a',
+            pending: isDark ? (warning || '#b08a4a') : 'rgba(176,138,74,0.85)',
+            confirmed: isDark ? (success || '#4a8a6a') : 'rgba(74,138,106,0.85)',
+            completed: isDark ? (info || '#4a7a9a') : 'rgba(74,122,154,0.85)',
+            cancelled: isDark ? (danger || '#b04a4a') : 'rgba(176,74,74,0.85)',
+            chartBar: isDark ? secondary : '#2aa88a',
+            chartBarHover: isDark ? s('--secondary-light') : '#3bc9a0',
+            doughnutColors: [
+                secondary || '#2aa88a',
+                success || '#4a8a6a',
+                info || '#4a7a9a',
+                warning || '#b08a4a',
+                danger || '#b04a4a'
+            ]
+        };
+    }
 }
