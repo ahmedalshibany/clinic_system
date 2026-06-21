@@ -59,24 +59,30 @@
                     <span data-i18n="appointments">{{ __('messages.appointments') }}</span>
                 </a>
             </li>
+            @unless(auth()->user()->hasRole('nurse'))
             <li class="nav-item">
                 <a href="{{ route('appointments.calendar') }}" class="nav-link {{ request()->routeIs('appointments.calendar') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-calendar-alt"></i></div>
                     <span data-i18n="calendar">{{ __('messages.calendar') }}</span>
                 </a>
             </li>
+            @endunless
+            @unless(auth()->user()->hasRole('nurse'))
             <li class="nav-item">
                 <a href="{{ route('doctors.index') }}" class="nav-link {{ request()->routeIs('doctors.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-user-md"></i></div>
                     <span data-i18n="doctors">{{ __('messages.doctors') }}</span>
                 </a>
             </li>
+            @endunless
+            @unless(auth()->user()->hasRole('nurse'))
             <li class="nav-item">
                 <a href="{{ route('services.index') }}" class="nav-link {{ request()->routeIs('services.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-briefcase-medical"></i></div>
                     <span data-i18n="services">{{ __('messages.services') }}</span>
                 </a>
             </li>
+            @endunless
             @if(in_array(auth()->user()->role, ['admin', 'doctor']))
             <li class="nav-item">
                 <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">

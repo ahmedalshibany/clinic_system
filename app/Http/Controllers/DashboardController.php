@@ -23,6 +23,21 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
+        if ($user->hasRole('nurse')) {
+            return view('nurse.dashboard', [
+                'triageQueue' => Appointment::with(['patient', 'doctor'])
+                    ->whereDate('date', today())
+                    ->whereIn('status', ['confirmed', 'checked_in'])
+                    ->orderBy('time')
+                    ->get(),
+                'waitingList' => Appointment::with(['patient', 'doctor'])
+                    ->whereDate('date', today())
+                    ->where('status', 'waiting')
+                    ->orderBy('time')
+                    ->get(),
+            ]);
+        }
+
         $totalActivePatients = 0;
         $totalDoctors = Doctor::count();
         $totalAppointments = 0;
@@ -58,19 +73,7 @@ class DashboardController extends Controller
                 ->count();
         }
 
-        if ($user->hasRole('nurse')) {
-            $triageQueue = Appointment::with(['patient', 'doctor'])
-                ->whereDate('date', today())
-                ->whereIn('status', ['confirmed', 'checked_in'])
-                ->orderBy('time')
-                ->get();
-
-            $waitingList = Appointment::with(['patient', 'doctor'])
-                ->whereDate('date', today())
-                ->where('status', 'waiting')
-                ->orderBy('time')
-                ->get();
-        } elseif ($user->role === 'doctor') {
+        if ($user->role === 'doctor') {
             $doctor = Doctor::where('user_id', $user->id)->first();
 
             if ($doctor) {
