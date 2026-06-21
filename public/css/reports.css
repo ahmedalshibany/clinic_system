@@ -308,13 +308,13 @@
 }
 
 [data-theme="dark"] .report-action-plate {
-  background: rgba(42, 168, 138, 0.06);
-  border-color: rgba(42, 168, 138, 0.1);
+  background: rgba(45, 184, 148, 0.06);
+  border-color: rgba(45, 184, 148, 0.1);
 }
 
 [data-theme="dark"] .report-action-plate:hover {
-  background: rgba(42, 168, 138, 0.1);
-  border-color: rgba(42, 168, 138, 0.18);
+  background: rgba(45, 184, 148, 0.1);
+  border-color: rgba(45, 184, 148, 0.18);
 }
 
 [data-theme="dark"] .report-action-link {
