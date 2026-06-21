@@ -68,9 +68,27 @@ class DashboardController extends Controller
         $totalActivePatients = $coreStats['total_active_patients'];
 
         if ($user->hasRole('receptionist')) {
-            $readyToBillCount = Appointment::where('status', 'completed')
+            $readyToBillCount = Appointment::where('status', Appointment::STATUS_COMPLETED)
                 ->doesntHave('invoice')
                 ->count();
+
+            $todayScheduled = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name'])
+                ->whereDate('date', today())
+                ->orderBy('time')
+                ->get();
+
+            $receptionistStats = [
+                'waiting_count' => $todayScheduled->where('status', Appointment::STATUS_WAITING)->count(),
+                'checked_in_count' => $todayScheduled->where('status', Appointment::STATUS_CHECKED_IN)->count(),
+                'completed_count' => $todayScheduled->where('status', Appointment::STATUS_COMPLETED)->count(),
+                'cancelled_count' => $todayScheduled->where('status', Appointment::STATUS_CANCELLED)->count(),
+                'no_show_count' => $todayScheduled->where('status', Appointment::STATUS_NO_SHOW)->count(),
+                'in_progress_count' => $todayScheduled->where('status', Appointment::STATUS_IN_PROGRESS)->count(),
+                'confirmed_count' => $todayScheduled->whereIn('status', [Appointment::STATUS_SCHEDULED, Appointment::STATUS_CONFIRMED])->count(),
+            ];
+        } else {
+            $todayScheduled = collect([]);
+            $receptionistStats = [];
         }
 
         if ($user->role === 'doctor') {
@@ -141,7 +159,11 @@ class DashboardController extends Controller
             'readyToBillCount',
             'statusBreakdown',
             'monthlyRevenue',
-            'coreStats'
+            'coreStats',
+            'todayScheduled',
+            'receptionistStats'
         ));
     }
 }
+
+

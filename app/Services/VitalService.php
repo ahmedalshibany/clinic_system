@@ -29,10 +29,10 @@ class VitalService
                 'notes' => $data['notes'] ?? null,
             ]);
 
+            $appointment->assertLegalTransition(Appointment::STATUS_WAITING);
+
             $appointmentUpdate = [];
-            if (in_array($appointment->status, ['pending', 'confirmed', 'checked_in'])) {
-                $appointmentUpdate['status'] = 'waiting';
-            }
+            $appointmentUpdate['status'] = Appointment::STATUS_WAITING;
             if ($appointment->vitals_unlocked) {
                 $appointmentUpdate['vitals_unlocked'] = false;
             }
@@ -44,3 +44,4 @@ class VitalService
         });
     }
 }
+

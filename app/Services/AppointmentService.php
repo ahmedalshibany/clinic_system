@@ -105,7 +105,7 @@ class AppointmentService
         DB::beginTransaction();
 
         try {
-            // 4. Check for conflicts — duration-aware overlap + no_show/cancelled unlock
+            // 4. Check for conflicts ط·آ£ط¢آ¢ط£آ¢أ¢â‚¬ع‘ط¢آ¬ط£آ¢أ¢â€ڑآ¬أ¢â‚¬إ’ duration-aware overlap + no_show/cancelled unlock
             $slotDuration = (int) Setting::get('appointment_slot_duration', 30);
             $newStart = Carbon::parse($data['date'] . ' ' . $data['time']);
             $newEnd = (clone $newStart)->addMinutes($slotDuration);
@@ -207,7 +207,7 @@ class AppointmentService
             }
         }
 
-        // 4. Check for conflicts with lock (excluding current appointment) — overlap-aware + no_show unlock
+        // 4. Check for conflicts with lock (excluding current appointment) ط·آ£ط¢آ¢ط£آ¢أ¢â‚¬ع‘ط¢آ¬ط£آ¢أ¢â€ڑآ¬أ¢â‚¬إ’ overlap-aware + no_show unlock
         if ($timeChanged) {
             $slotDuration = (int) Setting::get('appointment_slot_duration', 30);
             $newStart = Carbon::parse($data['date'] . ' ' . $data['time']);
@@ -230,6 +230,10 @@ class AppointmentService
             }
         }
 
+        if (isset($data['status']) && $data['status'] !== $appointment->status) {
+            $appointment->assertLegalTransition($data['status']);
+        }
+
         return $appointment->update($data);
     }
 
@@ -246,6 +250,8 @@ class AppointmentService
     {
         $appointment = $id instanceof Appointment ? $id : Appointment::findOrFail($id);
 
+        $appointment->assertLegalTransition($status);
+
         $updateData = ['status' => $status];
 
         switch ($status) {
@@ -260,7 +266,6 @@ class AppointmentService
                 break;
             case 'checked_in':
                 $updateData['checked_in_at'] = now();
-                // Notify Doctor
                 try {
                     app(\App\Services\NotificationService::class)->notifyDoctor(
                         $appointment->doctor, 
@@ -319,16 +324,19 @@ class AppointmentService
     }
 
     /**
-     * Re-open vitals for an appointment — routes through service layer.
+     * Re-open vitals for an appointment ط·آ£ط¢آ¢ط£آ¢أ¢â‚¬ع‘ط¢آ¬ط£آ¢أ¢â€ڑآ¬أ¢â‚¬إ’ routes through service layer.
      *
      * @param Appointment $appointment
      * @return bool
      */
     public function reopenVitals(Appointment $appointment): bool
     {
+        $appointment->assertLegalTransition(Appointment::STATUS_PENDING);
+
         return $appointment->update([
             'vitals_unlocked' => true,
-            'status' => 'pending',
+            'status' => Appointment::STATUS_PENDING,
         ]);
     }
 }
+

@@ -73,9 +73,9 @@ class MedicalRecordService
             // If linked to appointment, update status to completed if not already
             if (!empty($data['appointment_id'])) {
                 $appointment = Appointment::find($data['appointment_id']);
-                if ($appointment && $appointment->status !== 'completed') {
+                if ($appointment && $appointment->status === Appointment::STATUS_IN_PROGRESS) {
                     $appointment->update([
-                        'status' => 'completed', 
+                        'status' => Appointment::STATUS_COMPLETED,
                         'completed_at' => now()
                     ]);
                 }
@@ -141,3 +141,4 @@ class MedicalRecordService
         });
     }
 }
+

@@ -23,7 +23,7 @@ class NurseController extends Controller
     public function createVitals(Appointment $appointment)
     {
         $this->authorize('create', Vital::class);
-        if ($appointment->status !== 'pending' && !$appointment->vitals_unlocked) {
+        if (!in_array($appointment->status, [Appointment::STATUS_PENDING, Appointment::STATUS_CONFIRMED, Appointment::STATUS_CHECKED_IN, Appointment::STATUS_SCHEDULED]) && !$appointment->vitals_unlocked) {
             return back()->with('error', __('messages.vitalsNotAllowed'))
                 ->with('warning', __('messages.vitalsLocked'));
         }

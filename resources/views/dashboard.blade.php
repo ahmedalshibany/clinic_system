@@ -100,40 +100,176 @@
             <div class="stat-decoration"></div>
         </div>
     @elseif(auth()->user()->hasRole('receptionist'))
-        <!-- RECEPTIONIST DASHBOARD -->
-        <div class="col-12 mb-4">
-            @if($readyToBillCount > 0)
-            <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center" role="alert">
-                <i class="fas fa-file-invoice-dollar fa-2x me-3"></i>
-                <div class="flex-grow-1">
-<h5 class="alert-heading mb-1" data-i18n="billingActionRequired">{{ __('Billing Action Required') }}</h5>
-                                    <p class="mb-0"><span data-i18n="thereAre">{{ __('There are') }}</span> <strong>{{ $readyToBillCount }}</strong> <span data-i18n="completedAppointmentsReady">{{ __('completed appointments ready for invoicing.') }}</span></p>
+        <!-- RECEPTIONIST MATTE ACTION BOARD -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                        <h5 class="mb-0 fw-semibold" style="font-size: 0.95rem;">
+                            <i class="fas fa-calendar-day me-2 text-muted"></i>
+                            <span data-i18n="todaysScheduled">{{ __("Today's Scheduled") }}</span>
+                            <span class="badge bg-dark ms-2">{{ count($todayScheduled) }}</span>
+                        </h5>
+                        <span class="text-muted small">{{ now()->format('M d, Y') }}</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 0.875rem;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3" data-i18n="timeTable">{{ __('Time') }}</th>
+                                        <th data-i18n="patientName">{{ __('Patient') }}</th>
+                                        <th data-i18n="doctor">{{ __('Doctor') }}</th>
+                                        <th data-i18n="type">{{ __('Type') }}</th>
+                                        <th data-i18n="status">{{ __('Status') }}</th>
+                                        <th class="pe-3 text-center" data-i18n="action">{{ __('Action') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($todayScheduled as $appt)
+                                    <tr>
+                                        <td class="ps-3 text-nowrap">{{ $appt->time->format('H:i') }}</td>
+                                        <td class="fw-medium">{{ $appt->patient->name ?? __('N/A') }}</td>
+                                        <td>{{ $appt->doctor->name ?? __('N/A') }}</td>
+                                        <td><span class="badge bg-light text-dark">{{ $appt->type }}</span></td>
+                                        <td>
+                                            @php
+                                                $statusStyles = [
+                                                    'scheduled' => ['bg' => '#f0f0f0', 'text' => '#666'],
+                                                    'pending' => ['bg' => '#fff3cd', 'text' => '#856404'],
+                                                    'confirmed' => ['bg' => '#cce5ff', 'text' => '#004085'],
+                                                    'checked_in' => ['bg' => '#d4edda', 'text' => '#155724'],
+                                                    'waiting' => ['bg' => '#d4edda', 'text' => '#155724'],
+                                                    'in_progress' => ['bg' => '#cce5ff', 'text' => '#004085'],
+                                                    'completed' => ['bg' => '#d4edda', 'text' => '#155724'],
+                                                    'cancelled' => ['bg' => '#f8d7da', 'text' => '#721c24'],
+                                                    'no_show' => ['bg' => '#f8d7da', 'text' => '#721c24'],
+                                                ];
+                                                $s = $statusStyles[$appt->status] ?? ['bg' => '#f0f0f0', 'text' => '#666'];
+                                            @endphp
+                                            <span class="badge rounded-pill px-3 py-1" style="background-color: {{ $s['bg'] }}; color: {{ $s['text'] }}; font-weight: 500;">
+                                                {{ $appt->status === 'checked_in' ? __('messages.checked_in') : ucfirst(__($appt->status)) }}
+                                            </span>
+                                        </td>
+                                        <td class="pe-3 text-center">
+                                            @if(in_array($appt->status, ['scheduled', 'confirmed']))
+                                                <form action="{{ route('appointments.check-in', $appt->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm px-3" style="background-color: #1a1a1a; color: #fff; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 500;">
+                                                        <i class="fas fa-check-circle me-1"></i>
+                                                        <span data-i18n="checkIn">{{ __('Check-In') }}</span>
+                                                        <span style="font-family: 'Tajawal', sans-serif;"> / وصول المريض</span>
+                                                    </button>
+                                                </form>
+                                            @elseif($appt->status === 'checked_in')
+                                                <span class="text-muted small" style="font-size: 0.75rem;">
+                                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                                    {{ __('Checked In') }} @if($appt->checked_in_at){{ $appt->checked_in_at->format('H:i') }}@endif
+                                                </span>
+                                            @elseif($appt->status === 'waiting')
+                                                <span class="text-muted small"><i class="fas fa-chair me-1"></i>{{ __('Waiting') }}</span>
+                                            @elseif($appt->status === 'in_progress')
+                                                <span class="text-muted small"><i class="fas fa-play-circle me-1"></i>{{ __('In Progress') }}</span>
+                                            @elseif($appt->status === 'completed')
+                                                <span class="text-muted small"><i class="fas fa-check-double me-1"></i>{{ __('Done') }}</span>
+                                            @elseif($appt->status === 'cancelled')
+                                                <span class="text-muted small"><i class="fas fa-times me-1"></i>{{ __('Cancelled') }}</span>
+                                            @elseif($appt->status === 'no_show')
+                                                <span class="text-muted small"><i class="fas fa-user-slash me-1"></i>{{ __('No Show') }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">
+                                            <i class="fas fa-calendar-day d-block mb-2" style="font-size: 1.5rem;"></i>
+                                            <span data-i18n="noAppointmentsToday">{{ __('No appointments scheduled for today.') }}</span>
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <a href="{{ route('appointments.index', ['status' => 'completed']) }}" class="btn btn-davinci-primary d-inline-flex align-items-center gap-2" data-i18n="goToBilling">
-                    {{ __('Go to Billing') }} <i class="fas fa-arrow-right"></i>
-                </a>
             </div>
-            @else
-            <div class="alert alert-success border-0 shadow-sm d-flex align-items-center" role="alert">
-                <i class="fas fa-check-circle fa-2x me-3"></i>
-                <div>
-<h5 class="alert-heading mb-1" data-i18n="allCaughtUp">{{ __('All Caught Up!') }}</h5>
-                                     <p class="mb-0" data-i18n="noPendingBilling">{{ __('No pending billing actions required at this time.') }}</p>
+
+            <div class="col-md-4">
+                @if($readyToBillCount > 0)
+                <div class="card border-0 shadow-sm mb-3" style="border-left: 3px solid #ffc107 !important;">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: #fff3cd;">
+                                <i class="fas fa-file-invoice-dollar text-warning"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <small class="text-muted d-block" data-i18n="billingActionRequired">{{ __('Billing') }}</small>
+                                <strong>{{ $readyToBillCount }} <span data-i18n="readyForInvoice">{{ __('ready for invoice') }}</span></strong>
+                            </div>
+                            <a href="{{ route('appointments.index', ['status' => 'completed']) }}" class="btn btn-sm btn-outline-dark">
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            @endif
-        </div>
-        
-        <!-- Standard Appointment Stats -->
-        <div class="stat-card-premium today-card">
-            <div class="stat-background"></div>
-            <div class="stat-icon-wrapper">
-                <div class="stat-icon-bg"></div>
-                <i class="fas fa-calendar-check"></i>
-            </div>
-            <div class="stat-data">
-                <span class="stat-number">{{ $todayAppointments }}</span>
-                    <span class="stat-label" data-i18n="todayAppts">{{ __("Today's Appointments") }}</span>
+                @endif
+
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: #d4edda;">
+                                <i class="fas fa-user-check text-success"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block" data-i18n="checkedIn">{{ __('Checked In') }}</small>
+                                <strong>{{ $receptionistStats['checked_in_count'] ?? 0 }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: #fff3cd;">
+                                <i class="fas fa-chair text-warning"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block" data-i18n="waiting">{{ __('Waiting') }}</small>
+                                <strong>{{ $receptionistStats['waiting_count'] ?? 0 }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: #cce5ff;">
+                                <i class="fas fa-stethoscope text-info"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block" data-i18n="withDoctor">{{ __('With Doctor') }}</small>
+                                <strong>{{ ($receptionistStats['in_progress_count'] ?? 0) + ($receptionistStats['waiting_count'] ?? 0) }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: #f0f0f0;">
+                                <i class="fas fa-chart-simple text-secondary"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block" data-i18n="todaySummary">{{ __('Today Summary') }}</small>
+                                <strong>
+                                    {{ $receptionistStats['confirmed_count'] ?? 0 }} <span data-i18n="pending">{{ __('pending') }}</span> &middot;
+                                    {{ $receptionistStats['completed_count'] ?? 0 }} <span data-i18n="done">{{ __('done') }}</span> &middot;
+                                    {{ $receptionistStats['cancelled_count'] ?? 0 }} <span data-i18n="cancelled">{{ __('cancelled') }}</span>
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     @elseif(auth()->user()->hasRole('nurse'))
@@ -381,7 +517,7 @@
                         <div class="activity-content">
                             <div class="activity-header">
                                 <span class="activity-title">{{ $appt->patient->name ?? __('Unknown') }}</span>
-                                <span class="activity-time">{{ \Carbon\Carbon::parse($appt->date)->format('M d') }} • {{ \Carbon\Carbon::parse($appt->time)->format('H:i') }}</span>
+                                <span class="activity-time">{{ \Carbon\Carbon::parse($appt->date)->format('M d') }} â€¢ {{ \Carbon\Carbon::parse($appt->time)->format('H:i') }}</span>
                             </div>
                             <div class="activity-details">
                                 <span class="activity-doctor">
@@ -522,7 +658,7 @@ if (revenueCtx) {
                     padding: 12,
                     callbacks: {
                         label: function(ctx) {
-                            let currencySymbol = "{{ \App\Models\Setting::get('currency_symbol', 'ر.ي') }}";
+                            let currencySymbol = "{{ \App\Models\Setting::get('currency_symbol', 'ط±.ظٹ') }}";
                             return ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() + ' ' + currencySymbol;
                         }
                     }
@@ -551,3 +687,4 @@ if (revenueCtx) {
 // (theme persistence handled by app.js)
 </script>
 @endsection
+

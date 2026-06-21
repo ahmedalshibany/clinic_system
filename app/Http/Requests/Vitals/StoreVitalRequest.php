@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Vitals;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Appointment;
 
 class StoreVitalRequest extends FormRequest
 {
@@ -38,7 +39,7 @@ class StoreVitalRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $appointment = $this->route('appointment');
-            if ($appointment && $appointment->status !== 'pending' && !$appointment->vitals_unlocked) {
+            if ($appointment && !in_array($appointment->status, [Appointment::STATUS_PENDING, Appointment::STATUS_CONFIRMED, Appointment::STATUS_CHECKED_IN, Appointment::STATUS_SCHEDULED]) && !$appointment->vitals_unlocked) {
                 $validator->errors()->add('appointment', 'Cannot record vitals. Appointment must be pending or vitals must be unlocked by a doctor.');
             }
         });
