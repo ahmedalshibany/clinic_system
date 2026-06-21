@@ -91,6 +91,7 @@
     --danger: #8b3a3a;
     /* Venetian Red */
     --info: #3d5a80;
+    --info-rgb: 61, 90, 128;
     /* Prussian Blue */
 
     /* ═══════════════════════════════════════════════════════════════
@@ -194,6 +195,7 @@
     --warning: #b08a4a;
     --danger: #b04a4a;
     --info: #4a7a9a;
+    --info-rgb: 74, 122, 154;
 
     /* Backgrounds - Strict luminance hierarchy (6 solid matte steps) */
     --white: #121316;

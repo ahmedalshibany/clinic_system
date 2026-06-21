@@ -496,7 +496,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('appointments.show', $appointment) }}" class="btn btn-soft-primary btn-sm">
+                                        <a href="{{ route('appointments.show', $appointment) }}" class="btn btn-soft-info btn-sm">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </td>
@@ -669,7 +669,7 @@
                                         <td class="text-success">${{ number_format($invoice->amount_paid, 2) }}</td>
                                         <td class="text-danger fw-bold">${{ number_format($invoice->total - $invoice->amount_paid, 2) }}</td>
                                         <td>
-                                            <a href="{{ route('invoices.show', $invoice) }}" class="btn btn-sm btn-outline-primary">
+                                            <a href="{{ route('invoices.show', $invoice) }}" class="btn btn-sm btn-soft-info">
                                                 <i class="fas fa-eye"></i> {{ __('messages.view') }}
                                             </a>
                                         </td>

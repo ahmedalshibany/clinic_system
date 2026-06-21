@@ -64,7 +64,7 @@
                         <td>{{ $record->visit_date->format('Y-m-d') }}</td>
                         <td>{{ Str::limit($record->diagnosis, 40) }}</td>
                         <td>
-                            <a href="{{ route('medical-records.show', $record) }}" class="btn btn-sm btn-outline-primary">
+                            <a href="{{ route('medical-records.show', $record) }}" class="btn btn-sm btn-soft-info">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <a href="{{ route('medical-records.edit', $record) }}" class="btn btn-sm btn-outline-secondary">

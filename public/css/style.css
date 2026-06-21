@@ -668,26 +668,26 @@ textarea.form-control {
 }
 
 .btn-soft-info {
-    background: rgba(var(--secondary-rgb), 0.08);
-    color: var(--secondary);
-    border: 1px solid rgba(var(--secondary-rgb), 0.12);
+    background: rgba(var(--info-rgb), 0.08);
+    color: var(--info);
+    border: 1px solid rgba(var(--info-rgb), 0.12);
 }
 
 .btn-soft-info:hover {
-    background: rgba(var(--secondary-rgb), 0.15);
-    color: var(--secondary) !important;
-    border-color: rgba(var(--secondary-rgb), 0.25);
+    background: rgba(var(--info-rgb), 0.15);
+    color: var(--info) !important;
+    border-color: rgba(var(--info-rgb), 0.25);
 }
 
 .btn-soft-info:active {
-    background: rgba(var(--secondary-rgb), 0.2);
+    background: rgba(var(--info-rgb), 0.2);
     transform: scale(0.93);
     transition-duration: 50ms;
 }
 
 .btn-soft-info:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(var(--secondary-rgb), 0.2);
+    box-shadow: 0 0 0 3px rgba(var(--info-rgb), 0.2);
 }
 
 .btn-soft-info:disabled,
