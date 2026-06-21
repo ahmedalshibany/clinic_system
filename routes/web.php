@@ -51,6 +51,13 @@ Route::middleware('auth')->group(function () {
         Route::get('doctors/{doctor}/available-slots/{date}', [App\Http\Controllers\ScheduleController::class, 'getAvailableSlots'])->name('doctors.available-slots');
     });
 
+    // Receptionist-specific dashboard and actions
+    Route::middleware('role:receptionist,admin')->prefix('receptionist')->name('receptionist.')->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\ReceptionistController::class, 'dashboard'])->name('dashboard');
+        Route::post('/appointments/{appointment}/check-in', [App\Http\Controllers\ReceptionistController::class, 'checkIn'])->name('check-in');
+        Route::post('/appointments/{appointment}/no-show', [App\Http\Controllers\ReceptionistController::class, 'markNoShow'])->name('no-show');
+    });
+
     // Appointments (all roles can view, policy gates lifecycle actions)
     Route::middleware('role:admin,doctor,receptionist,nurse')->group(function () {
         Route::get('appointments/calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');

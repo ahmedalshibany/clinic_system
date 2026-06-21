@@ -53,6 +53,14 @@
                     <span data-i18n="patients">{{ __('messages.patients') }}</span>
                 </a>
             </li>
+            @if(auth()->user()->hasRole('receptionist'))
+            <li class="nav-item">
+                <a href="{{ route('receptionist.dashboard') }}" class="nav-link {{ request()->routeIs('receptionist.*') ? 'active' : '' }}">
+                    <div class="icon-box"><i class="fas fa-clipboard-check"></i></div>
+                    <span data-i18n="receptionDesk">{{ __('Reception Desk') }}</span>
+                </a>
+            </li>
+            @endif
             <li class="nav-item">
                 <a href="{{ route('appointments.index') }}" class="nav-link {{ request()->routeIs('appointments.index') || request()->routeIs('appointments.show') || request()->routeIs('appointments.create') || request()->routeIs('appointments.edit') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-calendar-check"></i></div>

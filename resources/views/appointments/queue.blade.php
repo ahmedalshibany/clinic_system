@@ -66,11 +66,11 @@
             <div class="card-header text-center py-3" style="background-color: rgba(61, 90, 128, 0.06); color: var(--info, #3d5a80);">
                 <h6 class="mb-0 fw-bold"><i class="fas fa-user-nurse me-2"></i>{{ __('messages.checked_in') }}</h6>
                 <span class="mt-1" style="display: inline-block; padding: 1px 10px; border-radius: var(--radius-sm, 6px); background-color: rgba(61, 90, 128, 0.1); color: var(--info, #3d5a80); font-size: var(--text-sm, 0.875rem); font-weight: 600;">
-                    {{ $appointments->where('status', 'confirmed')->count() }}
+                    {{ $appointments->where('status', 'checked_in')->count() }}
                 </span>
             </div>
             <div class="card-body p-3 queue-column">
-                @forelse($appointments->where('status', 'confirmed') as $appt)
+                @forelse($appointments->where('status', 'checked_in') as $appt)
                     <div class="card mb-3 shadow-sm" style="border-left: 4px solid var(--info, #3d5a80);">
                         <div class="card-body p-3">
                             <h6 class="fw-bold mb-1">{{ $appt->patient->name }}</h6>

@@ -56,6 +56,10 @@ class AuthController extends Controller
         // Regenerate session
         $request->session()->regenerate();
 
+        if ($user->hasRole('receptionist')) {
+            return redirect()->intended(route('receptionist.dashboard'));
+        }
+
         return redirect()->intended(route('dashboard'));
     }
 

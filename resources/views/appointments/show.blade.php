@@ -86,7 +86,7 @@
                         </div>
                         @endif
                     </div>
-                    @if(in_array(auth()->user()->role, ['admin', 'doctor']) && !in_array($appointment->status, ['pending', 'cancelled']))
+                    @if(in_array(auth()->user()->role, ['admin', 'doctor']) && in_array($appointment->status, ['checked_in', 'waiting']))
                     <div class="px-4 py-3 d-flex justify-content-end" style="border-top: 1px solid var(--border-light);">
                         <form action="{{ route('appointments.reopen-vitals', $appointment) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('messages.reopenVitalsConfirm') }}')">
                             @csrf
@@ -97,7 +97,7 @@
                     </div>
                     @endif
                 </div>
-                @elseif(in_array(auth()->user()->role, ['admin', 'doctor']) && !in_array($appointment->status, ['pending', 'cancelled']))
+                @elseif(in_array(auth()->user()->role, ['admin', 'doctor']) && in_array($appointment->status, ['checked_in', 'waiting']))
                 <div class="d-flex align-items-center gap-3 mb-4 p-3" style="background: rgba(191, 140, 48, 0.08); border: 1px solid rgba(191, 140, 48, 0.2); border-radius: var(--radius);">
                     <i class="fas fa-info-circle fa-lg" style="color: var(--warning);"></i>
                     <div class="flex-grow-1">
@@ -130,7 +130,7 @@
                         @endphp
                         <span class="badge bg-{{ $badgeColor }} px-3 py-2">{{ __("messages.{$appointment->status}") }}</span>
 
-                        @if(in_array(auth()->user()->role, ['admin', 'doctor']) && !in_array($appointment->status, ['pending', 'cancelled']))
+                    @if(in_array(auth()->user()->role, ['admin', 'doctor']) && in_array($appointment->status, ['checked_in', 'waiting']))
                             <form action="{{ route('appointments.reopen-vitals', $appointment) }}" method="POST" class="d-inline ms-2" onsubmit="return confirm('{{ __('messages.reopenVitalsConfirm') }}')">
                                 @csrf
                                 <button type="submit" class="btn btn-warning btn-sm fw-bold">

@@ -125,8 +125,8 @@ class AppointmentService
                 throw new Exception(__('messages.timeSlotBooked'));
             }
 
-            // Force initial status to 'waiting' according to business rules
-            $data['status'] = 'waiting';
+            // Force initial status to 'pending' — lands in Queue Column 1 (Upcoming/Not Arrived)
+            $data['status'] = 'pending';
 
             $appointment = Appointment::create($data);
 

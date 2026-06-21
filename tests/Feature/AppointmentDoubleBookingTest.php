@@ -54,7 +54,7 @@ class AppointmentDoubleBookingTest extends TestCase
         ]);
 
         $this->assertInstanceOf(Appointment::class, $appointment);
-        $this->assertSame('waiting', $appointment->status);
+        $this->assertSame('pending', $appointment->status);
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage(__('messages.timeSlotBooked'));
@@ -124,7 +124,7 @@ class AppointmentDoubleBookingTest extends TestCase
             'date' => '2026-07-20',
             'time' => '14:00',
             'type' => 'Checkup',
-            'status' => 'waiting',
+            'status' => 'checked_in',
             'fee' => 250,
         ]);
 
@@ -166,7 +166,7 @@ class AppointmentDoubleBookingTest extends TestCase
         ]);
 
         $this->assertInstanceOf(Appointment::class, $replacement);
-        $this->assertSame('waiting', $replacement->status);
+        $this->assertSame('pending', $replacement->status);
     }
 
     public function test_different_doctor_same_time_allowed(): void

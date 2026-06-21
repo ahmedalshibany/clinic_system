@@ -23,7 +23,7 @@ class Appointment extends Model
 
     const ALLOWED_TRANSITIONS = [
         self::STATUS_SCHEDULED   => [self::STATUS_CONFIRMED, self::STATUS_WAITING, self::STATUS_CANCELLED, self::STATUS_NO_SHOW],
-        self::STATUS_PENDING     => [self::STATUS_WAITING, self::STATUS_CANCELLED],
+        self::STATUS_PENDING     => [self::STATUS_CHECKED_IN, self::STATUS_CANCELLED],
         self::STATUS_CONFIRMED   => [self::STATUS_CHECKED_IN, self::STATUS_WAITING, self::STATUS_CANCELLED, self::STATUS_NO_SHOW],
         self::STATUS_CHECKED_IN  => [self::STATUS_WAITING, self::STATUS_PENDING, self::STATUS_CANCELLED],
         self::STATUS_WAITING     => [self::STATUS_IN_PROGRESS, self::STATUS_PENDING, self::STATUS_CANCELLED],

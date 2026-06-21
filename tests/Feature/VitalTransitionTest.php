@@ -90,7 +90,11 @@ class VitalTransitionTest extends TestCase
 
     public function test_record_vitals_from_pending_transitions_to_waiting(): void
     {
+        // pending must first be checked in before vitals can be recorded
         $appointment = $this->createAppointment(Appointment::STATUS_PENDING);
+        $appointment->update(['status' => Appointment::STATUS_CHECKED_IN]);
+        $appointment->refresh();
+
         $service = $this->setUpServiceTest();
 
         $vital = $service->recordVitals($appointment, $this->validVitalsData());

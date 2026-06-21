@@ -165,8 +165,9 @@ class AppointmentController extends Controller
     {
         Gate::authorize('reopenVitals', User::class);
 
-        if (in_array($appointment->status, ['cancelled', 'no_show'])) {
-            return back()->with('error', __('messages.reopenVitalsError'));
+        $allowed = ['checked_in', 'waiting'];
+        if (!in_array($appointment->status, $allowed)) {
+            return back()->with('error', __('messages.vitalsNotAllowed'));
         }
 
         $this->appointmentService->reopenVitals($appointment);
