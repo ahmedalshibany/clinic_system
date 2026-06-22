@@ -1294,7 +1294,13 @@ class ToastSystem {
         const icon = icons[type] || icons.info;
 
         const toast = document.createElement('div');
-        toast.className = `toast-notification ${type}`;
+        const isRtl = document.documentElement.dir === 'rtl';
+        toast.className = `toast-notification ${type}${isRtl ? ' rtl' : ''}`;
+        if (isRtl) {
+            toast.style.transform = 'translateX(120%)';
+            toast.style.direction = 'rtl';
+            toast.style.textAlign = 'right';
+        }
 
         toast.innerHTML = `
             <div class="toast-icon">

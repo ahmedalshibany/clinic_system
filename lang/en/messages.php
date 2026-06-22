@@ -784,6 +784,7 @@ return [
     'doctor_waiting_room_empty' => 'Waiting room is empty',
     'doctor_start_exam' => 'Start Examination 🩺',
     'doctor_complete_exam' => 'Complete Examination & Close File ✓',
+    'doctor_complete_confirm' => 'Are you sure you want to complete this examination and close the patient file?',
     'doctor_bp' => 'BP',
     'doctor_temp' => 'Temp',
     'doctor_bmi' => 'BMI',

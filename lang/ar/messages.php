@@ -784,6 +784,7 @@ return [
     'doctor_waiting_room_empty' => 'غرفة الانتظار فارغة حالياً',
     'doctor_start_exam' => 'بدء المعاينة السريرية 🩺',
     'doctor_complete_exam' => 'إنهاء المعاينة وإغلاق الملف ✓',
+    'doctor_complete_confirm' => 'هل أنت متأكد من إنهاء المعاينة الطبية وإغلاق ملف هذا المريض نهائياً؟',
     'doctor_bp' => 'الضغط',
     'doctor_temp' => 'الحرارة',
     'doctor_bmi' => 'مؤشر الكتلة',

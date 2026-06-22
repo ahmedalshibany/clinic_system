@@ -143,7 +143,7 @@
                     </h6>
                 </div>
                 <div class="card-body p-4" style="background-color: #fff;">
-                    <form action="{{ route('doctor.appointments.complete', $activeSession) }}" method="POST">
+                    <form action="{{ route('doctor.appointments.complete', $activeSession) }}" method="POST" onsubmit="return confirm('{{ __('messages.doctor_complete_confirm') }}')">
                         @csrf
 
                         <div class="mb-3">

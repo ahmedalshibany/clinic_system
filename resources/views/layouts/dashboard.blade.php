@@ -221,13 +221,70 @@
     <!-- Notification Scripts -->
     <script>
         $(document).ready(function() {
-            // Fetch unread count periodically
-            function fetchUnreadCount() {
-                $.get("{{ route('notifications.unread-count') }}", function(data) {
-                    if (data.count > 0) {
-                        $('#notificationBadge').text(data.count).removeClass('d-none');
-                    } else {
-                        $('#notificationBadge').addClass('d-none');
+            let lastFetchTime = new Date().toISOString();
+            let liveFeedInterval = null;
+
+            function updateBadge(count) {
+                if (count > 0) {
+                    $('#notificationBadge').text(count).removeClass('d-none');
+                } else {
+                    $('#notificationBadge').addClass('d-none');
+                }
+            }
+
+            var audioCtx = null;
+
+            function unlockAudioCtx() {
+                if (audioCtx) return;
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                } catch (e) {}
+            }
+
+            function playNotificationChime() {
+                try {
+                    if (!audioCtx || audioCtx.state === 'closed') {
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                    var osc = audioCtx.createOscillator();
+                    var gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.frequency.value = 880;
+                    osc.type = 'sine';
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                    return true;
+                } catch (e) {
+                    console.warn('Chime failed:', e);
+                    return false;
+                }
+            }
+
+            // Expose for console debugging
+            window.playNotificationChime = playNotificationChime;
+            window.unlockAudioCtx = unlockAudioCtx;
+
+            // Unlock AudioContext on first user interaction (click/touch/keydown)
+            $(document).on('click touchstart keydown', unlockAudioCtx);
+
+            function pollLiveFeed() {
+                $.getJSON("{{ route('notifications.live-feed') }}?since=" + encodeURIComponent(lastFetchTime), function(resp) {
+                    updateBadge(resp.count);
+
+                    if (resp.new && resp.new.length > 0) {
+                        resp.new.forEach(function(n) {
+                            var toastType = n.type === 'system' ? 'info' : 'success';
+                            if (window.toast && typeof window.toast.show === 'function') {
+                                window.toast.show(n.message, toastType, n.title);
+                            }
+                        });
+                        playNotificationChime();
+                        lastFetchTime = new Date().toISOString();
                     }
                 });
             }
@@ -237,19 +294,13 @@
                 $('#notificationList').html('<div class="text-center p-4"><div class="spinner-border text-primary spinner-border-sm" role="status"></div></div>');
                 $.get("{{ route('notifications.latest') }}", function(data) {
                     $('#notificationList').html(data.html);
-                    // Update badge as well
-                    if (data.count > 0) {
-                        $('#notificationBadge').text(data.count).removeClass('d-none');
-                    } else {
-                        $('#notificationBadge').addClass('d-none');
-                    }
+                    updateBadge(data.count);
                 });
             });
 
-            // Initial Count Fetch
-            fetchUnreadCount();
-            // Poll every 30 seconds
-            setInterval(fetchUnreadCount, 30000);
+            // Initial fetch + poll every 15 seconds
+            pollLiveFeed();
+            liveFeedInterval = setInterval(pollLiveFeed, 15000);
         });
     </script>
     @yield('scripts')

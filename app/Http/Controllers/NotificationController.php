@@ -75,6 +75,41 @@ class NotificationController extends Controller
     }
 
     /**
+     * Live feed — returns unread count + new notifications since a timestamp.
+     */
+    public function liveFeed(Request $request)
+    {
+        $since = $request->query('since');
+
+        $query = Notification::where('user_id', auth()->id());
+
+        $new = [];
+        if ($since) {
+            $new = (clone $query)
+                ->where('created_at', '>', $since)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($n) {
+                    return [
+                        'id'               => $n->id,
+                        'type'             => $n->type,
+                        'title'            => $n->title,
+                        'message'          => $n->message,
+                        'created_at_diff'  => $n->created_at->diffForHumans(),
+                        'link'             => $n->link,
+                    ];
+                });
+        }
+
+        $count = (clone $query)->unread()->count();
+
+        return response()->json([
+            'count' => $count,
+            'new'   => $new,
+        ]);
+    }
+
+    /**
      * Delete a single notification.
      */
     public function destroy(Notification $notification)

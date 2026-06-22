@@ -53,4 +53,29 @@ class Vital extends Model
     {
         return "{$this->bp_systolic}/{$this->bp_diastolic}";
     }
+
+    /**
+     * Compute BMI from weight (kg) and height (cm).
+     */
+    public function getBmiAttribute(): ?float
+    {
+        if (!$this->height || (float)$this->height == 0) {
+            return null;
+        }
+        $heightInMeters = (float)$this->height / 100;
+        return round((float)$this->weight / ($heightInMeters * $heightInMeters), 1);
+    }
+
+    /**
+     * WHO BMI classification.
+     */
+    public function getBmiCategoryAttribute(): ?string
+    {
+        $bmi = $this->bmi;
+        if ($bmi === null) return null;
+        if ($bmi < 18.5) return 'Underweight';
+        if ($bmi < 25)   return 'Normal';
+        if ($bmi < 30)   return 'Overweight';
+        return 'Obese';
+    }
 }

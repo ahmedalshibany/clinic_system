@@ -40,6 +40,17 @@ class VitalService
                 $appointment->update($appointmentUpdate);
             }
 
+            try {
+                app(NotificationService::class)->notifyDoctor(
+                    $appointment->doctor,
+                    'appointment',
+                    'Patient Ready',
+                    "{$appointment->patient->name} has completed triage and is ready for you.",
+                    ['appointment_id' => $appointment->id, 'vital_id' => $vital->id],
+                    route('dashboard')
+                );
+            } catch (\Exception $e) {}
+
             return $vital;
         });
     }

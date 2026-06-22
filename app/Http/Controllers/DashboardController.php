@@ -38,132 +38,95 @@ class DashboardController extends Controller
             ]);
         }
 
-        $totalActivePatients = 0;
-        $totalDoctors = Doctor::count();
-        $totalAppointments = 0;
-        $todayAppointments = 0;
-        $pending = 0;
-        $confirmed = 0;
-        $completed = 0;
-        $cancelled = 0;
-        $todayRevenue = 0;
-        $newPatientsMonth = 0;
-        $pendingInvoicesCount = 0;
-        $pendingInvoicesAmount = 0;
-        $waitingPatients = 0;
-        $weekAppointments = 0;
-        $monthAppointments = 0;
-        $recentAppointments = collect([]);
-        $weeklyData = [];
-        $readyToBillCount = 0;
-        $triageQueue = collect([]);
-        $waitingList = collect([]);
-
-        // Shared analytics for charts
-        $statusBreakdown = $this->analytics->getStatusBreakdown();
-        $monthlyRevenue = $this->analytics->getMonthlyRevenue();
-        $weeklyData = $this->analytics->getWeeklyTrend();
-        $coreStats = $this->analytics->getCoreStats();
-
-        $totalActivePatients = $coreStats['total_active_patients'];
-
         if ($user->hasRole('receptionist')) {
-            $readyToBillCount = Appointment::where('status', Appointment::STATUS_COMPLETED)
-                ->doesntHave('invoice')
-                ->count();
-
-            $todayScheduled = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name'])
+            $triageBoard = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name'])
                 ->whereDate('date', today())
+                ->whereIn('status', [Appointment::STATUS_PENDING, Appointment::STATUS_CONFIRMED, Appointment::STATUS_SCHEDULED])
                 ->orderBy('time')
                 ->get();
 
-            $receptionistStats = [
-                'waiting_count' => $todayScheduled->where('status', Appointment::STATUS_WAITING)->count(),
-                'checked_in_count' => $todayScheduled->where('status', Appointment::STATUS_CHECKED_IN)->count(),
-                'completed_count' => $todayScheduled->where('status', Appointment::STATUS_COMPLETED)->count(),
-                'cancelled_count' => $todayScheduled->where('status', Appointment::STATUS_CANCELLED)->count(),
-                'no_show_count' => $todayScheduled->where('status', Appointment::STATUS_NO_SHOW)->count(),
-                'in_progress_count' => $todayScheduled->where('status', Appointment::STATUS_IN_PROGRESS)->count(),
-                'confirmed_count' => $todayScheduled->whereIn('status', [Appointment::STATUS_SCHEDULED, Appointment::STATUS_CONFIRMED])->count(),
+            $allToday = Appointment::whereDate('date', today())->get();
+
+            $flowMonitor = [
+                'checked_in'  => $allToday->where('status', Appointment::STATUS_CHECKED_IN)->count(),
+                'waiting'     => $allToday->where('status', Appointment::STATUS_WAITING)->count(),
+                'in_progress' => $allToday->where('status', Appointment::STATUS_IN_PROGRESS)->count(),
+                'completed'   => $allToday->where('status', Appointment::STATUS_COMPLETED)->count(),
+                'cancelled'   => $allToday->where('status', Appointment::STATUS_CANCELLED)->count(),
+                'no_show'     => $allToday->where('status', Appointment::STATUS_NO_SHOW)->count(),
             ];
-        } else {
-            $todayScheduled = collect([]);
-            $receptionistStats = [];
+
+            $livePatients = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name'])
+                ->whereDate('date', today())
+                ->whereIn('status', [
+                    Appointment::STATUS_CHECKED_IN,
+                    Appointment::STATUS_WAITING,
+                    Appointment::STATUS_IN_PROGRESS,
+                ])
+                ->orderBy('time')
+                ->get();
+
+            return view('receptionist.dashboard', compact('triageBoard', 'flowMonitor', 'livePatients'));
         }
 
         if ($user->role === 'doctor') {
-            $doctor = Doctor::where('user_id', $user->id)->first();
+            $doctor = Doctor::where('user_id', $user->id)->firstOrFail();
 
-            if ($doctor) {
-                $counts = $this->analytics->getAppointmentCountsForDoctor($doctor->id);
-                $totalAppointments = $counts['total'];
-                $todayAppointments = $counts['today'];
-                $waitingPatients = $counts['waiting'];
-                $weekAppointments = $counts['week'];
-                $monthAppointments = $counts['month'];
-                $pending = $counts['pending'];
-                $confirmed = $counts['confirmed'];
-                $completed = $counts['completed'];
-                $cancelled = $counts['cancelled'];
-
-                $recentAppointments = Appointment::where('doctor_id', $doctor->id)
-                    ->with(['patient', 'doctor'])
-                    ->orderBy('date', 'desc')
-                    ->orderBy('time', 'desc')
-                    ->limit(5)
-                    ->get();
-            }
-        } else {
-            $totalAppointments = Appointment::count();
-            $todayAppointments = $coreStats['appointments_today'];
-            $todayRevenue = Payment::whereDate('payment_date', today())->sum('amount');
-            $newPatientsMonth = Patient::whereMonth('created_at', now()->month)->count();
-
-            $pendingSummary = $this->analytics->getPendingInvoicesSummary();
-            $pendingInvoicesCount = $pendingSummary['count'];
-            $pendingInvoicesAmount = $pendingSummary['total_balance'];
-
-            $pending = Appointment::where('status', 'pending')->count();
-            $confirmed = Appointment::where('status', 'confirmed')->count();
-            $completed = Appointment::where('status', 'completed')->count();
-            $cancelled = Appointment::where('status', 'cancelled')->count();
-
-            $recentAppointments = Appointment::with(['patient', 'doctor'])
-                ->orderBy('date', 'desc')
-                ->orderBy('time', 'desc')
-                ->limit(5)
+            $waitingQueue = Appointment::with(['patient', 'vital'])
+                ->where('doctor_id', $doctor->id)
+                ->whereDate('date', today())
+                ->where('status', Appointment::STATUS_WAITING)
+                ->orderBy('time')
                 ->get();
+
+            $activeSession = Appointment::with(['patient', 'vital'])
+                ->where('doctor_id', $doctor->id)
+                ->whereDate('date', today())
+                ->where('status', Appointment::STATUS_IN_PROGRESS)
+                ->first();
+
+            $todayAll = Appointment::where('doctor_id', $doctor->id)->whereDate('date', today());
+            $stats = [
+                'total'       => (clone $todayAll)->count(),
+                'completed'   => (clone $todayAll)->where('status', Appointment::STATUS_COMPLETED)->count(),
+                'in_progress' => $activeSession ? 1 : 0,
+                'waiting'     => $waitingQueue->count(),
+            ];
+
+            return view('doctor.dashboard', compact('doctor', 'waitingQueue', 'activeSession', 'stats'));
         }
 
+        // Admin dashboard
+        $statusBreakdown = $this->analytics->getStatusBreakdown();
+        $monthlyRevenue = $this->analytics->getMonthlyRevenue();
+        $coreStats = $this->analytics->getCoreStats();
+
+        $totalActivePatients = $coreStats['total_active_patients'];
+        $todayAppointments = $coreStats['appointments_today'];
+        $todayRevenue = Payment::whereDate('payment_date', today())->sum('amount');
+        $newPatientsMonth = Patient::whereMonth('created_at', now()->month)->count();
+
+        $pendingSummary = $this->analytics->getPendingInvoicesSummary();
+        $pendingInvoicesCount = $pendingSummary['count'];
+        $pendingInvoicesAmount = $pendingSummary['total_balance'];
+
+        $totalAppointments = Appointment::count();
+        $pending = Appointment::where('status', 'pending')->count();
+        $confirmed = Appointment::where('status', 'confirmed')->count();
+        $completed = Appointment::where('status', 'completed')->count();
+        $cancelled = Appointment::where('status', 'cancelled')->count();
+
+        $recentAppointments = Appointment::with(['patient', 'doctor'])
+            ->orderBy('date', 'desc')
+            ->orderBy('time', 'desc')
+            ->limit(5)
+            ->get();
+
         return view('dashboard', compact(
-            'user',
-            'totalActivePatients',
-            'totalDoctors',
-            'totalAppointments',
-            'todayAppointments',
-            'pending',
-            'confirmed',
-            'completed',
-            'cancelled',
-            'recentAppointments',
-            'weeklyData',
-            'todayRevenue',
-            'newPatientsMonth',
-            'pendingInvoicesCount',
-            'pendingInvoicesAmount',
-            'waitingPatients',
-            'weekAppointments',
-            'monthAppointments',
-            'triageQueue',
-            'waitingList',
-            'readyToBillCount',
-            'statusBreakdown',
-            'monthlyRevenue',
-            'coreStats',
-            'todayScheduled',
-            'receptionistStats'
+            'totalActivePatients', 'todayAppointments', 'todayRevenue',
+            'newPatientsMonth', 'pendingInvoicesCount', 'pendingInvoicesAmount',
+            'totalAppointments', 'pending', 'confirmed', 'completed', 'cancelled',
+            'recentAppointments', 'statusBreakdown', 'monthlyRevenue'
         ));
     }
 }
-
-
