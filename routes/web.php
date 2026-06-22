@@ -53,15 +53,24 @@ Route::middleware('auth')->group(function () {
 
     // Receptionist-specific dashboard and actions
     Route::middleware('role:receptionist,admin')->prefix('receptionist')->name('receptionist.')->group(function () {
-        Route::get('/dashboard', [App\Http\Controllers\ReceptionistController::class, 'dashboard'])->name('dashboard');
         Route::post('/appointments/{appointment}/check-in', [App\Http\Controllers\ReceptionistController::class, 'checkIn'])->name('check-in');
         Route::post('/appointments/{appointment}/no-show', [App\Http\Controllers\ReceptionistController::class, 'markNoShow'])->name('no-show');
     });
 
-    // Appointments (all roles can view, policy gates lifecycle actions)
-    Route::middleware('role:admin,doctor,receptionist,nurse')->group(function () {
+    // Doctor-specific clinical dashboard and examination routes
+    Route::middleware(['auth', 'role:doctor,admin'])->prefix('doctor')->name('doctor.')->group(function () {
+        Route::post('/appointments/{appointment}/start', [\App\Http\Controllers\DoctorDashboardController::class, 'startVisit'])->name('appointments.start');
+        Route::post('/appointments/{appointment}/complete', [\App\Http\Controllers\DoctorDashboardController::class, 'complete'])->name('appointments.complete');
+    });
+
+    // Calendar (admin, receptionist, doctor all need access)
+    Route::middleware('role:admin,receptionist,doctor')->group(function () {
         Route::get('appointments/calendar', [AppointmentController::class, 'calendar'])->name('appointments.calendar');
         Route::get('appointments/events', [AppointmentController::class, 'events'])->name('appointments.events');
+    });
+
+    // Appointments management (admin, receptionist, nurse — doctor blocked)
+    Route::middleware('role:admin,receptionist,nurse')->group(function () {
         Route::get('appointments/queue', [AppointmentController::class, 'queue'])->name('appointments.queue');
         Route::resource('appointments', AppointmentController::class);
         Route::post('appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn'])->name('appointments.check-in');
@@ -85,7 +94,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Invoices (admin & receptionist manage, doctor view-only)
-    Route::middleware('role:admin,receptionist,doctor')->group(function () {
+    Route::middleware('role:admin,receptionist')->group(function () {
         Route::get('invoices/{appointment}/create', [App\Http\Controllers\InvoiceController::class, 'createFromAppointment'])->name('invoices.create-from-appointment');
         Route::post('invoices/{invoice}/payment', [App\Http\Controllers\InvoiceController::class, 'recordPayment'])->name('invoices.payment');
         Route::post('invoices/{invoice}/send', [App\Http\Controllers\InvoiceController::class, 'send'])->name('invoices.send');
@@ -95,7 +104,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Reports (admin & doctor only)
-    Route::middleware(['role:admin,doctor'])->prefix('reports')->name('reports.')->group(function () {
+    Route::middleware(['role:admin'])->prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [App\Http\Controllers\ReportController::class, 'index'])->name('index');
         Route::get('/revenue', [App\Http\Controllers\ReportController::class, 'revenue'])->name('revenue');
         Route::get('/revenue/doctor', [App\Http\Controllers\ReportController::class, 'revenueByDoctor'])->name('revenue.doctor');

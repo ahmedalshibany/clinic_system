@@ -53,20 +53,14 @@
                     <span data-i18n="patients">{{ __('messages.patients') }}</span>
                 </a>
             </li>
-            @if(auth()->user()->hasRole('receptionist'))
-            <li class="nav-item">
-                <a href="{{ route('receptionist.dashboard') }}" class="nav-link {{ request()->routeIs('receptionist.*') ? 'active' : '' }}">
-                    <div class="icon-box"><i class="fas fa-clipboard-check"></i></div>
-                    <span data-i18n="receptionDesk">{{ __('Reception Desk') }}</span>
-                </a>
-            </li>
-            @endif
+            @if(in_array(auth()->user()->role, ['admin', 'receptionist']))
             <li class="nav-item">
                 <a href="{{ route('appointments.index') }}" class="nav-link {{ request()->routeIs('appointments.index') || request()->routeIs('appointments.show') || request()->routeIs('appointments.create') || request()->routeIs('appointments.edit') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-calendar-check"></i></div>
                     <span data-i18n="appointments">{{ __('messages.appointments') }}</span>
                 </a>
             </li>
+            @endif
             @unless(auth()->user()->hasRole('nurse'))
             <li class="nav-item">
                 <a href="{{ route('appointments.calendar') }}" class="nav-link {{ request()->routeIs('appointments.calendar') ? 'active' : '' }}">
@@ -75,23 +69,23 @@
                 </a>
             </li>
             @endunless
-            @unless(auth()->user()->hasRole('nurse'))
+            @if(auth()->user()->isAdmin())
             <li class="nav-item">
                 <a href="{{ route('doctors.index') }}" class="nav-link {{ request()->routeIs('doctors.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-user-md"></i></div>
                     <span data-i18n="doctors">{{ __('messages.doctors') }}</span>
                 </a>
             </li>
-            @endunless
-            @unless(auth()->user()->hasRole('nurse'))
+            @endif
+            @if(auth()->user()->isAdmin())
             <li class="nav-item">
                 <a href="{{ route('services.index') }}" class="nav-link {{ request()->routeIs('services.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-briefcase-medical"></i></div>
                     <span data-i18n="services">{{ __('messages.services') }}</span>
                 </a>
             </li>
-            @endunless
-            @if(in_array(auth()->user()->role, ['admin', 'doctor']))
+            @endif
+            @if(auth()->user()->isAdmin())
             <li class="nav-item">
                 <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-chart-line"></i></div>
@@ -99,7 +93,7 @@
                 </a>
             </li>
             @endif
-            @if(in_array(auth()->user()->role, ['admin', 'doctor', 'receptionist']))
+            @if(in_array(auth()->user()->role, ['admin', 'receptionist']))
             <li class="nav-item">
                 <a href="{{ route('invoices.index') }}" class="nav-link {{ request()->routeIs('invoices.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-file-invoice-dollar"></i></div>

@@ -180,7 +180,13 @@ class AppointmentController extends Controller
     public function calendar()
     {
         $this->authorize('viewAny', Appointment::class);
-        $doctors = Doctor::where('is_active', true)->orderBy('name')->get();
+
+        if (auth()->user()->role === 'doctor') {
+            $doctors = Doctor::where('user_id', auth()->id())->get();
+        } else {
+            $doctors = Doctor::where('is_active', true)->orderBy('name')->get();
+        }
+
         return view('appointments.calendar', compact('doctors'));
     }
 
@@ -192,7 +198,10 @@ class AppointmentController extends Controller
         $this->authorize('viewAny', Appointment::class);
         $query = Appointment::with(['patient', 'doctor']);
 
-        if ($request->filled('doctor_id')) {
+        if (auth()->user()->role === 'doctor') {
+            $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
+            $query->where('doctor_id', $doctor->id);
+        } elseif ($request->filled('doctor_id')) {
             $query->where('doctor_id', $request->doctor_id);
         }
 
