@@ -141,10 +141,15 @@ class AppointmentService
             app(\App\Services\NotificationService::class)->notifyDoctor(
                 $doctor, 
                 'appointment', 
-                'New Appointment', 
-                "New appointment scheduled on {$data['date']} at {$data['time']}",
-                ['date' => $data['date'], 'time' => $data['time']],
-                route('appointments.index')
+                'New Appointment 📅', 
+                'A new appointment has been scheduled.',
+                [
+                    'date' => $data['date'],
+                    'time' => $data['time'],
+                    'title_key' => 'notification.title_new_appointment',
+                    'message_key' => 'notification.message_new_appointment',
+                ],
+                route('doctor.appointments.show', $appointment->id)
             );
         } catch (\Exception $e) {
             // fail silently if notification fails
@@ -270,10 +275,15 @@ class AppointmentService
                     app(\App\Services\NotificationService::class)->notifyDoctor(
                         $appointment->doctor, 
                         'system', 
-                        'Patient Checked-In', 
-                        "{$appointment->patient->name} has arrived for their appointment.",
-                        ['appointment_id' => $appointment->id],
-                        route('appointments.show', $appointment->id)
+                        'Patient Checked-In 🚶‍♂️', 
+                        $appointment->patient->name . ' has arrived at reception to confirm their appointment.',
+                        [
+                            'appointment_id' => $appointment->id,
+                            'name' => $appointment->patient->name,
+                            'title_key' => 'notification.title_patient_checked_in',
+                            'message_key' => 'notification.message_patient_checked_in',
+                        ],
+                        route('doctor.appointments.show', $appointment->id)
                     );
                 } catch (\Exception $e) {}
                 break;
@@ -303,8 +313,14 @@ class AppointmentService
                          $appointment->doctor, 
                          'system', 
                          'Appointment Cancelled', 
-                         "Appointment with {$appointment->patient->name} on {$appointment->date->format('Y-m-d')} was cancelled.",
-                         ['date' => $appointment->date, 'type' => 'cancellation']
+                         'Appointment with ' . $appointment->patient->name . ' on ' . $appointment->date->format('Y-m-d') . ' was cancelled.',
+                         [
+                             'date' => $appointment->date,
+                             'type' => 'cancellation',
+                             'name' => $appointment->patient->name,
+                             'title_key' => 'notification.title_appointment_cancelled',
+                             'message_key' => 'notification.message_appointment_cancelled',
+                         ]
                      );
                 }
             } catch (\Exception $e) {}

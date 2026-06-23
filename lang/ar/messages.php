@@ -195,6 +195,8 @@ return [
     'vitalsSummary' => 'ملخص العلامات الحيوية',
     'notesColon' => 'ملاحظات:',
     'noNotesAvailable' => 'لا توجد ملاحظات متاحة.',
+    'patientIdentity' => 'هوية المريض والموعد',
+    'vitalsNotRecorded' => 'لم يتم تسجيل العلامات الحيوية بعد',
     'selectDoctor' => 'اختر الطبيب',
     'selectPatient' => 'اختر المريض',
     'allDoctors' => 'جميع الأطباء',
@@ -417,6 +419,12 @@ return [
     // Vitals
     'vitalsCreate' => 'العلامات الحيوية / إنشاء',
     'vitalsForm' => 'نموذج العلامات الحيوية',
+    'triageQueue' => 'قائمة الفرز الحية',
+    'recordVitals' => 'تسجيل العلامات الحيوية',
+    'approveAndSend' => 'اعتماد وتمرير المريض للطبيب ✓',
+    'time' => 'الوقت',
+    'patientName' => 'اسم المريض',
+    'action' => 'الإجراء',
     'bloodPressure' => 'ضغط الدم (ملم زئبق)',
     'heartRate' => 'النّبض (نبضة/دقيقة)',
     'respiratoryRate' => 'معدل التنفس (نفس/دقيقة)',
@@ -806,4 +814,25 @@ return [
     'bmi_normal' => 'طبيعي',
     'bmi_overweight' => 'زيادة وزن',
     'bmi_obese' => 'سمنة',
+
+    // Notification UI labels
+    'clearAll' => 'مسح الكل',
+    'markAsRead' => 'تحديد كمقروء',
+    'readLabel' => 'مقروء',
+    'noNotificationsFound' => 'لم يتم العثور على إشعارات',
+    'allCaughtUp' => 'أنت على اطلاع دائم!',
+    'noNotifications' => 'لا توجد إشعارات',
+    'viewAllNotifications' => 'عرض جميع الإشعارات',
+
+    // Notification titles & messages
+    'notification.title_new_appointment' => 'حجز موعد جديد 📅',
+    'notification.title_patient_checked_in' => 'وصول مريض العيادة 🚶‍♂️',
+    'notification.title_appointment_cancelled' => 'تم إلغاء الموعد',
+    'notification.title_patient_ready' => 'المريض جاهز للمعاينة 🩺',
+    'notification.title_payment_received' => 'تم استلام الدفعة 💳',
+    'notification.message_new_appointment' => 'تم تسجيل موعد جديد مجدول في النظام.',
+    'notification.message_patient_checked_in' => 'وصل المريض :name إلى مكتب الاستقبال لتأكيد موعده.',
+    'notification.message_appointment_cancelled' => 'تم إلغاء موعد :name في :date.',
+    'notification.message_patient_ready' => 'اكتمل فحص العلامات الحيوية للمريض :name وهو بانتظارك الآن.',
+    'notification.message_payment_received' => 'تم استلام :amount للفاتورة #:invoice_number 💰',
 ];

@@ -30,8 +30,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 // Protected routes - require authentication
 Route::middleware('auth')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Dashboard (all authenticated roles allowed — controller does internal role switch)
+    Route::middleware('role:nurse,admin,doctor,receptionist')->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Patients (all roles can access, policy gates fine-grained)
     Route::middleware('role:admin,doctor,receptionist,nurse')->group(function () {
@@ -59,8 +59,10 @@ Route::middleware('auth')->group(function () {
 
     // Doctor-specific clinical dashboard and examination routes
     Route::middleware(['auth', 'role:doctor,admin'])->prefix('doctor')->name('doctor.')->group(function () {
+        Route::get('/appointments/{appointment}', [\App\Http\Controllers\DoctorDashboardController::class, 'showAppointment'])->name('appointments.show');
         Route::post('/appointments/{appointment}/start', [\App\Http\Controllers\DoctorDashboardController::class, 'startVisit'])->name('appointments.start');
         Route::post('/appointments/{appointment}/complete', [\App\Http\Controllers\DoctorDashboardController::class, 'complete'])->name('appointments.complete');
+        Route::get('/board-partial', [\App\Http\Controllers\DoctorDashboardController::class, 'boardPartial'])->name('board-partial');
     });
 
     // Calendar (admin, receptionist, doctor all need access)
@@ -69,15 +71,19 @@ Route::middleware('auth')->group(function () {
         Route::get('appointments/events', [AppointmentController::class, 'events'])->name('appointments.events');
     });
 
-    // Appointments management (admin, receptionist, nurse — doctor blocked)
+    // Appointments — queue & read-only (nurse can view)
     Route::middleware('role:admin,receptionist,nurse')->group(function () {
         Route::get('appointments/queue', [AppointmentController::class, 'queue'])->name('appointments.queue');
+        Route::post('appointments/{appointment}/reopen-vitals', [AppointmentController::class, 'reopenVitals'])->name('appointments.reopen-vitals');
+    });
+
+    // Appointments — full CRUD & lifecycle actions (admin, receptionist only — nurse strictly blocked)
+    Route::middleware('role:admin,receptionist')->group(function () {
         Route::resource('appointments', AppointmentController::class);
         Route::post('appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn'])->name('appointments.check-in');
         Route::post('appointments/{appointment}/start', [AppointmentController::class, 'startVisit'])->name('appointments.start');
         Route::post('appointments/{appointment}/complete', [AppointmentController::class, 'complete'])->name('appointments.complete');
         Route::post('appointments/{appointment}/no-show', [AppointmentController::class, 'markNoShow'])->name('appointments.no-show');
-        Route::post('appointments/{appointment}/reopen-vitals', [AppointmentController::class, 'reopenVitals'])->name('appointments.reopen-vitals');
     });
 
     // Medical Records & Prescriptions (admin & doctor only — strictly blocks receptionist/nurse)

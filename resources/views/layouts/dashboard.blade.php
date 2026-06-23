@@ -69,7 +69,7 @@
                 </a>
             </li>
             @endunless
-            @if(auth()->user()->isAdmin())
+            @if(in_array(auth()->user()->role, ['admin', 'nurse']))
             <li class="nav-item">
                 <a href="{{ route('doctors.index') }}" class="nav-link {{ request()->routeIs('doctors.*') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-user-md"></i></div>
@@ -282,9 +282,17 @@
                             if (window.toast && typeof window.toast.show === 'function') {
                                 window.toast.show(n.message, toastType, n.title);
                             }
+                            // Trigger clinical board refresh for queue-affecting notifications
+                            if (typeof window.refreshClinicalBoard === 'function') {
+                                var shouldRefresh = (n.type === 'appointment' && n.title === 'Patient Ready')
+                                                 || (n.type === 'system' && n.title === 'Appointment Cancelled');
+                                if (shouldRefresh) {
+                                    window.refreshClinicalBoard();
+                                }
+                            }
                         });
-                        playNotificationChime();
-                        lastFetchTime = new Date().toISOString();
+                            playNotificationChime();
+                            lastFetchTime = new Date().toISOString();
                     }
                 });
             }

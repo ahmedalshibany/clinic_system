@@ -90,11 +90,14 @@ class NotificationController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($n) {
+                    $data = $n->data ?? [];
+                    $title = isset($data['title_key']) ? __("messages.{$data['title_key']}", $data) : $n->title;
+                    $message = isset($data['message_key']) ? __("messages.{$data['message_key']}", $data) : $n->message;
                     return [
                         'id'               => $n->id,
                         'type'             => $n->type,
-                        'title'            => $n->title,
-                        'message'          => $n->message,
+                        'title'            => $title,
+                        'message'          => $message,
                         'created_at_diff'  => $n->created_at->diffForHumans(),
                         'link'             => $n->link,
                     ];

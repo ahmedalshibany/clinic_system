@@ -195,6 +195,8 @@ return [
     'vitalsSummary' => 'Vitals Summary',
     'notesColon' => 'Notes:',
     'noNotesAvailable' => 'No notes available.',
+    'patientIdentity' => 'Patient & Appointment Identity',
+    'vitalsNotRecorded' => 'No vitals recorded yet',
     'selectDoctor' => 'Select Doctor',
     'selectPatient' => 'Select Patient',
     'allDoctors' => 'All Doctors',
@@ -417,6 +419,12 @@ return [
     // Vitals
     'vitalsCreate' => 'Vitals / Create',
     'vitalsForm' => 'Vitals Form',
+    'triageQueue' => 'Live Triage Queue',
+    'recordVitals' => 'Record Vitals',
+    'approveAndSend' => 'Approve & Send Patient to Doctor ✓',
+    'time' => 'Time',
+    'patientName' => 'Patient Name',
+    'action' => 'Action',
     'bloodPressure' => 'Blood Pressure (mmHg)',
     'heartRate' => 'Pulse (bpm)',
     'respiratoryRate' => 'Respiratory Rate (bpm)',
@@ -806,4 +814,25 @@ return [
     'bmi_normal' => 'Normal',
     'bmi_overweight' => 'Overweight',
     'bmi_obese' => 'Obese',
+
+    // Notification UI labels
+    'clearAll' => 'Clear All',
+    'markAsRead' => 'Mark as read',
+    'readLabel' => 'Read',
+    'noNotificationsFound' => 'No notifications found',
+    'allCaughtUp' => "You're all caught up!",
+    'noNotifications' => 'No notifications',
+    'viewAllNotifications' => 'View All Notifications',
+
+    // Notification titles & messages
+    'notification.title_new_appointment' => 'New Appointment 📅',
+    'notification.title_patient_checked_in' => 'Patient Checked-In 🚶‍♂️',
+    'notification.title_appointment_cancelled' => 'Appointment Cancelled',
+    'notification.title_patient_ready' => 'Patient Ready 🩺',
+    'notification.title_payment_received' => 'Payment Received 💳',
+    'notification.message_new_appointment' => 'A new appointment has been scheduled.',
+    'notification.message_patient_checked_in' => ':name has arrived at reception to confirm their appointment.',
+    'notification.message_appointment_cancelled' => 'Appointment with :name on :date was cancelled.',
+    'notification.message_patient_ready' => ':name has completed triage and is ready for you.',
+    'notification.message_payment_received' => 'Received :amount for Invoice #:invoice_number 💰',
 ];

@@ -1,4 +1,9 @@
 @forelse($notifications as $notification)
+    @php
+        $_data = $notification->data ?? [];
+        $_title = isset($_data['title_key']) ? __("messages.{$_data['title_key']}", $_data) : $notification->title;
+        $_message = isset($_data['message_key']) ? __("messages.{$_data['message_key']}", $_data) : $notification->message;
+    @endphp
     <a href="{{ route('notifications.index') }}" class="dropdown-item p-3 border-bottom {{ is_null($notification->read_at) ? ' ' : '' }}">
         <div class="d-flex align-items-center">
             <div class="flex-shrink-0">
@@ -13,8 +18,8 @@
                 </div>
             </div>
             <div class="flex-grow-1 ms-3">
-                <h6 class="mb-1 small fw-bold text-dark">{{ $notification->title }}</h6>
-                <p class="mb-1 small text-muted text-truncate" style="max-width: 200px;">{{ $notification->message }}</p>
+                <h6 class="mb-1 small fw-bold text-dark">{{ $_title }}</h6>
+                <p class="mb-1 small text-muted text-truncate" style="max-width: 200px;">{{ $_message }}</p>
                 <small class="text-xs text-muted">
                     <i class="far fa-clock me-1"></i> {{ $notification->created_at->diffForHumans() }}
                 </small>
@@ -31,12 +36,12 @@
         <div class="mb-2">
             <i class="far fa-bell-slash fa-2x text-muted"></i>
         </div>
-        <p class="text-muted small mb-0">No notifications</p>
+        <p class="text-muted small mb-0">{{ __('messages.noNotifications') }}</p>
     </div>
 @endforelse
 
 @if($notifications->count() > 0)
     <div class="dropdown-footer text-center p-2  ">
-        <a href="{{ route('notifications.index') }}" class="small text-decoration-none fw-bold">View All Notifications</a>
+        <a href="{{ route('notifications.index') }}" class="small text-decoration-none fw-bold">{{ __('messages.viewAllNotifications') }}</a>
     </div>
 @endif

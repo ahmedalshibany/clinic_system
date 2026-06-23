@@ -240,7 +240,7 @@ body {
 }
 
 .main-content {
-    padding: 24px 24px 24px 0;
+    padding: 24px;
     transition: opacity var(--duration-base) var(--ease-out);
 }
 
@@ -572,6 +572,10 @@ body {
 
 [data-theme="dark"] .logout-link:hover {
     background: rgba(176, 74, 74, 0.08) !important;
+}
+
+[data-theme="dark"] .sidebar .logout-link:hover .icon-box i {
+    color: var(--danger);
 }
 
 /* Main wrapper */

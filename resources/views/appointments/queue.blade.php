@@ -126,7 +126,7 @@
                             
                             <div class="small mb-2" style="color: var(--danger, #8b3a3a);">
                                 <i class="fas fa-clock me-1"></i> 
-                                {{ __('messages.waiting') }}: <span class="waiting-timer" data-time="{{ $appt->checked_in_at }}">0m</span>
+                                {{ __('messages.waiting') }}: <span class="waiting-timer" data-time="{{ $appt->checked_in_at?->toIso8601String() }}">0m</span>
                             </div>
                             
                             <form action="{{ route('appointments.start', $appt) }}" method="POST">
@@ -165,7 +165,7 @@
                             </div>
                             <div class="small mb-3" style="color: var(--text-secondary, #555);">
                                 <i class="fas fa-stopwatch me-1"></i> 
-                                <span class="waiting-timer" data-time="{{ $appt->started_at }}">0m</span>
+                                <span class="waiting-timer" data-time="{{ $appt->started_at?->toIso8601String() }}">0m</span>
                             </div>
                             
                             <form action="{{ route('appointments.complete', $appt) }}" method="POST">

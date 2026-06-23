@@ -238,9 +238,15 @@ class InvoiceService
             try {
                 app(\App\Services\NotificationService::class)->notifyAdmins(
                     'payment', 
-                    'Payment Received', 
-                    "Received {$data['amount']} for Invoice #{$invoice->invoice_number}",
-                    ['invoice_id' => $invoice->id, 'amount' => $data['amount']],
+                    'Payment Received 💳', 
+                    'Received ' . $data['amount'] . ' for Invoice #' . $invoice->invoice_number,
+                    [
+                        'invoice_id' => $invoice->id,
+                        'amount' => $data['amount'],
+                        'invoice_number' => $invoice->invoice_number,
+                        'title_key' => 'notification.title_payment_received',
+                        'message_key' => 'notification.message_payment_received',
+                    ],
                     route('invoices.show', $invoice->id)
                 );
             } catch (\Exception $e) {}

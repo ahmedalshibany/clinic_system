@@ -18,7 +18,7 @@
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-outline-danger shadow-sm">
-                <i class="fas fa-trash me-2"></i> {{ __('Clear All') }}
+                <i class="fas fa-trash me-2"></i> {{ __('messages.clearAll') }}
             </button>
         </form>
         @endif
@@ -30,6 +30,11 @@
         @if($notifications->count() > 0)
             <div class="list-group list-group-flush">
                 @foreach($notifications as $notification)
+                    @php
+                        $_data = $notification->data ?? [];
+                        $_title = isset($_data['title_key']) ? __("messages.{$_data['title_key']}", $_data) : $notification->title;
+                        $_message = isset($_data['message_key']) ? __("messages.{$_data['message_key']}", $_data) : $notification->message;
+                    @endphp
                     <div class="list-group-item p-4 d-flex align-items-start {{ is_null($notification->read_at) ? ' ' : '' }}">
                         <div class="flex-shrink-0 me-3">
                             @php
@@ -45,10 +50,10 @@
                         </div>
                         <div class="flex-grow-1">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <h6 class="mb-0 fw-bold">{{ $notification->title }}</h6>
+                                <h6 class="mb-0 fw-bold">{{ $_title }}</h6>
                                 <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
                             </div>
-                            <p class="mb-2 text-muted">{{ $notification->message }}</p>
+                            <p class="mb-2 text-muted">{{ $_message }}</p>
                             
                             <div class="d-flex gap-3 align-items-center">
                                 @if($notification->link)
@@ -61,16 +66,16 @@
                                     <form action="{{ route('notifications.mark-as-read', $notification) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn btn-link btn-sm text-decoration-none p-0 text-muted small">{{ __('Mark as read') }}</button>
+                                        <button type="submit" class="btn btn-link btn-sm text-decoration-none p-0 text-muted small">{{ __('messages.markAsRead') }}</button>
                                     </form>
                                 @else
-                                    <span class="text-success small"><i class="fas fa-check me-1"></i> {{ __('Read') }}</span>
+                                    <span class="text-success small"><i class="fas fa-check me-1"></i> {{ __('messages.readLabel') }}</span>
                                 @endif
 
                                 <form action="{{ route('notifications.destroy', $notification) }}" method="POST" class="d-inline ms-auto" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteSingleNotification);">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-link btn-sm text-decoration-none p-0 text-danger" title="{{ __('Delete') }}">
+                                    <button type="submit" class="btn btn-link btn-sm text-decoration-none p-0 text-danger" title="{{ __('messages.delete') }}">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </form>
@@ -84,8 +89,8 @@
                 <div class="mb-3">
                     <i class="far fa-bell-slash fa-4x text-muted opacity-50"></i>
                 </div>
-                <h5 class="text-muted">{{ __('No notifications found') }}</h5>
-                <p class="text-muted small">{{ __("You're all caught up!") }}</p>
+                <h5 class="text-muted">{{ __('messages.noNotificationsFound') }}</h5>
+                <p class="text-muted small">{{ __('messages.allCaughtUp') }}</p>
             </div>
         @endif
     </div>

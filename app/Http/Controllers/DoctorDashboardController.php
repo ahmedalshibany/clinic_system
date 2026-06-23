@@ -8,6 +8,7 @@ use App\Services\AppointmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class DoctorDashboardController extends Controller
 {
@@ -63,5 +64,34 @@ class DoctorDashboardController extends Controller
 
         return redirect()->route('dashboard')
             ->with('success', __('messages.visitCompleted'));
+    }
+
+    public function showAppointment(Appointment $appointment)
+    {
+        $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
+        abort_if($appointment->doctor_id !== $doctor->id, 403, 'Unauthorized appointment access.');
+
+        $appointment->load(['patient', 'vital', 'doctor']);
+
+        return view('doctor.appointments.show', compact('appointment'));
+    }
+
+    public function boardPartial()
+    {
+        $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
+
+        $waitingQueue = Appointment::with(['patient', 'vital'])
+            ->where('doctor_id', $doctor->id)
+            ->whereDate('date', today())
+            ->where('status', Appointment::STATUS_WAITING)
+            ->orderBy('time')
+            ->get();
+
+        $html = view('doctor.partials._waiting_queue', compact('waitingQueue'))->render();
+
+        return response()->json([
+            'html'  => $html,
+            'count' => $waitingQueue->count(),
+        ]);
     }
 }
