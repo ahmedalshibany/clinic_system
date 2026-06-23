@@ -145,10 +145,16 @@ Route::middleware('auth')->group(function () {
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     });
 
-    // Nurse / Vitals Routes
+    // Nurse / Vitals Routes (traditional + AJAX)
     Route::middleware(['role:nurse,doctor,admin'])->group(function () {
         Route::get('appointments/{appointment}/vitals/create', [App\Http\Controllers\NurseController::class, 'createVitals'])->name('nurse.vitals.create');
         Route::post('appointments/{appointment}/vitals', [App\Http\Controllers\NurseController::class, 'storeVitals'])->name('nurse.vitals.store');
+        Route::post('appointments/{appointment}/vitals/ajax', [App\Http\Controllers\NurseController::class, 'storeVitalsAjax'])->name('nurse.vitals.store-ajax');
+    });
+
+    // Nurse API Internal Routes (AJAX) — triage polling
+    Route::middleware('role:nurse,admin')->group(function () {
+        Route::get('/api/nurse/triage-queue', [App\Http\Controllers\NurseController::class, 'triageQueueApi'])->name('api.nurse.triage-queue');
     });
 
     // API Internal Routes (AJAX) — session-authenticated

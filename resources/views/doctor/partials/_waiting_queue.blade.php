@@ -12,7 +12,11 @@
                 </span>
             </div>
 
-            @if($appt->vital)
+            @if($appt->status === 'checked_in')
+            <div class="p-2 mb-2 rounded text-center small" style="background-color: rgba(var(--secondary-rgb), 0.08);">
+                <span class="text-muted"><i class="fas fa-clock me-1"></i>Awaiting triage</span>
+            </div>
+            @elseif($appt->vital)
             <div class="p-2 mb-2 rounded" style="background-color: var(--cream);">
                 <div class="row g-1 text-center small">
                     <div class="col-4">
@@ -36,12 +40,18 @@
             </div>
             @endif
 
+            @if($appt->status === 'checked_in')
+            <div class="text-center small text-muted">
+                <i class="fas fa-hourglass-half me-1"></i>Waiting for triage
+            </div>
+            @else
             <form action="{{ route('doctor.appointments.start', $appt) }}" method="POST">
                 @csrf
                 <button type="submit" class="btn btn-davinci-primary w-100" style="font-size: 0.85rem;">
                     <i class="fas fa-play me-2"></i>{{ __('messages.doctor_start_exam') }}
                 </button>
             </form>
+            @endif
         </div>
     </div>
 @empty

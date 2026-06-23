@@ -83,7 +83,7 @@ class DoctorDashboardController extends Controller
         $waitingQueue = Appointment::with(['patient', 'vital'])
             ->where('doctor_id', $doctor->id)
             ->whereDate('date', today())
-            ->where('status', Appointment::STATUS_WAITING)
+            ->whereIn('status', [Appointment::STATUS_WAITING, Appointment::STATUS_CHECKED_IN])
             ->orderBy('time')
             ->get();
 

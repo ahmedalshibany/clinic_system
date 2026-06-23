@@ -69,4 +69,23 @@ class NotificationService
             $this->notifyUser($user, $type, $title, $message, $data, $link);
         }
     }
+
+    /**
+     * Notify all nurses.
+     *
+     * @param string $type
+     * @param string $title
+     * @param string $message
+     * @param array $data
+     * @param string|null $link
+     * @return void
+     */
+    public function notifyNurses(string $type, string $title, string $message, array $data = [], ?string $link = null)
+    {
+        $nurses = User::where('role', 'nurse')->get();
+
+        foreach ($nurses as $nurse) {
+            $this->notifyUser($nurse, $type, $title, $message, $data, $link);
+        }
+    }
 }

@@ -100,6 +100,7 @@ class NotificationController extends Controller
                         'message'          => $message,
                         'created_at_diff'  => $n->created_at->diffForHumans(),
                         'link'             => $n->link,
+                        'has_appointment'  => isset($data['appointment_id']),
                     ];
                 });
         }

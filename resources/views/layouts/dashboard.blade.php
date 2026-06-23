@@ -282,14 +282,19 @@
                             if (window.toast && typeof window.toast.show === 'function') {
                                 window.toast.show(n.message, toastType, n.title);
                             }
-                            // Trigger clinical board refresh for queue-affecting notifications
+                            // Trigger clinical board refresh when a notification references an appointment
                             if (typeof window.refreshClinicalBoard === 'function') {
-                                var shouldRefresh = (n.type === 'appointment' && n.title === 'Patient Ready')
-                                                 || (n.type === 'system' && n.title === 'Appointment Cancelled');
-                                if (shouldRefresh) {
+                                if (n.has_appointment) {
                                     window.refreshClinicalBoard();
                                 }
                             }
+                            @if(auth()->user()->isNurse())
+                            if (typeof window.refreshTriageBoard === 'function') {
+                                if (n.has_appointment) {
+                                    window.refreshTriageBoard();
+                                }
+                            }
+                            @endif
                         });
                             playNotificationChime();
                             lastFetchTime = new Date().toISOString();

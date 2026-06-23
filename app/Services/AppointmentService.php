@@ -286,6 +286,20 @@ class AppointmentService
                         route('doctor.appointments.show', $appointment->id)
                     );
                 } catch (\Exception $e) {}
+                try {
+                    app(\App\Services\NotificationService::class)->notifyNurses(
+                        'system',
+                        'Patient Checked-In 🚶‍♂️',
+                        $appointment->patient->name . ' has arrived at reception.',
+                        [
+                            'appointment_id' => $appointment->id,
+                            'name' => $appointment->patient->name,
+                            'title_key' => 'notification.title_patient_checked_in',
+                            'message_key' => 'notification.message_patient_checked_in',
+                        ],
+                        route('dashboard')
+                    );
+                } catch (\Exception $e) {}
                 break;
         }
 
@@ -315,12 +329,13 @@ class AppointmentService
                          'Appointment Cancelled', 
                          'Appointment with ' . $appointment->patient->name . ' on ' . $appointment->date->format('Y-m-d') . ' was cancelled.',
                          [
-                             'date' => $appointment->date,
-                             'type' => 'cancellation',
-                             'name' => $appointment->patient->name,
-                             'title_key' => 'notification.title_appointment_cancelled',
-                             'message_key' => 'notification.message_appointment_cancelled',
-                         ]
+                              'appointment_id' => $appointment->id,
+                              'date' => $appointment->date,
+                              'type' => 'cancellation',
+                              'name' => $appointment->patient->name,
+                              'title_key' => 'notification.title_appointment_cancelled',
+                              'message_key' => 'notification.message_appointment_cancelled',
+                          ]
                      );
                 }
             } catch (\Exception $e) {}
