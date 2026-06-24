@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\Notification;
 use App\Models\Vital;
 use App\Services\VitalService;
 use App\Http\Requests\Vitals\StoreVitalRequest;
@@ -62,21 +63,48 @@ class NurseController extends Controller
     }
 
     /**
-     * AJAX: Return today's triage queue (confirmed/checked_in) as JSON.
+     * AJAX: Return today's triage queue (confirmed/checked_in) + notification data as JSON.
      */
-    public function triageQueueApi()
+    public function triageQueueApi(Request $request)
     {
+        $this->authorize('viewAny', Appointment::class);
+        $today = today();
+        $tomorrow = today()->addDay();
+
         $triageQueue = Appointment::with(['patient:id,name', 'doctor:id,name'])
-            ->whereDate('date', today())
+            ->where('date', '>=', $today)
+            ->where('date', '<', $tomorrow)
             ->whereIn('status', ['confirmed', 'checked_in'])
             ->orderBy('time')
             ->get(['id', 'patient_id', 'doctor_id', 'time', 'status']);
 
         $waitingList = Appointment::with(['patient:id,name', 'doctor:id,name'])
-            ->whereDate('date', today())
+            ->where('date', '>=', $today)
+            ->where('date', '<', $tomorrow)
             ->where('status', 'waiting')
             ->orderBy('time')
             ->get(['id', 'patient_id', 'doctor_id', 'time', 'status']);
+
+        // Batch notification data into this endpoint to eliminate double-polling
+        $notificationQuery = Notification::where('user_id', auth()->id());
+        $since = $request->query('since');
+        $newNotifications = [];
+        if ($since) {
+            $newNotifications = (clone $notificationQuery)
+                ->where('created_at', '>', $since)
+                ->orderBy('created_at', 'desc')
+                ->get(['id', 'type', 'data', 'title', 'message', 'link', 'created_at'])
+                ->map(fn($n) => [
+                    'id'              => $n->id,
+                    'type'            => $n->type,
+                    'title'           => $n->title,
+                    'message'         => $n->message,
+                    'created_at_diff' => $n->created_at->diffForHumans(),
+                    'link'            => $n->link,
+                    'has_appointment' => isset(($n->data ?? [])['appointment_id']),
+                ]);
+        }
+        $unreadCount = (clone $notificationQuery)->unread()->count();
 
         return response()->json([
             'triageQueue' => $triageQueue->map(fn($a) => [
@@ -96,6 +124,10 @@ class NurseController extends Controller
             ]),
             'triageCount'  => $triageQueue->count(),
             'waitingCount' => $waitingList->count(),
+            'notifications' => [
+                'count' => $unreadCount,
+                'new'   => $newNotifications,
+            ],
         ]);
     }
 }

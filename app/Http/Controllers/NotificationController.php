@@ -88,7 +88,7 @@ class NotificationController extends Controller
             $new = (clone $query)
                 ->where('created_at', '>', $since)
                 ->orderBy('created_at', 'desc')
-                ->get()
+                ->get(['id', 'type', 'data', 'title', 'message', 'link', 'created_at'])
                 ->map(function ($n) {
                     $data = $n->data ?? [];
                     $title = isset($data['title_key']) ? __("messages.{$data['title_key']}", $data) : $n->title;

@@ -58,21 +58,24 @@ class ReceptionistController extends Controller
 
     public function boardData()
     {
+        $this->authorize('viewAny', Appointment::class);
         $today = today();
+        $tomorrow = today()->addDay();
 
-        $allToday = Appointment::whereDate('date', $today);
-
-        $flowMonitor = [
-            'checked_in'  => (clone $allToday)->where('status', Appointment::STATUS_CHECKED_IN)->count(),
-            'waiting'     => (clone $allToday)->where('status', Appointment::STATUS_WAITING)->count(),
-            'in_progress' => (clone $allToday)->where('status', Appointment::STATUS_IN_PROGRESS)->count(),
-            'completed'   => (clone $allToday)->where('status', Appointment::STATUS_COMPLETED)->count(),
-            'cancelled'   => (clone $allToday)->where('status', Appointment::STATUS_CANCELLED)->count(),
-            'no_show'     => (clone $allToday)->where('status', Appointment::STATUS_NO_SHOW)->count(),
-        ];
+        $flowMonitor = Appointment::where('date', '>=', $today)
+            ->where('date', '<', $tomorrow)
+            ->selectRaw("
+                SUM(status = 'checked_in') AS checked_in,
+                SUM(status = 'waiting') AS waiting,
+                SUM(status = 'in_progress') AS in_progress,
+                SUM(status = 'completed') AS completed,
+                SUM(status = 'cancelled') AS cancelled,
+                SUM(status = 'no_show') AS no_show
+            ")->first()->toArray();
 
         $livePatients = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name'])
-            ->whereDate('date', $today)
+            ->where('date', '>=', $today)
+            ->where('date', '<', $tomorrow)
             ->whereIn('status', [
                 Appointment::STATUS_CHECKED_IN,
                 Appointment::STATUS_WAITING,

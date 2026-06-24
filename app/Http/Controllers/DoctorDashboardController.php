@@ -68,8 +68,7 @@ class DoctorDashboardController extends Controller
 
     public function showAppointment(Appointment $appointment)
     {
-        $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
-        abort_if($appointment->doctor_id !== $doctor->id, 403, 'Unauthorized appointment access.');
+        $this->authorize('view', $appointment);
 
         $appointment->load(['patient', 'vital', 'doctor']);
 
@@ -78,11 +77,20 @@ class DoctorDashboardController extends Controller
 
     public function boardPartial()
     {
+        $this->authorize('viewAny', Appointment::class);
+
         $doctor = Doctor::where('user_id', auth()->id())->firstOrFail();
 
-        $waitingQueue = Appointment::with(['patient', 'vital'])
+        $today = today();
+        $tomorrow = today()->addDay();
+
+        $waitingQueue = Appointment::with([
+                'patient:id,name',
+                'vital:appointment_id,temperature,bp_systolic,bp_diastolic,pulse',
+            ])
             ->where('doctor_id', $doctor->id)
-            ->whereDate('date', today())
+            ->where('date', '>=', $today)
+            ->where('date', '<', $tomorrow)
             ->whereIn('status', [Appointment::STATUS_WAITING, Appointment::STATUS_CHECKED_IN])
             ->orderBy('time')
             ->get();
