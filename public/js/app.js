@@ -1071,8 +1071,8 @@ class App {
     }
 
     init() {
-        this.applyLanguage(this.lang);
         this.applyTheme(this.theme);
+        this.updateDynamicGreeting();
         this.bindEvents();
         this.setupGlobalErrorHandlers();
 
@@ -1149,35 +1149,47 @@ class App {
                 const text = translations[lang][attrKey];
 
                 if ($el.is('input') || $el.is('textarea')) {
-                    $el.attr('placeholder', text);
+                    if ($el.attr('placeholder') !== text) {
+                        $el.attr('placeholder', text);
+                    }
                 } else {
                     if ($el.children().length > 0) {
                         const contents = $el.contents();
                         const lastNode = contents.last()[0];
                         if (lastNode && lastNode.nodeType === 3) {
-                            lastNode.textContent = text;
+                            if (lastNode.textContent.trim() !== text) {
+                                lastNode.textContent = text;
+                            }
                         } else {
                             const el = this;
                             if (el.children.length > 0) {
                                 let hasText = false;
                                 for (let i = 0; i < el.childNodes.length; i++) {
                                     if (el.childNodes[i].nodeType === 3 && el.childNodes[i].nodeValue.trim().length > 0) {
-                                        el.childNodes[i].nodeValue = " " + text;
+                                        if (el.childNodes[i].nodeValue.trim() !== text) {
+                                            el.childNodes[i].nodeValue = " " + text;
+                                        }
                                         hasText = true;
                                         break;
                                     }
                                 }
                                 if (!hasText) {
                                     if (el.lastChild && el.lastChild.nodeType === 3) {
-                                        el.lastChild.textContent = text;
+                                        if (el.lastChild.textContent.trim() !== text) {
+                                            el.lastChild.textContent = text;
+                                        }
                                     }
                                 }
                             } else {
-                                $el.text(text);
+                                if ($el.text().trim() !== text) {
+                                    $el.text(text);
+                                }
                             }
                         }
                     } else {
-                        $el.text(text);
+                        if ($el.text().trim() !== text) {
+                            $el.text(text);
+                        }
                     }
                 }
             }
@@ -1187,7 +1199,9 @@ class App {
             const $el = $(this);
             const key = $el.attr('data-i18n-placeholder');
             if (translations[lang][key]) {
-                $el.attr('placeholder', translations[lang][key]);
+                if ($el.attr('placeholder') !== translations[lang][key]) {
+                    $el.attr('placeholder', translations[lang][key]);
+                }
             }
         });
 
@@ -1195,11 +1209,15 @@ class App {
             const $el = $(this);
             const key = $el.attr('data-i18n-title');
             if (translations[lang][key]) {
-                $el.attr('title', translations[lang][key]);
+                if ($el.attr('title') !== translations[lang][key]) {
+                    $el.attr('title', translations[lang][key]);
+                }
             }
         });
 
-        $('#langToggleText').text(translations[lang].langBtn);
+        if ($('#langToggleText').text() !== translations[lang].langBtn) {
+            $('#langToggleText').text(translations[lang].langBtn);
+        }
         this.updateDynamicGreeting();
     }
 

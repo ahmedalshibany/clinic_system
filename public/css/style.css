@@ -1,13 +1,10 @@
-/* Import Da Vinci Design System */
-@import url('davinci.css');
-@import url('layout.css');
-
-
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+.btn, .nav-link, .card, .sidebar, .top-header, input, select, textarea {
     transition: background-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out), transform var(--duration-fast) var(--ease-out);
 }
 

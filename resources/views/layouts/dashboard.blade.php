@@ -11,18 +11,28 @@
     <script>!function(){try{var t=localStorage.getItem('clinic_theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}}();</script>
     <!-- Locale Init: sync server locale to localStorage for JS -->
     <script>!function(){try{var s='{{ app()->getLocale() }}';if(s){localStorage.setItem('clinic_lang',s)}}catch(e){}}();</script>
-    <!-- Greeting Init: set greeting before render -->
-    <script>!function(){var g=document.getElementById('dashboard-greeting'),h=(new Date).getHours(),k='goodEvening',i='fa-moon';if(h>=5&&h<12){k='goodMorning';i='fa-sun'}else if(h>=12&&h<17){k='goodAfternoon';i='fa-cloud'}else if((h>=17&&h<=23)||(h>=0&&h<=4)){k='goodEvening';i='fa-moon'}var t=document.getElementById('greeting-icon');if(t)t.className='fas '+i;if(g)g.textContent=k}();</script>
-    
     <!-- CSS -->
     <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}?v={{ filemtime(public_path('vendor/bootstrap/css/bootstrap.min.css')) }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}?v={{ filemtime(public_path('vendor/fontawesome/css/all.min.css')) }}">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/fontawesome-local.css') }}?v={{ filemtime(public_path('vendor/fontawesome/css/fontawesome-local.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/davinci.css') }}?v={{ filemtime(public_path('css/davinci.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/layout.css') }}?v={{ filemtime(public_path('css/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ filemtime(public_path('css/style.css')) }}">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Local Fonts (self-hosted, zero CLS) -->
+    <link rel="preload" href="{{ asset('fonts/plus-jakarta-sans/plus-jakarta-sans-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/tajawal/tajawal-arabic-400.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/tajawal/tajawal-arabic-700.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <style>
+        @font-face { font-family:'Plus Jakarta Sans'; src:url('{{ asset('fonts/plus-jakarta-sans/plus-jakarta-sans-latin.woff2') }}') format('woff2'); font-weight:400 800; font-display:block; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+        @font-face { font-family:'Tajawal'; src:url('{{ asset('fonts/tajawal/tajawal-arabic-400.woff2') }}') format('woff2'); font-weight:400; font-display:block; unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC,U+102E0-102FB,U+10E60-10E7E,U+10EC2-10EC4,U+10EFC-10EFF,U+1EE00-1EE03,U+1EE05-1EE1F,U+1EE21-1EE22,U+1EE24,U+1EE27,U+1EE29-1EE32,U+1EE34-1EE37,U+1EE39,U+1EE3B,U+1EE42,U+1EE47,U+1EE49,U+1EE4B,U+1EE4D-1EE4F,U+1EE51-1EE52,U+1EE54,U+1EE57,U+1EE59,U+1EE5B,U+1EE5D,U+1EE5F,U+1EE61-1EE62,U+1EE64,U+1EE67-1EE6A,U+1EE6C-1EE72,U+1EE74-1EE77,U+1EE79-1EE7C,U+1EE7E,U+1EE80-1EE89,U+1EE8B-1EE9B,U+1EEA1-1EEA3,U+1EEA5-1EEA9,U+1EEAB-1EEBB,U+1EEF0-1EEF1; }
+        @font-face { font-family:'Tajawal'; src:url('{{ asset('fonts/tajawal/tajawal-latin-400.woff2') }}') format('woff2'); font-weight:400; font-display:block; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+        @font-face { font-family:'Tajawal'; src:url('{{ asset('fonts/tajawal/tajawal-arabic-500.woff2') }}') format('woff2'); font-weight:500; font-display:block; unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC,U+102E0-102FB,U+10E60-10E7E,U+10EC2-10EC4,U+10EFC-10EFF,U+1EE00-1EE03,U+1EE05-1EE1F,U+1EE21-1EE22,U+1EE24,U+1EE27,U+1EE29-1EE32,U+1EE34-1EE37,U+1EE39,U+1EE3B,U+1EE42,U+1EE47,U+1EE49,U+1EE4B,U+1EE4D-1EE4F,U+1EE51-1EE52,U+1EE54,U+1EE57,U+1EE59,U+1EE5B,U+1EE5D,U+1EE5F,U+1EE61-1EE62,U+1EE64,U+1EE67-1EE6A,U+1EE6C-1EE72,U+1EE74-1EE77,U+1EE79-1EE7C,U+1EE7E,U+1EE80-1EE89,U+1EE8B-1EE9B,U+1EEA1-1EEA3,U+1EEA5-1EEA9,U+1EEAB-1EEBB,U+1EEF0-1EEF1; }
+        @font-face { font-family:'Tajawal'; src:url('{{ asset('fonts/tajawal/tajawal-latin-500.woff2') }}') format('woff2'); font-weight:500; font-display:block; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+        @font-face { font-family:'Tajawal'; src:url('{{ asset('fonts/tajawal/tajawal-arabic-700.woff2') }}') format('woff2'); font-weight:700; font-display:block; unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC,U+102E0-102FB,U+10E60-10E7E,U+10EC2-10EC4,U+10EFC-10EFF,U+1EE00-1EE03,U+1EE05-1EE1F,U+1EE21-1EE22,U+1EE24,U+1EE27,U+1EE29-1EE32,U+1EE34-1EE37,U+1EE39,U+1EE3B,U+1EE42,U+1EE47,U+1EE49,U+1EE4B,U+1EE4D-1EE4F,U+1EE51-1EE52,U+1EE54,U+1EE57,U+1EE59,U+1EE5B,U+1EE5D,U+1EE5F,U+1EE61-1EE62,U+1EE64,U+1EE67-1EE6A,U+1EE6C-1EE72,U+1EE74-1EE77,U+1EE79-1EE7C,U+1EE7E,U+1EE80-1EE89,U+1EE8B-1EE9B,U+1EEA1-1EEA3,U+1EEA5-1EEA9,U+1EEAB-1EEBB,U+1EEF0-1EEF1; }
+        @font-face { font-family:'Tajawal'; src:url('{{ asset('fonts/tajawal/tajawal-latin-700.woff2') }}') format('woff2'); font-weight:700; font-display:block; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+        @font-face { font-family:'Tajawal'; src:url('{{ asset('fonts/tajawal/tajawal-arabic-800.woff2') }}') format('woff2'); font-weight:800; font-display:block; unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC,U+102E0-102FB,U+10E60-10E7E,U+10EC2-10EC4,U+10EFC-10EFF,U+1EE00-1EE03,U+1EE05-1EE1F,U+1EE21-1EE22,U+1EE24,U+1EE27,U+1EE29-1EE32,U+1EE34-1EE37,U+1EE39,U+1EE3B,U+1EE42,U+1EE47,U+1EE49,U+1EE4B,U+1EE4D-1EE4F,U+1EE51-1EE52,U+1EE54,U+1EE57,U+1EE59,U+1EE5B,U+1EE5D,U+1EE5F,U+1EE61-1EE62,U+1EE64,U+1EE67-1EE6A,U+1EE6C-1EE72,U+1EE74-1EE77,U+1EE79-1EE7C,U+1EE7E,U+1EE80-1EE89,U+1EE8B-1EE9B,U+1EEA1-1EEA3,U+1EEA5-1EEA9,U+1EEAB-1EEBB,U+1EEF0-1EEF1; }
+        @font-face { font-family:'Tajawal'; src:url('{{ asset('fonts/tajawal/tajawal-latin-800.woff2') }}') format('woff2'); font-weight:800; font-display:block; unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+    </style>
     
     @yield('styles')
     
@@ -58,6 +68,12 @@
                 <a href="{{ route('appointments.index') }}" class="nav-link {{ request()->routeIs('appointments.index') || request()->routeIs('appointments.show') || request()->routeIs('appointments.create') || request()->routeIs('appointments.edit') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-calendar-check"></i></div>
                     <span data-i18n="appointments">{{ __('messages.appointments') }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('appointments.queue') }}" class="nav-link {{ request()->routeIs('appointments.queue') ? 'active' : '' }}">
+                    <div class="icon-box"><i class="fas fa-layer-group"></i></div>
+                    <span data-i18n="queueBoard">{{ __('Queue Board') }}</span>
                 </a>
             </li>
             @endif
@@ -292,6 +308,13 @@
                             if (typeof window.refreshTriageBoard === 'function') {
                                 if (n.has_appointment) {
                                     window.refreshTriageBoard();
+                                }
+                            }
+                            @endif
+                            @if(auth()->user()->isReceptionist())
+                            if (typeof window.refreshReceptionBoard === 'function') {
+                                if (n.has_appointment) {
+                                    window.refreshReceptionBoard();
                                 }
                             }
                             @endif

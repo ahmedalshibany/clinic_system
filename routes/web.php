@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:receptionist,admin')->prefix('receptionist')->name('receptionist.')->group(function () {
         Route::post('/appointments/{appointment}/check-in', [App\Http\Controllers\ReceptionistController::class, 'checkIn'])->name('check-in');
         Route::post('/appointments/{appointment}/no-show', [App\Http\Controllers\ReceptionistController::class, 'markNoShow'])->name('no-show');
+        Route::get('/board-data', [App\Http\Controllers\ReceptionistController::class, 'boardData'])->name('board-data');
     });
 
     // Doctor-specific clinical dashboard and examination routes
@@ -77,13 +78,17 @@ Route::middleware('auth')->group(function () {
         Route::post('appointments/{appointment}/reopen-vitals', [AppointmentController::class, 'reopenVitals'])->name('appointments.reopen-vitals');
     });
 
-    // Appointments — full CRUD & lifecycle actions (admin, receptionist only — nurse strictly blocked)
+    // Appointments — CRUD & non-clinical lifecycle (admin & receptionist)
     Route::middleware('role:admin,receptionist')->group(function () {
         Route::resource('appointments', AppointmentController::class);
         Route::post('appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn'])->name('appointments.check-in');
+        Route::post('appointments/{appointment}/no-show', [AppointmentController::class, 'markNoShow'])->name('appointments.no-show');
+    });
+
+    // Appointments — clinical lifecycle (admin & doctor only — receptionist strictly blocked)
+    Route::middleware('role:admin,doctor')->group(function () {
         Route::post('appointments/{appointment}/start', [AppointmentController::class, 'startVisit'])->name('appointments.start');
         Route::post('appointments/{appointment}/complete', [AppointmentController::class, 'complete'])->name('appointments.complete');
-        Route::post('appointments/{appointment}/no-show', [AppointmentController::class, 'markNoShow'])->name('appointments.no-show');
     });
 
     // Medical Records & Prescriptions (admin & doctor only — strictly blocks receptionist/nurse)

@@ -8,6 +8,7 @@ use App\Services\AppointmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
 
 class ReceptionistController extends Controller
 {
@@ -18,7 +19,7 @@ class ReceptionistController extends Controller
         $this->appointmentService = $appointmentService;
     }
 
-    public function checkIn(Appointment $appointment)
+    public function checkIn(Request $request, Appointment $appointment)
     {
         $this->authorize('checkIn', $appointment);
 
@@ -28,6 +29,16 @@ class ReceptionistController extends Controller
             ->where('time', '<', $appointment->time)
             ->whereIn('status', [Appointment::STATUS_CHECKED_IN, Appointment::STATUS_WAITING])
             ->count() + 1;
+
+        if ($request->expectsJson()) {
+            $appointment->load(['patient:id,name,patient_code,phone', 'doctor:id,name']);
+            return response()->json([
+                'success' => true,
+                'message' => __('messages.patientCheckedIn'),
+                'position' => $position,
+                'appointment' => $appointment,
+            ]);
+        }
 
         session()->flash('info', __('messages.queuePositionInfo', ['position' => $position]));
 
@@ -43,5 +54,39 @@ class ReceptionistController extends Controller
 
         return redirect()->route('dashboard')
             ->with('success', __('messages.markedNoShow'));
+    }
+
+    public function boardData()
+    {
+        $today = today();
+
+        $allToday = Appointment::whereDate('date', $today);
+
+        $flowMonitor = [
+            'checked_in'  => (clone $allToday)->where('status', Appointment::STATUS_CHECKED_IN)->count(),
+            'waiting'     => (clone $allToday)->where('status', Appointment::STATUS_WAITING)->count(),
+            'in_progress' => (clone $allToday)->where('status', Appointment::STATUS_IN_PROGRESS)->count(),
+            'completed'   => (clone $allToday)->where('status', Appointment::STATUS_COMPLETED)->count(),
+            'cancelled'   => (clone $allToday)->where('status', Appointment::STATUS_CANCELLED)->count(),
+            'no_show'     => (clone $allToday)->where('status', Appointment::STATUS_NO_SHOW)->count(),
+        ];
+
+        $livePatients = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name'])
+            ->whereDate('date', $today)
+            ->whereIn('status', [
+                Appointment::STATUS_CHECKED_IN,
+                Appointment::STATUS_WAITING,
+                Appointment::STATUS_IN_PROGRESS,
+            ])
+            ->orderBy('time')
+            ->get();
+
+        $html = View::make('receptionist.partials.live-patients-rows', compact('livePatients'))->render();
+
+        return response()->json([
+            'flowMonitor' => $flowMonitor,
+            'html'        => $html,
+            'count'       => $livePatients->count(),
+        ]);
     }
 }

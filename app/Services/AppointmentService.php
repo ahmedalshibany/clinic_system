@@ -268,6 +268,18 @@ class AppointmentService
                 if (isset($extraData['diagnosis'])) {
                     $updateData['diagnosis'] = $extraData['diagnosis'];
                 }
+                try {
+                    app(\App\Services\NotificationService::class)->notifyReceptionists(
+                        'system',
+                        'Visit Completed',
+                        ($appointment->patient->name ?? 'A patient') . '\'s visit with Dr. ' . ($appointment->doctor->name ?? 'the doctor') . ' has been completed.',
+                        [
+                            'appointment_id' => $appointment->id,
+                            'name' => $appointment->patient->name ?? '',
+                        ],
+                        route('dashboard')
+                    );
+                } catch (\Exception $e) {}
                 break;
             case 'checked_in':
                 $updateData['checked_in_at'] = now();

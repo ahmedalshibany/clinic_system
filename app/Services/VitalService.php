@@ -57,6 +57,19 @@ class VitalService
                 );
             } catch (\Exception $e) {}
 
+            try {
+                app(NotificationService::class)->notifyReceptionists(
+                    'appointment',
+                    'Patient Ready',
+                    $appointment->patient->name . ' has completed vitals and is waiting for the doctor.',
+                    [
+                        'appointment_id' => $appointment->id,
+                        'name' => $appointment->patient->name,
+                    ],
+                    route('dashboard')
+                );
+            } catch (\Exception $e) {}
+
             return $vital;
         });
     }
