@@ -41,13 +41,16 @@ Route::middleware('auth')->group(function () {
         Route::delete('patients/{patient}/files/{file}', [PatientController::class, 'deleteFile'])->name('patients.delete-file');
     });
 
-    // Doctors (all roles can view, admin manages)
-    Route::middleware('role:admin,doctor,receptionist,nurse')->group(function () {
+    // Doctors (sidebar-visible: admin & nurse only)
+    Route::middleware('role:admin,nurse')->group(function () {
         Route::resource('doctors', DoctorController::class);
         Route::get('doctors/{doctor}/schedule', [App\Http\Controllers\ScheduleController::class, 'show'])->name('doctors.schedule');
         Route::put('doctors/{doctor}/schedule', [App\Http\Controllers\ScheduleController::class, 'update'])->name('doctors.schedule.update');
         Route::post('doctors/{doctor}/leaves', [App\Http\Controllers\ScheduleController::class, 'storeLeave'])->name('doctors.leaves.store');
         Route::delete('doctors/{doctor}/leaves/{leave}', [App\Http\Controllers\ScheduleController::class, 'destroyLeave'])->name('doctors.leaves.destroy');
+    });
+    // Doctor slot lookup (needed by appointment booking — broader access)
+    Route::middleware('role:admin,receptionist,doctor')->group(function () {
         Route::get('doctors/{doctor}/available-slots/{date}', [App\Http\Controllers\ScheduleController::class, 'getAvailableSlots'])->name('doctors.available-slots');
     });
 
@@ -75,20 +78,16 @@ Route::middleware('auth')->group(function () {
     // Appointments — queue & read-only (nurse can view)
     Route::middleware('role:admin,receptionist,nurse')->group(function () {
         Route::get('appointments/queue', [AppointmentController::class, 'queue'])->name('appointments.queue');
+    });
+
+    // Appointments — reopen vitals (admin & doctor only — aligns with AppointmentPolicy)
+    Route::middleware('role:admin,doctor')->group(function () {
         Route::post('appointments/{appointment}/reopen-vitals', [AppointmentController::class, 'reopenVitals'])->name('appointments.reopen-vitals');
     });
 
     // Appointments — CRUD & non-clinical lifecycle (admin & receptionist)
     Route::middleware('role:admin,receptionist')->group(function () {
         Route::resource('appointments', AppointmentController::class);
-        Route::post('appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn'])->name('appointments.check-in');
-        Route::post('appointments/{appointment}/no-show', [AppointmentController::class, 'markNoShow'])->name('appointments.no-show');
-    });
-
-    // Appointments — clinical lifecycle (admin & doctor only — receptionist strictly blocked)
-    Route::middleware('role:admin,doctor')->group(function () {
-        Route::post('appointments/{appointment}/start', [AppointmentController::class, 'startVisit'])->name('appointments.start');
-        Route::post('appointments/{appointment}/complete', [AppointmentController::class, 'complete'])->name('appointments.complete');
     });
 
     // Medical Records & Prescriptions (admin & doctor only — strictly blocks receptionist/nurse)
@@ -99,8 +98,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('medical-records', App\Http\Controllers\MedicalRecordController::class);
     });
 
-    // Services (all roles can view, admin manages)
-    Route::middleware('role:admin,doctor,receptionist,nurse')->group(function () {
+    // Services (sidebar-visible: admin only — direct URL to other roles returns 403)
+    Route::middleware('role:admin')->group(function () {
         Route::resource('services', App\Http\Controllers\ServiceController::class);
     });
 

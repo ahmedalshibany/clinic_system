@@ -130,6 +130,10 @@ class AppointmentController extends Controller
     public function startVisit(Appointment $appointment)
     {
         $this->authorize('startVisit', $appointment);
+        if (auth()->user()->role === 'doctor') {
+            $doctor = \App\Models\Doctor::where('user_id', auth()->id())->first();
+            abort_if(!$doctor || $appointment->doctor_id !== $doctor->id, 403, 'Unauthorized physician ownership match.');
+        }
         $this->appointmentService->updateStatus($appointment, 'in_progress');
         return back()->with('success', __('messages.visitStarted'));
     }
@@ -137,6 +141,10 @@ class AppointmentController extends Controller
     public function complete(Request $request, Appointment $appointment)
     {
         $this->authorize('complete', $appointment);
+        if (auth()->user()->role === 'doctor') {
+            $doctor = \App\Models\Doctor::where('user_id', auth()->id())->first();
+            abort_if(!$doctor || $appointment->doctor_id !== $doctor->id, 403, 'Unauthorized physician ownership match.');
+        }
         $request->validate([
             'diagnosis' => 'nullable|string',
         ]);
@@ -145,7 +153,7 @@ class AppointmentController extends Controller
 
         $outstandingBalance = $appointment->patient->invoices()
             ->whereIn('status', ['sent', 'partial', 'overdue'])
-            ->sum(\Illuminate\Support\Facades\DB::raw('total - paid_amount'));
+            ->sum(\Illuminate\Support\Facades\DB::raw('total - amount_paid'));
 
         if ($outstandingBalance > 0) {
             session()->flash('warning', __('messages.patientOutstandingBalance', ['amount' => number_format($outstandingBalance, 2)]));

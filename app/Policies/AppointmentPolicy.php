@@ -39,12 +39,22 @@ class AppointmentPolicy
 
     public function startVisit(User $user, Appointment $appointment): bool
     {
-        return in_array($user->role, ['admin', 'doctor']);
+        if ($user->role === 'admin') return true;
+        if ($user->role === 'doctor') {
+            $doctor = \App\Models\Doctor::where('user_id', $user->id)->first();
+            return $doctor && $appointment->doctor_id === $doctor->id;
+        }
+        return false;
     }
 
     public function complete(User $user, Appointment $appointment): bool
     {
-        return in_array($user->role, ['admin', 'doctor']);
+        if ($user->role === 'admin') return true;
+        if ($user->role === 'doctor') {
+            $doctor = \App\Models\Doctor::where('user_id', $user->id)->first();
+            return $doctor && $appointment->doctor_id === $doctor->id;
+        }
+        return false;
     }
 
     public function markNoShow(User $user, Appointment $appointment): bool

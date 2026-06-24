@@ -29,6 +29,7 @@ return [
     'reports' => 'Reports',
     'settings' => 'Settings',
     'users' => 'Users',
+    'queueBoard' => 'Queue Board',
     'logout' => 'Logout',
 
     // Patients
@@ -120,6 +121,8 @@ return [
     'noAppointmentsFound' => 'No appointments found',
     'generalMedicalHistory' => 'General Medical History',
     'familyHistory' => 'Family History',
+    'waitingRoomReady' => 'Waiting Room (Ready for Doctor)',
+    'noPatientsWaiting' => 'No patients waiting.',
     'noMedicalRecordsYet' => 'No medical records available yet.',
     'uploadFile' => 'Upload File',
     'noDocumentsUploaded' => 'No documents uploaded yet.',

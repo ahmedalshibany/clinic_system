@@ -259,7 +259,7 @@
                                         @if($appt->status === 'checked_in')
                                         <span class="badge bg-success">{{ __('messages.checked_in') }}</span>
                                         @else
-                                        <span class="badge bg-info">{{ __('Confirmed') }}</span>
+                                        <span class="badge bg-info">{{ __('messages.confirmed') }}</span>
                                         @endif
                                     </td>
                                     <td class="pe-4 text-center">
@@ -365,7 +365,7 @@
                         <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: rgba(191,140,48,0.12); border-radius: var(--radius-sm);">
                             <i class="fas fa-chair" style="font-size: 0.9rem; color: var(--warning);"></i>
                         </span>
-                        <span data-i18n="waitingRoomReady">{{ __('Waiting Room (Ready for Doctor)') }}</span>
+                        <span data-i18n="waitingRoomReady">{{ __('messages.waitingRoomReady') }}</span>
                     </h5>
                     <span class="badge" style="background: var(--warning); color: #fff; font-weight: 600;" id="waitingBadge">{{ $waitingList->count() }}</span>
                 </div>
@@ -392,7 +392,7 @@
                                 <tr id="waitingEmptyRow">
                                     <td colspan="4" class="text-center py-5">
                                         <i class="fas fa-inbox d-block mb-2 empty-icon" style="font-size: 2rem;"></i>
-                                        <span class="text-muted">{{ __('No patients waiting.') }}</span>
+                                        <span class="text-muted">{{ __('messages.noPatientsWaiting') }}</span>
                                     </td>
                                 </tr>
                                 @endforelse
@@ -496,7 +496,7 @@
         items.forEach(function(a) {
             var s = a.status === 'checked_in'
                 ? '<span class="badge bg-success">{{ __("messages.checked_in") }}</span>'
-                : '<span class="badge bg-info">{{ __("Confirmed") }}</span>';
+                : '<span class="badge bg-info">{{ __("messages.confirmed") }}</span>';
             var r = act
                 ? '<button type="button" class="mat-btn mat-btn-primary record-vitals-btn" data-appointment-id="' + a.id + '" data-patient="' + esc(a.patient_name) + '"><i class="fas fa-heartbeat"></i> {{ __("messages.recordVitals") }}</button>'
                 : '<span class="badge bg-warning">{{ __("messages.waiting") }}</span>';

@@ -73,7 +73,7 @@
             <li class="nav-item">
                 <a href="{{ route('appointments.queue') }}" class="nav-link {{ request()->routeIs('appointments.queue') ? 'active' : '' }}">
                     <div class="icon-box"><i class="fas fa-layer-group"></i></div>
-                    <span data-i18n="queueBoard">{{ __('Queue Board') }}</span>
+                    <span data-i18n="queueBoard">{{ __('messages.queueBoard') }}</span>
                 </a>
             </li>
             @endif

@@ -29,6 +29,7 @@ return [
     'reports' => 'التقارير',
     'settings' => 'الإعدادات',
     'users' => 'المستخدمين',
+    'queueBoard' => 'لوحة الطابور',
     'logout' => 'تسجيل الخروج',
 
     // Patients
@@ -120,6 +121,8 @@ return [
     'noAppointmentsFound' => 'لم يتم العثور على مواعيد',
     'generalMedicalHistory' => 'التاريخ الطبي العام',
     'familyHistory' => 'التاريخ العائلي',
+    'waitingRoomReady' => 'غرفة الانتظار (جاهز للطبيب)',
+    'noPatientsWaiting' => 'لا يوجد مرضى في الانتظار.',
     'noMedicalRecordsYet' => 'لا توجد سجلات طبية متاحة بعد.',
     'uploadFile' => 'رفع ملف',
     'noDocumentsUploaded' => 'لم يتم رفع مستندات بعد.',
