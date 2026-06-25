@@ -10,6 +10,8 @@ class MedicineApiController extends Controller
 {
     public function search(Request $request)
     {
+        $this->authorize('viewAny', \App\Models\Medicine::class);
+
         $term = $request->get('q');
         
         $query = Medicine::query()

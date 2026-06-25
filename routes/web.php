@@ -77,7 +77,6 @@ Route::middleware('auth')->group(function () {
 
     // Appointments — queue & read-only (nurse can view)
     Route::middleware('role:admin,receptionist,nurse')->group(function () {
-        Route::get('appointments/queue', [AppointmentController::class, 'queue'])->name('appointments.queue');
     });
 
     // Appointments — reopen vitals (admin & doctor only — aligns with AppointmentPolicy)
@@ -162,6 +161,8 @@ Route::middleware('auth')->group(function () {
     });
 
     // API Internal Routes (AJAX) — session-authenticated
-    Route::get('/api/patients/search', [App\Http\Controllers\Api\PatientApiController::class, 'search'])->name('api.patients.search');
-    Route::get('/api/medicines/search', [App\Http\Controllers\Api\MedicineApiController::class, 'search'])->name('api.medicines.search');
+    Route::middleware('role:admin,doctor,receptionist,nurse')->group(function () {
+        Route::get('/api/patients/search', [App\Http\Controllers\Api\PatientApiController::class, 'search'])->name('api.patients.search');
+        Route::get('/api/medicines/search', [App\Http\Controllers\Api\MedicineApiController::class, 'search'])->name('api.medicines.search');
+    });
 });

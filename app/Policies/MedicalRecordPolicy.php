@@ -15,6 +15,7 @@ class MedicalRecordPolicy
     public function view(User $user, MedicalRecord $medicalRecord): bool
     {
         if ($user->isAdmin()) return true;
+        if ($user->isAdmin()) return true;
         if ($user->isDoctor() && $medicalRecord->doctor_id === $user->doctor->id) return true;
         return false;
     }

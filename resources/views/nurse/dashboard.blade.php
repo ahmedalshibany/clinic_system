@@ -427,6 +427,7 @@
 (function() {
     'use strict';
     var poll = null;
+    var isFetching = false;
 
     function openForm(id, name) {
         document.getElementById('vitalAppointmentId').value = id;
@@ -471,6 +472,8 @@
     });
 
     function refreshQueue() {
+        if (isFetching) return;
+        isFetching = true;
         fetch('{{ route("api.nurse.triage-queue") }}', { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
         .then(function(r) { return r.json(); })
         .then(function(d) {
@@ -482,7 +485,8 @@
             document.getElementById('statWaitingCount').textContent = d.waitingCount;
             document.getElementById('statTotalToday').textContent = d.triageCount + d.waitingCount;
             document.getElementById('lastUpdated').textContent = new Date().toTimeString().slice(0,5);
-        }).catch(function() {});
+        }).catch(function() {})
+        .finally(function() { isFetching = false; });
     }
 
     function render(id, items, act) {
@@ -510,6 +514,7 @@
 
     poll = setInterval(refreshQueue, 15000);
     window.nursePollInterval = poll;
+    window.addEventListener('beforeunload', function() { if (poll) clearInterval(poll); });
 })();
 </script>
 @endsection

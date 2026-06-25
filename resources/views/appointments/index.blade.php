@@ -116,14 +116,14 @@
                                 </div>
                                 <div class="mt-2 d-flex flex-column gap-1">
                                     @if($appointment->status === 'confirmed')
-                                        <form action="{{ route('appointments.check-in', $appointment) }}" method="POST">
+                                        <form action="{{ route('receptionist.check-in', $appointment) }}" method="POST">
                                             @csrf
                                             <button type="submit" class="btn btn-primary btn-sm w-100" title="Check In" data-i18n-title="checkIn">
                                                 <i class="fas fa-check-square me-1"></i> {{ __('messages.checkIn') }}
                                             </button>
                                         </form>
                                     @elseif($appointment->status === 'waiting')
-                                        <form action="{{ route('appointments.start', $appointment) }}" method="POST">
+                                        <form action="{{ route('doctor.appointments.start', $appointment) }}" method="POST">
                                             @csrf
                                             <button type="submit" class="btn btn-success btn-sm w-100" title="Start Visit">
                                                 <i class="fas fa-play me-1"></i> Start Visit

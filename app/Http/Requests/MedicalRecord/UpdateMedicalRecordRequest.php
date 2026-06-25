@@ -30,6 +30,7 @@ class UpdateMedicalRecordRequest extends FormRequest
             'notes' => 'nullable|string',
             'follow_up_date' => 'nullable|date',
             'prescription_items' => 'nullable|array',
+            'prescription_items.*.medicine_id' => 'nullable|exists:medicines,id',
             'prescription_items.*.medication_name' => 'required_with:prescription_items|string',
             'prescription_items.*.dosage' => 'required_with:prescription_items|string',
             'prescription_items.*.frequency' => 'required_with:prescription_items|string',

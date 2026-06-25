@@ -138,6 +138,8 @@
 
 @section('scripts')
 <script>
+    var elapsedInterval = null, waitingInterval = null;
+
     // Elapsed timer for active session
     @if($activeSession && $activeSession->started_at)
     (function() {
@@ -152,7 +154,7 @@
         }
 
         updateElapsed();
-        setInterval(updateElapsed, 1000);
+        elapsedInterval = setInterval(updateElapsed, 1000);
     })();
     @endif
 
@@ -167,7 +169,13 @@
         });
     };
     window.updateTimers();
-    setInterval(window.updateTimers, 60000);
+    waitingInterval = setInterval(window.updateTimers, 60000);
+
+    // Cleanup intervals on page unload
+    window.addEventListener('beforeunload', function() {
+        if (elapsedInterval) clearInterval(elapsedInterval);
+        if (waitingInterval) clearInterval(waitingInterval);
+    });
 
     // Refresh clinical board — fetches fresh waiting queue HTML and swaps it
     window.refreshClinicalBoard = function refreshClinicalBoard() {

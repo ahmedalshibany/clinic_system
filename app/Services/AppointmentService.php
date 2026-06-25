@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Setting;
+use App\Services\AppointmentInvoiceManager;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -97,7 +98,7 @@ class AppointmentService
 
         // 3a. Validate slot alignment against the schedule's actual slot_duration
         $slotDuration = $schedule->slot_duration;
-        $minutesSinceStart = $apptTime->diffInMinutes($startTime);
+        $minutesSinceStart = $apptTime->diffInMinutes($startTime, false);
         if ($minutesSinceStart % $slotDuration !== 0) {
             throw new Exception(__('messages.slotMustBe15min'));
         }
@@ -105,19 +106,19 @@ class AppointmentService
         DB::beginTransaction();
 
         try {
-            // 4. Check for conflicts ط·آ£ط¢آ¢ط£آ¢أ¢â‚¬ع‘ط¢آ¬ط£آ¢أ¢â€ڑآ¬أ¢â‚¬إ’ duration-aware overlap + no_show/cancelled unlock
-            $slotDuration = (int) Setting::get('appointment_slot_duration', 30);
+            // 4. Check for conflicts — duration-aware overlap, exclude cancelled/no_show
+            $overlapDuration = $slotDuration ?? (int) Setting::get('appointment_slot_duration', 30);
             $newStart = Carbon::parse($data['date'] . ' ' . $data['time']);
-            $newEnd = (clone $newStart)->addMinutes($slotDuration);
+            $newEnd = (clone $newStart)->addMinutes($overlapDuration);
 
             $hasOverlap = Appointment::where('doctor_id', $data['doctor_id'])
                 ->whereDate('date', $data['date'])
                 ->whereNotIn('status', ['cancelled', 'no_show'])
                 ->lockForUpdate()
                 ->get()
-                ->contains(function ($existing) use ($newStart, $newEnd) {
-                    $existingStart = Carbon::parse($existing->date->format('Y-m-d') . ' ' . $existing->time->format('H:i:s'));
-                    $existingEnd = (clone $existingStart)->addMinutes((int) Setting::get('appointment_slot_duration', 30));
+                ->contains(function ($existing) use ($newStart, $newEnd, $overlapDuration) {
+                    $existingStart = $existing->date->copy()->setTimeFrom($existing->time);
+                    $existingEnd = (clone $existingStart)->addMinutes($overlapDuration);
                     return max($newStart->timestamp, $existingStart->timestamp) < min($newEnd->timestamp, $existingEnd->timestamp);
                 });
 
@@ -206,17 +207,17 @@ class AppointmentService
 
             // 3a. Validate slot alignment against the schedule's actual slot_duration
             $slotDuration = $schedule->slot_duration;
-            $minutesSinceStart = $apptTime->diffInMinutes($startTime);
+            $minutesSinceStart = $apptTime->diffInMinutes($startTime, false);
             if ($minutesSinceStart % $slotDuration !== 0) {
                 throw new Exception(__('messages.slotMustBe15min'));
             }
         }
 
-        // 4. Check for conflicts with lock (excluding current appointment) ط·آ£ط¢آ¢ط£آ¢أ¢â‚¬ع‘ط¢آ¬ط£آ¢أ¢â€ڑآ¬أ¢â‚¬إ’ overlap-aware + no_show unlock
+        // 4. Check for conflicts with lock (excluding current appointment) — overlap-aware + no_show unlock
         if ($timeChanged) {
-            $slotDuration = (int) Setting::get('appointment_slot_duration', 30);
+            $overlapDuration = $slotDuration ?? (int) Setting::get('appointment_slot_duration', 30);
             $newStart = Carbon::parse($data['date'] . ' ' . $data['time']);
-            $newEnd = (clone $newStart)->addMinutes($slotDuration);
+            $newEnd = (clone $newStart)->addMinutes($overlapDuration);
 
             $hasOverlap = Appointment::where('doctor_id', $data['doctor_id'])
                 ->whereDate('date', $data['date'])
@@ -224,9 +225,9 @@ class AppointmentService
                 ->whereNotIn('status', ['cancelled', 'no_show'])
                 ->lockForUpdate()
                 ->get()
-                ->contains(function ($existing) use ($newStart, $newEnd) {
-                    $existingStart = Carbon::parse($existing->date->format('Y-m-d') . ' ' . $existing->time->format('H:i:s'));
-                    $existingEnd = (clone $existingStart)->addMinutes((int) Setting::get('appointment_slot_duration', 30));
+                ->contains(function ($existing) use ($newStart, $newEnd, $overlapDuration) {
+                    $existingStart = $existing->date->copy()->setTimeFrom($existing->time);
+                    $existingEnd = (clone $existingStart)->addMinutes($overlapDuration);
                     return max($newStart->timestamp, $existingStart->timestamp) < min($newEnd->timestamp, $existingEnd->timestamp);
                 });
 
@@ -280,6 +281,12 @@ class AppointmentService
                         route('dashboard')
                     );
                 } catch (\Exception $e) {}
+
+                try {
+                    app(AppointmentInvoiceManager::class)->generateConsultationInvoice($appointment);
+                } catch (\Exception $e) {
+                    report($e);
+                }
                 break;
             case 'checked_in':
                 $updateData['checked_in_at'] = now();

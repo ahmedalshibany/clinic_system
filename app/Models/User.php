@@ -71,6 +71,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if the user is a doctor.
+     *
+     * @return bool
+     */
+    public function isDoctor()
+    {
+        return $this->role === 'doctor';
+    }
+
+    /**
      * Check if the user is an admin.
      *
      * @return bool

@@ -202,7 +202,7 @@
                         <div class="activity-content">
                             <div class="activity-header">
                                 <span class="activity-title">{{ $appt->patient->name ?? __('Unknown') }}</span>
-                                <span class="activity-time">{{ \Carbon\Carbon::parse($appt->date)->format('M d') }} â€¢ {{ \Carbon\Carbon::parse($appt->time)->format('H:i') }}</span>
+                                <span class="activity-time">{{ \Carbon\Carbon::parse($appt->date)->format('M d') }} &middot; {{ \Carbon\Carbon::parse($appt->time)->format('H:i') }}</span>
                             </div>
                             <div class="activity-details">
                                 <span class="activity-doctor">

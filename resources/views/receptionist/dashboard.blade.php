@@ -386,7 +386,7 @@
 
                                 </td>
                                 <td style="color: var(--text-secondary);">{{ $appt->doctor->name ?? __('messages.doctor') }}</td>
-                                <td><span class="badge-dv badge-dv-type">{{ $appt->type === 'Checkup' ? __('messages.checkup') : ($appt->type === 'استشارة' ? __('messages.consultation') : $appt->type) }}</span></td>
+                                <td><span class="badge-dv badge-dv-type">{{ $appt->type === 'Checkup' ? __('messages.checkup') : ($appt->type === 'Consultation' || $appt->type === 'استشارة' ? __('messages.consultation') : $appt->type) }}</span></td>
                                 <td>
                                     @php
                                         $badgeClass = 'badge-dv-pending';
@@ -586,6 +586,26 @@
     </div>
 </div>
 
+@else
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="recep-card">
+            <div class="recep-card-body">
+                <div class="dv-empty">
+                    <i class="fas fa-lock dv-empty-icon"></i>
+                    <h5 class="dv-empty-text mb-3">{{ __('messages.receptionistOnly') }}</h5>
+                    <a href="{{ route('dashboard') }}" class="dv-btn-primary d-inline-flex text-decoration-none">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>{{ __('messages.backToMainDash') }}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+@endsection
+
 @section('scripts')
 @parent
 <script>
@@ -632,36 +652,15 @@ $(function() {
                         checkedInEl.textContent = parseInt(checkedInEl.textContent) + 1;
                     }
 
-                    var liveTbody = document.getElementById('live-patients-tbody');
-                    if (liveTbody) {
-                        var emptyRow = liveTbody.querySelector('.empty-row');
-                        if (emptyRow) emptyRow.remove();
-
-                        var p = data.appointment && data.appointment.patient ? data.appointment.patient.name : 'N/A';
-                        var d = data.appointment && data.appointment.doctor ? data.appointment.doctor.name : 'N/A';
-                        var newRow = document.createElement('tr');
-                        newRow.innerHTML = '<td class="recep-patient-name">' + p + '</td>' +
-                            '<td style="color: var(--text-secondary);">' + d + '</td>' +
-                            '<td><span class="badge-dv badge-dv-checkedin"><i class="fas fa-user-check" style="font-size: 0.65rem;"></i> ' + '{{ __("messages.checked_in") }}' + '</span></td>' +
-                            '<td><span class="dv-since">{{ __("messages.justNow") }}</span></td>';
-                        liveTbody.appendChild(newRow);
-                    }
-
                     setTimeout(function() {
                         row.remove();
-                        var triageBody = document.getElementById('triage-board-body');
-                        if (triageBody && triageBody.querySelectorAll('tr:not(.empty-row)').length === 0) {
-                            var empty = triageBody.querySelector('.empty-row');
-                            if (!empty) {
-                                triageBody.innerHTML = '<tr class="empty-row"><td colspan="6"><div class="dv-empty">' +
-                                    '<i class="fas fa-inbox dv-empty-icon"></i>' +
-                                    '<span class="dv-empty-text">{{ __("messages.noPendingArrivals") }}</span></div></td></tr>';
-                            }
-                        }
                         if (typeof window.refreshReceptionBoard === 'function') {
                             window.refreshReceptionBoard();
                         }
                     }, 300);
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
                 }
             })
             .catch(function() {
@@ -672,24 +671,4 @@ $(function() {
     });
 });
 </script>
-@endsection
-
-@else
-<div class="row g-4 mb-4">
-    <div class="col-12">
-        <div class="recep-card">
-            <div class="recep-card-body">
-                <div class="dv-empty">
-                    <i class="fas fa-lock dv-empty-icon"></i>
-                    <h5 class="dv-empty-text mb-3">{{ __('messages.receptionistOnly') }}</h5>
-                    <a href="{{ route('dashboard') }}" class="dv-btn-primary d-inline-flex text-decoration-none">
-                        <i class="fas fa-arrow-left"></i>
-                        <span>{{ __('messages.backToMainDash') }}</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
 @endsection

@@ -248,28 +248,4 @@ class AppointmentController extends Controller
 
         return response()->json($appointments);
     }
-
-    /**
-     * Display the appointments queue for today.
-     */
-    public function queue(Request $request)
-    {
-        $this->authorize('viewAny', Appointment::class);
-        $query = Appointment::with(['patient', 'doctor', 'vital'])
-            ->whereDate('date', now()->today());
-
-        if ($request->filled('doctor_id')) {
-            $query->where('doctor_id', $request->doctor_id);
-        }
-
-        $appointments = $query->orderBy('time')->get();
-
-        if ($appointments->isEmpty()) {
-            session()->flash('info', __('messages.queueEmptyInfo'));
-        }
-
-        $doctors = Doctor::where('is_active', true)->orderBy('name')->get();
-
-        return view('appointments.queue', compact('appointments', 'doctors'));
-    }
 }

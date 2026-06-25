@@ -39,7 +39,7 @@ class AuthController extends Controller
         // Check if user is active
         if (!$user->is_active) {
             return back()->withErrors([
-                'username' => 'Your account has been deactivated'
+                'username' => 'Invalid username or password'
             ])->withInput($request->only('username'));
         }
 

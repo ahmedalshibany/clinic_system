@@ -188,20 +188,21 @@ class ReportController extends Controller
             $dateTo = $dateTo ?? now()->endOfMonth()->toDateString();
         }
 
-        $unassigned = __('messages.unassigned');
         $data = DB::table('payments')
             ->join('invoices', 'payments.invoice_id', '=', 'invoices.id')
             ->leftJoin('appointments', 'invoices.appointment_id', '=', 'appointments.id')
             ->leftJoin('doctors', 'appointments.doctor_id', '=', 'doctors.id')
             ->leftJoin('users', 'doctors.user_id', '=', 'users.id')
             ->whereBetween('payments.payment_date', [$dateFrom, $dateTo])
-            ->select(
-                DB::raw('COALESCE(users.name, "' . $unassigned . '") as doctor_name'),
-                DB::raw('SUM(payments.amount) as total_earned'),
-                DB::raw('COUNT(DISTINCT appointments.id) as appointment_count')
-            )
+            ->select('doctors.id as doctor_id', 'users.name as user_name')
+            ->selectRaw('SUM(payments.amount) as total_earned')
+            ->selectRaw('COUNT(DISTINCT appointments.id) as appointment_count')
             ->groupBy('doctors.id', 'users.name')
-            ->get();
+            ->get()
+            ->map(function ($row) {
+                $row->doctor_name = $row->user_name ?? __('messages.unassigned');
+                return $row;
+            });
 
         $total_earned_sum   = $data->sum('total_earned');
         $total_appointments = $data->sum('appointment_count');

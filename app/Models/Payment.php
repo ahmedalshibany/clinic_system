@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\PaymentCreated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,6 +23,10 @@ class Payment extends Model
     protected $casts = [
         'amount' => 'decimal:2',
         'payment_date' => 'date',
+    ];
+
+    protected $dispatchesEvents = [
+        'created' => PaymentCreated::class,
     ];
 
     public function invoice()

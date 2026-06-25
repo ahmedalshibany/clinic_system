@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Setting;
@@ -49,10 +50,6 @@ class InvoiceService
 
     /**
      * Create a new invoice.
-     *
-     * @param array $data
-     * @param int|null $creatorId
-     * @return Invoice
      */
     public function createInvoice(array $data, ?int $creatorId = null): Invoice
     {
@@ -112,11 +109,6 @@ class InvoiceService
 
     /**
      * Update an invoice with pessimistic row locking.
-     *
-     * @param int $invoiceId
-     * @param array $data
-     * @return Invoice
-     * @throws Exception
      */
     public function updateInvoice(int $invoiceId, array $data): Invoice
     {
@@ -181,10 +173,8 @@ class InvoiceService
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            // Delete items explicitly removed by the user
             $invoice->items()->whereNotIn('id', $incomingIds)->delete();
 
-            // Create genuinely new items
             foreach ($newItems as $itemData) {
                 $invoice->items()->create($itemData);
             }
@@ -194,24 +184,22 @@ class InvoiceService
     }
 
     /**
-     * Add a payment to an invoice.
-     *
-     * @param mixed $id
-     * @param array $data
-     * @param int|null $receiverId
-     * @return Payment
-     * @throws Exception
+     * Add a payment to an invoice with status guard and event-driven recalculation.
      */
     public function addPayment($id, array $data, ?int $receiverId = null): Payment
     {
         $invoice = $id instanceof Invoice ? $id : Invoice::findOrFail($id);
+
+        $currentStatus = InvoiceStatus::tryFrom($invoice->status);
+        if (!$currentStatus?->allowsPayments()) {
+            throw new Exception('Payments can only be recorded against sent, partial, or overdue invoices.');
+        }
 
         if ($data['amount'] <= 0 || $data['amount'] > ($invoice->total - $invoice->amount_paid)) {
             throw new Exception('Invalid payment amount (exceeds balance or is <= 0).');
         }
 
         return DB::transaction(function () use ($invoice, $data, $receiverId) {
-            // Pessimistic lock to prevent concurrent payment race conditions
             $invoice = Invoice::where('id', $invoice->id)->lockForUpdate()->firstOrFail();
 
             $payment = Payment::create([
@@ -224,21 +212,10 @@ class InvoiceService
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            // Update invoice status and amount paid
-            $invoice->amount_paid += $data['amount'];
-            
-            if ($invoice->amount_paid >= $invoice->total) {
-                $invoice->status = 'paid';
-            } else {
-                $invoice->status = 'partial';
-            }
-            $invoice->save();
-
-            // Notify Admins
             try {
                 app(\App\Services\NotificationService::class)->notifyAdmins(
-                    'payment', 
-                    'Payment Received 💳', 
+                    'payment',
+                    'Payment Received 💳',
                     'Received ' . $data['amount'] . ' for Invoice #' . $invoice->invoice_number,
                     [
                         'invoice_id' => $invoice->id,
@@ -257,10 +234,6 @@ class InvoiceService
 
     /**
      * Safely delete an invoice.
-     *
-     * @param mixed $id
-     * @return void
-     * @throws Exception
      */
     public function deleteInvoice($id): void
     {
@@ -271,13 +244,8 @@ class InvoiceService
         }
 
         DB::transaction(function () use ($invoice) {
-            // Delete payments first
             $invoice->payments()->delete();
-            
-            // Delete items
             $invoice->items()->delete();
-
-            // Delete invoice
             $invoice->delete();
         });
     }

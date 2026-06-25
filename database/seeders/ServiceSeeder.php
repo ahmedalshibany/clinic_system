@@ -10,6 +10,7 @@ class ServiceSeeder extends Seeder
     public function run(): void
     {
         $services = [
+            ['code' => 'CONSULT-GEN', 'name' => 'General Consultation', 'name_ar' => 'استشارة عامة', 'category' => 'consultation', 'price' => 0.00],
             ['code' => 'CON-001', 'name' => 'General Consultation', 'name_ar' => 'استشارة عامة', 'category' => 'consultation', 'price' => 50.00],
             ['code' => 'CON-002', 'name' => 'Specialist Consultation', 'name_ar' => 'استشارة أخصائي', 'category' => 'consultation', 'price' => 100.00],
             ['code' => 'FOL-001', 'name' => 'Follow-up Visit', 'name_ar' => 'زيارة متابعة', 'category' => 'consultation', 'price' => 30.00],
@@ -21,7 +22,10 @@ class ServiceSeeder extends Seeder
         ];
 
         foreach ($services as $data) {
-            Service::create($data);
+            Service::firstOrCreate(
+                ['code' => $data['code']],
+                $data
+            );
         }
     }
 }

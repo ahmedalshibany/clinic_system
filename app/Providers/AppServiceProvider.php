@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Events\PaymentCreated;
+use App\Listeners\RecalculateInvoiceStatus;
 use App\Models\Setting;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -16,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Event::listen(PaymentCreated::class, RecalculateInvoiceStatus::class);
+
         Paginator::useBootstrapFive();
 
         View::composer('*', function ($view) {

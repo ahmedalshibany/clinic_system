@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PrescriptionItem extends Model
 {
@@ -11,6 +12,7 @@ class PrescriptionItem extends Model
 
     protected $fillable = [
         'prescription_id',
+        'medicine_id',
         'medication_name',
         'dosage',
         'frequency',
@@ -19,8 +21,13 @@ class PrescriptionItem extends Model
         'instructions',
     ];
 
-    public function prescription()
+    public function prescription(): BelongsTo
     {
         return $this->belongsTo(Prescription::class);
+    }
+
+    public function medicine(): BelongsTo
+    {
+        return $this->belongsTo(Medicine::class);
     }
 }

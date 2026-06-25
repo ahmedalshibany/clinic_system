@@ -15,7 +15,6 @@ return Application::configure(basePath: dirname(__DIR__))
         // Register middleware aliases
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
-            'active' => \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
 
         // Exclude the JS-set language cookie from Laravel's encryption layer
@@ -26,6 +25,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Add locale detection and active check to all web requests
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\EnsureUserIsActive::class,
+        ]);
+
+        // Add active check to API routes
+        $middleware->api(prepend: [
             \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
     })

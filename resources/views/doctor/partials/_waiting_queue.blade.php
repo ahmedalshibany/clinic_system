@@ -14,7 +14,7 @@
 
             @if($appt->status === 'checked_in')
             <div class="p-2 mb-2 rounded text-center small" style="background-color: rgba(var(--secondary-rgb), 0.08);">
-                <span class="text-muted"><i class="fas fa-clock me-1"></i>Awaiting triage</span>
+                <span class="text-muted"><i class="fas fa-clock me-1"></i>{{ __('messages.doctor_awaiting_triage') }}</span>
             </div>
             @elseif($appt->vital)
             <div class="p-2 mb-2 rounded" style="background-color: var(--cream);">
@@ -42,7 +42,7 @@
 
             @if($appt->status === 'checked_in')
             <div class="text-center small text-muted">
-                <i class="fas fa-hourglass-half me-1"></i>Waiting for triage
+                <i class="fas fa-hourglass-half me-1"></i>{{ __('messages.doctor_waiting_triage') }}
             </div>
             @else
             <form action="{{ route('doctor.appointments.start', $appt) }}" method="POST">

@@ -70,13 +70,8 @@
                     <span data-i18n="appointments">{{ __('messages.appointments') }}</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="{{ route('appointments.queue') }}" class="nav-link {{ request()->routeIs('appointments.queue') ? 'active' : '' }}">
-                    <div class="icon-box"><i class="fas fa-layer-group"></i></div>
-                    <span data-i18n="queueBoard">{{ __('messages.queueBoard') }}</span>
-                </a>
-            </li>
             @endif
+
             @unless(auth()->user()->hasRole('nurse'))
             <li class="nav-item">
                 <a href="{{ route('appointments.calendar') }}" class="nav-link {{ request()->routeIs('appointments.calendar') ? 'active' : '' }}">
@@ -161,13 +156,13 @@
                 <div class="d-flex align-items-center gap-4">
                     <div class="search-container d-none d-md-flex">
                         <i class="fas fa-search"></i>
-                        <input type="text" class="glass-input" data-i18n-placeholder="searchPlaceholder" placeholder="Search...">
+                        <input type="text" class="glass-input" data-i18n-placeholder="searchPlaceholder" placeholder="Search..." aria-label="Search">
                     </div>
 
                     <div class="header-actions">
                         <!-- Notification Dropdown -->
                         <div class="dropdown">
-                            <button class="btn-icon-glass notification-btn position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="btn-icon-glass notification-btn position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
                                 <i class="far fa-bell"></i>
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notificationBadge">
                                     0
@@ -191,11 +186,11 @@
                             </div>
                         </div>
 
-                        <button class="btn-icon-glass theme-toggle" id="themeToggle">
+                        <button class="btn-icon-glass theme-toggle" id="themeToggle" aria-label="Toggle theme">
                             <i class="fas fa-moon"></i>
                         </button>
 
-                        <button class="lang-toggle-glass" id="langToggle">
+                        <button class="lang-toggle-glass" id="langToggle" aria-label="Switch language">
                             <span id="langToggleText">{{ app()->getLocale() == 'ar' ? 'English' : 'العربية' }}</span>
                         </button>
 
@@ -239,6 +234,7 @@
         $(document).ready(function() {
             let lastFetchTime = new Date().toISOString();
             let liveFeedInterval = null;
+            let isPolling = false;
 
             function updateBadge(count) {
                 if (count > 0) {
@@ -289,6 +285,10 @@
             $(document).on('click touchstart keydown', unlockAudioCtx);
 
             function pollLiveFeed() {
+                if (isPolling) return;
+                isPolling = true;
+                var retries = 0;
+                function doFetch() {
                 $.getJSON("{{ route('notifications.live-feed') }}?since=" + encodeURIComponent(lastFetchTime), function(resp) {
                     updateBadge(resp.count);
 
@@ -322,7 +322,12 @@
                             playNotificationChime();
                             lastFetchTime = new Date().toISOString();
                     }
-                });
+                }).fail(function() {
+                    retries++;
+                    if (retries < 3) { setTimeout(doFetch, 2000 * retries); return; }
+                }).always(function() { isPolling = false; });
+                }
+                doFetch();
             }
 
             // Fetch notifications on dropdown open
@@ -337,6 +342,11 @@
             // Initial fetch + poll every 15 seconds
             pollLiveFeed();
             liveFeedInterval = setInterval(pollLiveFeed, 15000);
+
+            // Clear interval on page unload to prevent memory leaks
+            $(window).on('beforeunload', function() {
+                if (liveFeedInterval) clearInterval(liveFeedInterval);
+            });
         });
     </script>
     @yield('scripts')
