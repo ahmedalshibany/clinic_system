@@ -175,7 +175,7 @@ if (typeof AppointmentsManager === 'undefined') {
                 this.render();
             } catch (error) {
                 console.error('Error loading appointments:', error);
-                this.showError('Failed to load appointments');
+                this.showError(this.t('failedLoadAppointments'));
             } finally {
                 this.isLoading = false;
             }
@@ -323,7 +323,7 @@ if (typeof AppointmentsManager === 'undefined') {
                 await this.loadAppointments();
             } catch (error) {
                 console.error('Error saving appointment:', error);
-                this.showError(error.message || 'Failed to save appointment');
+                this.showError(error.message || this.t('failedSaveAppointment'));
             }
         }
 
@@ -361,7 +361,7 @@ if (typeof AppointmentsManager === 'undefined') {
                 }
             } catch (error) {
                 console.error('Error loading appointment:', error);
-                this.showError('Failed to load appointment');
+                this.showError(this.t('failedLoadAppointment'));
             }
         }
 
@@ -393,7 +393,7 @@ if (typeof AppointmentsManager === 'undefined') {
                 }));
                 Utils.exportToCSV(data, 'appointments.csv');
             } catch (error) {
-                this.showError('Failed to export data');
+                this.showError(this.t('failedExport'));
             }
         }
 
@@ -402,7 +402,7 @@ if (typeof AppointmentsManager === 'undefined') {
                 const response = await API.appointments.getAll({ per_page: 1000 });
                 Utils.exportToJSON(response.data, 'appointments.json');
             } catch (error) {
-                this.showError('Failed to export data');
+                this.showError(this.t('failedExport'));
             }
         }
 

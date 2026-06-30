@@ -16,25 +16,16 @@
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
                     <h5 class="mb-0 text-primary fw-bold">{{ $invoice->invoice_number }}</h5>
-                    @switch($invoice->status)
-                        @case('paid') <span class="badge" style="background-color: rgba(46, 93, 52, 0.1); color: var(--success, #2e5d34); border-radius: 6px;">{{ __('messages.paid') }}</span> @break
-                        @case('partial') <span class="badge" style="background-color: rgba(191, 140, 48, 0.1); color: var(--warning, #bf8c30); border-radius: 6px;">{{ __('messages.partial') }}</span> @break
-                        @case('overdue') <span class="badge" style="background-color: rgba(139, 58, 58, 0.1); color: var(--danger, #8b3a3a); border-radius: 6px;">{{ __('messages.overdue') }}</span> @break
-                        @case('sent') <span class="badge" style="background-color: rgba(61, 90, 128, 0.1); color: var(--info, #3d5a80); border-radius: 6px;">{{ __('messages.sent') }}</span> @break
-                        @case('cancelled') <span class="badge" style="background-color: rgba(136, 136, 136, 0.1); color: #888; border-radius: 6px; border: 1px solid var(--border-hairline);">{{ __('messages.cancelled') }}</span> @break
-                        @default <span class="badge" style="background-color: rgba(15, 61, 62, 0.05); color: var(--secondary, #0f3d3e); border-radius: 6px;">{{ __('messages.draft') }}</span>
-                    @endswitch
+                    @if($invoice->status === 'paid')
+                        <span class="badge" style="background-color: rgba(46, 93, 52, 0.1); color: var(--success, #2e5d34); border-radius: 6px;">{{ __('messages.paid') }}</span>
+                    @else
+                        <span class="badge" style="background-color: rgba(136, 136, 136, 0.1); color: #888; border-radius: 6px; border: 1px solid var(--border-hairline);">{{ __('messages.cancelled') }}</span>
+                    @endif
                 </div>
                 <div>
                     <a href="{{ route('invoices.print', $invoice) }}" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="fas fa-print me-1"></i> {{ __('messages.print') }}</a>
                     <a href="{{ route('invoices.pdf', $invoice) }}" class="btn btn-primary btn-sm ms-1"><i class="fas fa-file-pdf me-1"></i> {{ __('messages.download_pdf') }}</a>
-                    @if($invoice->status == 'draft')
-                    <form action="{{ route('invoices.send', $invoice) }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-primary btn-sm"><i class="fas fa-paper-plane me-1"></i> {{ __('messages.mark_sent') }}</button>
-                    </form>
                     <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-primary btn-sm ms-1"><i class="fas fa-edit me-1"></i> {{ __('messages.edit') }}</a>
-                    @endif
                 </div>
             </div>
             <div class="card-body">
@@ -137,7 +128,7 @@
 
     <!-- Sidebar / Actions -->
     <div class="col-lg-3">
-        @if($invoice->balance > 0 && $invoice->status != 'cancelled')
+        @if($invoice->status == 'cancelled')
         <div class="card" style="box-shadow: var(--shadow-soft); border-radius: var(--radius, 10px);">
             <div class="card-body">
                 <button class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#paymentModal">
@@ -162,7 +153,7 @@
                             <small class="text-muted">{{ $payment->payment_date->format('M d') }}</small>
                         </div>
                         <div class="small text-muted">
-                            {{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}
+                            {{ __("messages.{$payment->payment_method}") }}
                             @if($payment->reference_number)
                              - {{ __('messages.ref_colon') }} {{ $payment->reference_number }}
                             @endif
@@ -188,11 +179,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <input type="hidden" name="amount" value="{{ $invoice->total }}">
                 <div class="mb-3">
                     <label class="form-label">{{ __('messages.payment_amount') }}</label>
                     <div class="input-group">
                         <span class="input-group-text">{{ $currencySymbol }}</span>
-                        <input type="number" name="amount" class="form-control" step="0.01" max="{{ $invoice->balance }}" value="{{ $invoice->balance }}" required>
+                        <input type="text" class="form-control" value="{{ number_format($invoice->total, 2) }}" readonly>
                     </div>
                 </div>
                 <div class="mb-3">

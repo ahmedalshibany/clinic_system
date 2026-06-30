@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\MedicalRecord;
 use App\Models\Prescription;
 use App\Models\Appointment;
+use App\Models\Medicine;
 use App\Models\Patient;
 use App\Models\Doctor;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -12,9 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class MedicalRecordService
 {
-    /**
-     * Get paginated, filtered list of medical records.
-     */
     public function getAllMedicalRecords(array $filters): array
     {
         $query = MedicalRecord::with(['patient', 'doctor']);
@@ -46,20 +44,13 @@ class MedicalRecordService
         return compact('records', 'patients', 'doctors');
     }
 
-    /**
-     * Create a medical record along with its prescription if provided.
-     *
-     * @param array $data
-     * @return MedicalRecord
-     * @throws \Exception
-     */
-    public function createRecordWithPrescription(array $data)
+    public function createRecordWithPrescription(array $data): MedicalRecord
     {
         return DB::transaction(function () use ($data) {
-            // Create Medical Record
+            $this->validatePrescriptionStock($data['prescription_items'] ?? []);
+
             $record = MedicalRecord::create($data);
 
-            // Handle Prescription
             if (!empty($data['prescription_items'])) {
                 $prescription = Prescription::create([
                     'medical_record_id' => $record->id,
@@ -67,16 +58,16 @@ class MedicalRecordService
 
                 foreach ($data['prescription_items'] as $item) {
                     $prescription->items()->create($item);
+                    $this->decrementMedicineStock($item);
                 }
             }
 
-            // If linked to appointment, update status to completed if not already
             if (!empty($data['appointment_id'])) {
                 $appointment = Appointment::find($data['appointment_id']);
                 if ($appointment && $appointment->status === Appointment::STATUS_IN_PROGRESS) {
                     $appointment->update([
                         'status' => Appointment::STATUS_COMPLETED,
-                        'completed_at' => now()
+                        'completed_at' => now(),
                     ]);
                 }
             }
@@ -85,54 +76,43 @@ class MedicalRecordService
         });
     }
 
-    /**
-     * Update a medical record and its associated prescription items.
-     *
-     * @param MedicalRecord $medicalRecord
-     * @param array $data
-     * @return MedicalRecord
-     * @throws \Exception
-     */
-    public function updateRecordWithPrescription(MedicalRecord $medicalRecord, array $data)
+    public function updateRecordWithPrescription(MedicalRecord $medicalRecord, array $data): MedicalRecord
     {
         return DB::transaction(function () use ($medicalRecord, $data) {
+            $oldItems = $medicalRecord->prescription?->items()->get() ?? collect();
+
+            foreach ($oldItems as $oldItem) {
+                $this->restoreMedicineStock($oldItem);
+            }
+
+            $this->validatePrescriptionStock($data['prescription_items'] ?? []);
+
             $medicalRecord->update($data);
 
-            // Handle Prescription Updates (Full Re-sync for simplicity)
             if (!empty($data['prescription_items'])) {
-                // Determine if prescription exists, if not create one
                 $prescription = $medicalRecord->prescription ?? Prescription::create(['medical_record_id' => $medicalRecord->id]);
-                
-                // Remove old items
-                $prescription->items()->delete();
 
-                // Add new items
+                $prescription->items()->whereNotIn('id', $oldItems->pluck('id'))->delete();
+
                 foreach ($data['prescription_items'] as $item) {
                     $prescription->items()->create($item);
+                    $this->decrementMedicineStock($item);
                 }
-            } elseif ($medicalRecord->prescription) {
-                // If prescription_items is empty array, clear it
-                 if (isset($data['prescription_items'])) {
-                    $medicalRecord->prescription->items()->delete();
-                 }
+            } elseif ($medicalRecord->prescription && array_key_exists('prescription_items', $data)) {
+                $medicalRecord->prescription->items()->delete();
             }
 
             return $medicalRecord;
         });
     }
 
-    /**
-     * Delete a medical record and its associated prescription data.
-     *
-     * @param MedicalRecord $medicalRecord
-     * @return bool|null
-     * @throws \Exception
-     */
     public function deleteRecord(MedicalRecord $medicalRecord)
     {
         return DB::transaction(function () use ($medicalRecord) {
-            // Delete prescription items and prescription if they exist
             if ($medicalRecord->prescription) {
+                foreach ($medicalRecord->prescription->items as $item) {
+                    $this->restoreMedicineStock($item);
+                }
                 $medicalRecord->prescription->items()->delete();
                 $medicalRecord->prescription->delete();
             }
@@ -140,5 +120,48 @@ class MedicalRecordService
             return $medicalRecord->delete();
         });
     }
-}
 
+    protected function validatePrescriptionStock(array $items): void
+    {
+        foreach ($items as $item) {
+            if (empty($item['medicine_id']) || empty($item['quantity'])) {
+                continue;
+            }
+
+            $medicine = Medicine::lockForUpdate()->find($item['medicine_id']);
+            if (!$medicine) {
+                throw new \InvalidArgumentException(__('messages.medicineNotFound', ['id' => $item['medicine_id']]));
+            }
+
+            if ($medicine->stock < (int) $item['quantity']) {
+                throw new \RuntimeException(__('messages.medicineInsufficientStock', [
+                    'name' => $medicine->name,
+                    'stock' => $medicine->stock,
+                    'requested' => $item['quantity'],
+                ]));
+            }
+        }
+    }
+
+    protected function decrementMedicineStock(array $item): void
+    {
+        if (empty($item['medicine_id']) || empty($item['quantity'])) {
+            return;
+        }
+
+        Medicine::where('id', $item['medicine_id'])
+            ->lockForUpdate()
+            ->decrement('stock', (int) $item['quantity']);
+    }
+
+    protected function restoreMedicineStock($oldItem): void
+    {
+        if (empty($oldItem->medicine_id) || empty($oldItem->quantity)) {
+            return;
+        }
+
+        Medicine::where('id', $oldItem->medicine_id)
+            ->lockForUpdate()
+            ->increment('stock', (int) $oldItem->quantity);
+    }
+}

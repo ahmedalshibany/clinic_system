@@ -11,6 +11,7 @@
     </div>
     <div class="d-flex gap-3 small">
         <span><strong>{{ $stats['total'] }}</strong> {{ __('messages.doctor_total_today') }}</span>
+        <span style="color: var(--info);"><strong>{{ $stats['triage'] }}</strong> {{ __('messages.doctor_in_triage') }}</span>
         <span style="color: var(--warning);"><strong>{{ $stats['waiting'] }}</strong> {{ __('messages.doctor_waiting_ready') }}</span>
         <span style="color: var(--primary);"><strong>{{ $stats['in_progress'] }}</strong> {{ __('messages.doctor_in_progress_exam') }}</span>
         <span style="color: var(--success);"><strong>{{ $stats['completed'] }}</strong> {{ __('messages.doctor_completed_done') }}</span>
@@ -18,22 +19,22 @@
 </div>
 
 <div class="row g-4">
-    {{-- LEFT: Live Consultation Queue --}}
+    {{-- LEFT: Triage Queue + Ready Queue --}}
     <div class="col-lg-5">
         <div class="card h-100 border-0 shadow-sm clinical-board-waiting" id="waitingQueuePanel">
             <div class="card-header py-3 px-4 d-flex justify-content-between align-items-center" style="background-color: var(--cream); border-bottom: 2px solid var(--primary);">
                 <h6 class="mb-0 fw-bold" style="color: var(--primary);">
                     <i class="fas fa-chair me-2"></i>{{ __('messages.doctor_waiting_room_ready') }}
                 </h6>
-                <span class="badge rounded-pill px-3" style="background-color: var(--warning); color: #fff;">{{ $waitingQueue->count() }}</span>
+                <span class="badge rounded-pill px-3" style="background-color: var(--warning); color: #fff;">{{ $triageQueue->count() + $readyQueue->count() }}</span>
             </div>
             <div class="card-body p-3" style="min-height: 400px; max-height: calc(100vh - 220px); overflow-y: auto; background-color: var(--panel-bg);">
-                @include('doctor.partials._waiting_queue', ['waitingQueue' => $waitingQueue])
+                @include('doctor.partials._waiting_queue', ['triageQueue' => $triageQueue, 'readyQueue' => $readyQueue])
             </div>
         </div>
     </div>
 
-    {{-- RIGHT: E-Prescription / Diagnosis Board --}}
+    {{-- RIGHT: Active Session / Diagnosis Board --}}
     <div class="col-lg-7">
         @if($activeSession)
             {{-- Active Session Card --}}
@@ -45,7 +46,12 @@
                                 <span class="live-pulse-dot me-1" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--success);"></span>
                                 {{ __('messages.doctor_live_session') }}
                             </span>
-                            <h5 class="fw-bold mb-1" style="color: var(--primary);">{{ $activeSession->patient->name }}</h5>
+                            <h5 class="fw-bold mb-1" style="color: var(--primary);">
+                                <a href="{{ route('patients.show', $activeSession->patient_id) }}" class="text-decoration-none" style="color: var(--primary);" target="_blank">
+                                    {{ $activeSession->patient->name }}
+                                    <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i>
+                                </a>
+                            </h5>
                             <small class="text-muted">{{ $activeSession->patient->patient_code ?? '' }} · {{ $activeSession->time->format('H:i') }}</small>
                         </div>
                         <div class="text-end">
@@ -81,6 +87,14 @@
                         </div>
                     </div>
                     @endif
+
+                    {{-- Session Vitals Request Button --}}
+                    <form action="{{ route('doctor.appointments.session-vitals', $activeSession) }}" method="POST" class="mb-3">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-secondary btn-sm w-100" style="font-size: 0.8rem;">
+                            <i class="fas fa-heartbeat me-1"></i>{{ __('messages.doctor_request_vitals') }}
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -113,8 +127,7 @@
                     </form>
                 </div>
             </div>
-        @elseif($waitingQueue->isNotEmpty())
-            {{-- No active session -- select from queue --}}
+        @elseif($readyQueue->isNotEmpty())
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-5 text-center">
                     <i class="fas fa-hand-pointer text-muted mb-3" style="font-size: 2.5rem; opacity: 0.3;"></i>
@@ -123,7 +136,6 @@
                 </div>
             </div>
         @else
-            {{-- Empty state --}}
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-5 text-center">
                     <i class="fas fa-check-circle mb-3" style="font-size: 2.5rem; color: var(--success); opacity: 0.5;"></i>
@@ -140,7 +152,6 @@
 <script>
     var elapsedInterval = null, waitingInterval = null;
 
-    // Elapsed timer for active session
     @if($activeSession && $activeSession->started_at)
     (function() {
         const startedAt = new Date("{{ $activeSession->started_at->toIso8601String() }}").getTime();
@@ -158,7 +169,6 @@
     })();
     @endif
 
-    // Waiting timers for queue cards
     window.updateTimers = function updateTimers() {
         document.querySelectorAll('.waiting-timer').forEach(el => {
             const startTime = new Date(el.dataset.time).getTime();
@@ -171,13 +181,12 @@
     window.updateTimers();
     waitingInterval = setInterval(window.updateTimers, 60000);
 
-    // Cleanup intervals on page unload
     window.addEventListener('beforeunload', function() {
         if (elapsedInterval) clearInterval(elapsedInterval);
         if (waitingInterval) clearInterval(waitingInterval);
+        if (window.doctorPollInterval) clearInterval(window.doctorPollInterval);
     });
 
-    // Refresh clinical board — fetches fresh waiting queue HTML and swaps it
     window.refreshClinicalBoard = function refreshClinicalBoard() {
         $.get("{{ route('doctor.board-partial') }}", function(resp) {
             var $panel = $('#waitingQueuePanel');
@@ -188,6 +197,8 @@
             });
         });
     };
+
+    window.doctorPollInterval = setInterval(window.refreshClinicalBoard, 15000);
 </script>
 <style>
     .live-pulse-dot {

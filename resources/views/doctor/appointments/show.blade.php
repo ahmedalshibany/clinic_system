@@ -43,7 +43,7 @@
                         </div>
                         <div class="mb-3">
                             <span class="d-block text-muted" style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em;">{{ __('messages.type') }}</span>
-                            <span class="fw-semibold" style="color: var(--primary);">{{ ucfirst(str_replace('_', ' ', $appointment->type)) }}</span>
+                            <span class="fw-semibold" style="color: var(--primary);">{{ __("messages.type{$appointment->type}") }}</span>
                         </div>
                     </div>
                     <div class="col-sm-6">

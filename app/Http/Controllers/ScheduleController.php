@@ -68,7 +68,7 @@ class ScheduleController extends Controller
             ->exists();
 
         if ($isOnLeave) {
-            return response()->json(['slots' => [], 'message' => 'Doctor is on leave']);
+            return response()->json(['slots' => [], 'message' => __('messages.doctorOnLeave')]);
         }
 
         // 2. Get schedule for this day
@@ -78,7 +78,7 @@ class ScheduleController extends Controller
             ->first();
 
         if (!$schedule) {
-            return response()->json(['slots' => [], 'message' => 'No schedule for this day']);
+            return response()->json(['slots' => [], 'message' => __('messages.doctorUnavailable')]);
         }
 
         // 3. Generate all possible slots

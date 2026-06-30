@@ -235,7 +235,7 @@
             </div>
             <div class="info-item">
                 <label>Age / Gender</label>
-                <span>{{ $medicalRecord->patient->age }} Yrs / {{ ucfirst($medicalRecord->patient->gender) }}</span>
+                <span>{{ $medicalRecord->patient->age }} {{ __('messages.yearsShort') }} / {{ $medicalRecord->patient->gender ? __('messages.' . $medicalRecord->patient->gender) : '' }}</span>
             </div>
             <div class="info-item">
                 <label>Patient ID</label>

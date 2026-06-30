@@ -124,7 +124,7 @@ class AppointmentDoubleBookingTest extends TestCase
             'date' => '2026-07-20',
             'time' => '14:00',
             'type' => 'Checkup',
-            'status' => 'checked_in',
+            'status' => 'paid',
             'fee' => 250,
         ]);
 

@@ -32,15 +32,15 @@
     <div class="col-md-3">
         <label class="form-label">{{ __('messages.status') }}</label>
         <select name="status" class="form-select">
-            @foreach(['draft', 'sent', 'paid', 'partial', 'overdue', 'cancelled'] as $status)
+            @foreach(['paid', 'cancelled'] as $status)
                 <option value="{{ $status }}" {{ old('status', $invoice->status) == $status ? 'selected' : '' }}>
-                    {{ ucfirst($status) }}
+                    {{ __("messages.{$status}") }}
                 </option>
             @endforeach
         </select>
     </div>
     @else
-        <input type="hidden" name="status" value="draft">
+        <input type="hidden" name="status" value="cancelled">
     @endif
 
     <!-- Line Items -->

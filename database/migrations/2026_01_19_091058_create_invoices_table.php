@@ -24,7 +24,7 @@ return new class extends Migration
             $table->decimal('tax_amount', 10, 2)->default(0);
             $table->decimal('total', 10, 2);
             $table->decimal('amount_paid', 10, 2)->default(0);
-            $table->enum('status', ['draft', 'sent', 'paid', 'partial', 'overdue', 'cancelled'])->default('draft');
+            $table->enum('status', ['paid', 'cancelled'])->default('cancelled');
             $table->date('due_date');
             $table->text('notes')->nullable();
             $table->timestamps();

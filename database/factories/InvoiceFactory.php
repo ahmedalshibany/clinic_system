@@ -22,7 +22,7 @@ class InvoiceFactory extends Factory
             'subtotal' => $subtotal,
             'total' => $subtotal,
             'due_date' => fake()->dateTimeBetween('now', '+30 days')->format('Y-m-d'),
-            'status' => 'sent',
+            'status' => 'cancelled',
         ];
     }
 }

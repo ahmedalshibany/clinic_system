@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PatientFile extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -109,10 +110,10 @@ class PatientFile extends Model
     }
 
     /**
-     * Get the full URL to the file.
+     * Get the authenticated download route for the file.
      */
     public function getUrlAttribute(): string
     {
-        return asset('storage/' . $this->file_path);
+        return route('patients.download-file', ['patient' => $this->patient_id, 'file' => $this->id]);
     }
 }

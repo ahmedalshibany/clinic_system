@@ -13,7 +13,7 @@
     <form action="{{ route('appointments.index') }}" method="GET" class="d-flex gap-2 flex-wrap">
         <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ request('search') }}">
+            <input type="text" name="search" class="form-control" placeholder="{{ __('messages.searchPlaceholder') }}" value="{{ request('search') }}" data-i18n-placeholder="searchPlaceholder">
         </div>
 
         <select name="status" class="form-select" style="width: auto; border-radius: var(--radius-sm, 6px); border-color: var(--border-hairline, rgba(26,26,26,0.04));" onchange="this.form.submit()">
@@ -74,18 +74,18 @@
                         <tr>
                             <td class="ps-4 fw-bold text-secondary">{{ $appointment->id }}</td>
                             <td>
-                                <span class="fw-medium">{{ $appointment->patient->name ?? 'Unknown' }}</span>
+                                <span class="fw-medium">{{ $appointment->patient->name ?? __('messages.unknown') }}</span>
                             </td>
-                            <td>{{ $appointment->doctor->name ?? 'Unknown' }}</td>
+                            <td>{{ $appointment->doctor->name ?? __('messages.unknown') }}</td>
                             <td>{{ \Carbon\Carbon::parse($appointment->date)->format('Y-m-d') }}</td>
                             <td>{{ \Carbon\Carbon::parse($appointment->time)->format('H:i') }}</td>
                             <td>
                                 @if($appointment->vital)
                                     <div class="d-flex flex-column gap-1" style="font-size: 0.85rem;">
-                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" title="Blood Pressure">
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" title="{{ __('messages.bloodPressure') }}">
                                             <i class="fas fa-heartbeat me-1"></i> BP: {{ $appointment->vital->bp_systolic }}/{{ $appointment->vital->bp_diastolic }}
                                         </span>
-                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25" title="Temperature">
+                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25" title="{{ __('messages.temperature') }}">
                                             <i class="fas fa-thermometer-half me-1"></i> {{ $appointment->vital->temperature }}°C
                                         </span>
                                     </div>
@@ -115,25 +115,27 @@
                                     </form>
                                 </div>
                                 <div class="mt-2 d-flex flex-column gap-1">
-                                    @if($appointment->status === 'confirmed')
-                                        <form action="{{ route('receptionist.check-in', $appointment) }}" method="POST">
+                                    @if($appointment->status === 'pending')
+                                        <form action="{{ route('receptionist.pay', $appointment) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="btn btn-primary btn-sm w-100" title="Check In" data-i18n-title="checkIn">
-                                                <i class="fas fa-check-square me-1"></i> {{ __('messages.checkIn') }}
+                                            <input type="hidden" name="amount" value="{{ $appointment->fee ?? $appointment->doctor?->consultation_fee ?? 0 }}">
+                                            <input type="hidden" name="method" value="cash">
+                                            <button type="submit" class="btn btn-primary btn-sm w-100" title="Take Payment" data-i18n-title="takePayment">
+                                                <i class="fas fa-credit-card me-1"></i> {{ __('messages.takePayment') }}
                                             </button>
                                         </form>
                                     @elseif($appointment->status === 'waiting')
                                         <form action="{{ route('doctor.appointments.start', $appointment) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="btn btn-success btn-sm w-100" title="Start Visit">
-                                                <i class="fas fa-play me-1"></i> Start Visit
+                                            <button type="submit" class="btn btn-success btn-sm w-100" title="{{ __('messages.startVisit') }}">
+                                                <i class="fas fa-play me-1"></i> {{ __('messages.startVisit') }}
                                             </button>
                                         </form>
                                     @elseif($appointment->status === 'in_progress')
                                         <button class="btn btn-info text-white btn-sm w-100" 
-                                            onclick="openCompletionModal({{ $appointment->id }}, '{{ addslashes($appointment->patient->name ?? 'Unknown') }}')" 
-                                            title="Complete Visit">
-                                            <i class="fas fa-check-double me-1"></i> Complete
+                                            onclick="openCompletionModal({{ $appointment->id }}, '{{ addslashes($appointment->patient->name ?? __('messages.unknown')) }}')" 
+                                            title="{{ __('messages.completeVisit') }}">
+                                            <i class="fas fa-check-double me-1"></i> {{ __('messages.completeVisit') }}
                                         </button>
                                     @elseif($appointment->status === 'completed' && !$appointment->invoice)
                                         <a href="{{ route('invoices.create-from-appointment', $appointment->id) }}" class="btn btn-warning btn-sm w-100 text-dark">
@@ -182,7 +184,7 @@
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-info bg-opacity-10 border-0">
                 <h5 class="modal-title fw-bold text-info" id="completionModalTitle" data-i18n="completeVisit">Complete Visit</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('messages.close') }}"></button>
             </div>
             <div class="modal-body p-4">
                 <form id="completionForm" action="" method="POST">

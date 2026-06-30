@@ -50,7 +50,7 @@
                         <td><span class="fw-medium">{{ $doctor->specialty }}</span></td>
                         <td>{{ $doctor->department ?? '-' }}</td>
                         <td><span dir="ltr">{{ $doctor->phone }}</span></td>
-                        <td class="fw-bold">${{ number_format($doctor->consultation_fee ?? 0, 2) }}</td>
+                        <td class="fw-bold">{{ $currencySymbol ?? '$' }}{{ number_format($doctor->consultation_fee ?? 0, 2) }}</td>
                         <td>
                             @if($doctor->is_active)
                                 <span class="badge bg-success-subtle text-success" data-i18n="active">{{ __('messages.active') }}</span>

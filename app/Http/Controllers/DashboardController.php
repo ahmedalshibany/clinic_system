@@ -24,47 +24,54 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         if ($user->hasRole('nurse')) {
+            $today = today();
+            $tomorrow = today()->addDay();
             return view('nurse.dashboard', [
-                'triageQueue' => Appointment::with(['patient', 'doctor'])
-                    ->whereDate('date', today())
-                    ->whereIn('status', ['confirmed', 'checked_in'])
+                'triageQueue' => Appointment::with(['patient:id,name', 'doctor:id,name'])
+                    ->where('date', '>=', $today)
+                    ->where('date', '<', $tomorrow)
+                    ->whereIn('status', ['paid', 'checked_in'])
                     ->orderBy('time')
-                    ->get(),
-                'waitingList' => Appointment::with(['patient', 'doctor'])
-                    ->whereDate('date', today())
+                    ->get(['id', 'patient_id', 'doctor_id', 'time', 'status']),
+                'waitingList' => Appointment::with(['patient:id,name', 'doctor:id,name'])
+                    ->where('date', '>=', $today)
+                    ->where('date', '<', $tomorrow)
                     ->where('status', 'waiting')
                     ->orderBy('time')
-                    ->get(),
+                    ->get(['id', 'patient_id', 'doctor_id', 'time', 'status']),
             ]);
         }
 
         if ($user->hasRole('receptionist')) {
-            $triageBoard = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name'])
+            $triageBoard = Appointment::with([
+                    'patient:id,name,patient_code,phone',
+                    'doctor:id,name,consultation_fee',
+                ])
                 ->whereDate('date', today())
-                ->whereIn('status', [Appointment::STATUS_PENDING, Appointment::STATUS_CONFIRMED, Appointment::STATUS_SCHEDULED])
+                ->whereIn('status', ['pending', 'paid'])
                 ->orderBy('time')
-                ->get();
+                ->get(['id', 'patient_id', 'doctor_id', 'time', 'type', 'status', 'fee']);
 
-            $allToday = Appointment::whereDate('date', today())->get();
-
-            $flowMonitor = [
-                'checked_in'  => $allToday->where('status', Appointment::STATUS_CHECKED_IN)->count(),
-                'waiting'     => $allToday->where('status', Appointment::STATUS_WAITING)->count(),
-                'in_progress' => $allToday->where('status', Appointment::STATUS_IN_PROGRESS)->count(),
-                'completed'   => $allToday->where('status', Appointment::STATUS_COMPLETED)->count(),
-                'cancelled'   => $allToday->where('status', Appointment::STATUS_CANCELLED)->count(),
-                'no_show'     => $allToday->where('status', Appointment::STATUS_NO_SHOW)->count(),
-            ];
+            $flowMonitor = Appointment::whereDate('date', today())
+                ->selectRaw("
+                    SUM(status = 'paid') AS paid,
+                    SUM(status = 'checked_in') AS checked_in,
+                    SUM(status = 'waiting') AS waiting,
+                    SUM(status = 'in_progress') AS in_progress,
+                    SUM(status = 'completed') AS completed,
+                    SUM(status = 'cancelled') AS cancelled,
+                    SUM(status = 'no_show') AS no_show
+                ")->first()->toArray();
 
             $livePatients = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name'])
                 ->whereDate('date', today())
                 ->whereIn('status', [
-                    Appointment::STATUS_CHECKED_IN,
-                    Appointment::STATUS_WAITING,
-                    Appointment::STATUS_IN_PROGRESS,
+                    'checked_in',
+                    'waiting',
+                    'in_progress',
                 ])
                 ->orderBy('time')
-                ->get();
+                ->get(['id', 'patient_id', 'doctor_id', 'time', 'status', 'checked_in_at', 'started_at']);
 
             return view('receptionist.dashboard', compact('triageBoard', 'flowMonitor', 'livePatients'));
         }
@@ -72,28 +79,45 @@ class DashboardController extends Controller
         if ($user->role === 'doctor') {
             $doctor = Doctor::where('user_id', $user->id)->firstOrFail();
 
-            $waitingQueue = Appointment::with(['patient', 'vital'])
+            $triageQueue = Appointment::with([
+                    'patient:id,name,patient_code',
+                    'vital:appointment_id,temperature,bp_systolic,bp_diastolic,pulse,weight,height',
+                ])
                 ->where('doctor_id', $doctor->id)
                 ->whereDate('date', today())
-                ->whereIn('status', [Appointment::STATUS_WAITING, Appointment::STATUS_CHECKED_IN])
+                ->whereIn('status', ['paid', 'checked_in'])
                 ->orderBy('time')
-                ->get();
+                ->get(['id', 'patient_id', 'doctor_id', 'time', 'status', 'checked_in_at']);
 
-            $activeSession = Appointment::with(['patient', 'vital'])
+            $readyQueue = Appointment::with([
+                    'patient:id,name,patient_code',
+                    'vital:appointment_id,temperature,bp_systolic,bp_diastolic,pulse,weight,height',
+                ])
                 ->where('doctor_id', $doctor->id)
                 ->whereDate('date', today())
-                ->where('status', Appointment::STATUS_IN_PROGRESS)
-                ->first();
+                ->where('status', 'waiting')
+                ->orderBy('time')
+                ->get(['id', 'patient_id', 'doctor_id', 'time', 'status', 'checked_in_at']);
+
+            $activeSession = Appointment::with([
+                    'patient:id,name,patient_code',
+                    'vital:appointment_id,temperature,bp_systolic,bp_diastolic,pulse,weight,height',
+                ])
+                ->where('doctor_id', $doctor->id)
+                ->whereDate('date', today())
+                ->where('status', 'in_progress')
+                ->first(['id', 'patient_id', 'doctor_id', 'time', 'status', 'checked_in_at', 'started_at', 'diagnosis', 'notes']);
 
             $todayAll = Appointment::where('doctor_id', $doctor->id)->whereDate('date', today());
             $stats = [
-                'total'       => (clone $todayAll)->count(),
-                'completed'   => (clone $todayAll)->where('status', Appointment::STATUS_COMPLETED)->count(),
-                'in_progress' => $activeSession ? 1 : 0,
-                'waiting'     => $waitingQueue->count(),
+                'total'        => (clone $todayAll)->count(),
+                'completed'    => (clone $todayAll)->where('status', 'completed')->count(),
+                'in_progress'  => $activeSession ? 1 : 0,
+                'triage'       => $triageQueue->count(),
+                'waiting'      => $readyQueue->count(),
             ];
 
-            return view('doctor.dashboard', compact('doctor', 'waitingQueue', 'activeSession', 'stats'));
+            return view('doctor.dashboard', compact('doctor', 'triageQueue', 'readyQueue', 'activeSession', 'stats'));
         }
 
         // Admin dashboard

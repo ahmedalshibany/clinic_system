@@ -4,29 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Exceptions\InvalidTransitionException;
+use App\Traits\Auditable;
 
 class Appointment extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, Auditable;
 
-    const STATUS_SCHEDULED = 'scheduled';
-    const STATUS_PENDING = 'pending';
-    const STATUS_CONFIRMED = 'confirmed';
-    const STATUS_CHECKED_IN = 'checked_in';
-    const STATUS_WAITING = 'waiting';
+    const STATUS_SCHEDULED   = 'scheduled';
+    const STATUS_PENDING     = 'pending';
+    const STATUS_PAID        = 'paid';
+    const STATUS_CONFIRMED   = 'confirmed';
+    const STATUS_CHECKED_IN  = 'checked_in';
+    const STATUS_WAITING     = 'waiting';
     const STATUS_IN_PROGRESS = 'in_progress';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUS_NO_SHOW = 'no_show';
+    const STATUS_COMPLETED   = 'completed';
+    const STATUS_CANCELLED   = 'cancelled';
+    const STATUS_NO_SHOW     = 'no_show';
 
     const ALLOWED_TRANSITIONS = [
-        self::STATUS_SCHEDULED   => [self::STATUS_CONFIRMED, self::STATUS_WAITING, self::STATUS_CANCELLED, self::STATUS_NO_SHOW],
-        self::STATUS_PENDING     => [self::STATUS_CHECKED_IN, self::STATUS_CANCELLED],
+        self::STATUS_SCHEDULED   => [self::STATUS_CONFIRMED, self::STATUS_CHECKED_IN, self::STATUS_WAITING, self::STATUS_CANCELLED, self::STATUS_NO_SHOW],
         self::STATUS_CONFIRMED   => [self::STATUS_CHECKED_IN, self::STATUS_WAITING, self::STATUS_CANCELLED, self::STATUS_NO_SHOW],
-        self::STATUS_CHECKED_IN  => [self::STATUS_WAITING, self::STATUS_PENDING, self::STATUS_CANCELLED],
-        self::STATUS_WAITING     => [self::STATUS_IN_PROGRESS, self::STATUS_PENDING, self::STATUS_CANCELLED],
+        self::STATUS_PENDING     => [self::STATUS_PAID, self::STATUS_CANCELLED, self::STATUS_NO_SHOW],
+        self::STATUS_PAID        => [self::STATUS_CHECKED_IN, self::STATUS_CANCELLED, self::STATUS_NO_SHOW],
+        self::STATUS_CHECKED_IN  => [self::STATUS_WAITING, self::STATUS_IN_PROGRESS, self::STATUS_CANCELLED],
+        self::STATUS_WAITING     => [self::STATUS_IN_PROGRESS, self::STATUS_CANCELLED],
         self::STATUS_IN_PROGRESS => [self::STATUS_COMPLETED, self::STATUS_CANCELLED],
         self::STATUS_COMPLETED   => [],
         self::STATUS_CANCELLED   => [],
@@ -58,6 +62,7 @@ class Appointment extends Model
         'type',
         'status',
         'reason',
+        'paid_at',
         'checked_in_at',
         'started_at',
         'completed_at',
@@ -71,6 +76,7 @@ class Appointment extends Model
     protected $casts = [
         'date' => 'date',
         'time' => 'datetime:H:i',
+        'paid_at' => 'datetime',
         'checked_in_at' => 'datetime',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
@@ -93,9 +99,14 @@ class Appointment extends Model
         return $query->where('status', 'pending');
     }
 
-    public function scopeConfirmed($query)
+    public function scopePaid($query)
     {
-        return $query->where('status', 'confirmed');
+        return $query->where('status', 'paid');
+    }
+
+    public function scopeCheckedIn($query)
+    {
+        return $query->where('status', 'checked_in');
     }
 
     public function scopeCompleted($query)
@@ -106,6 +117,11 @@ class Appointment extends Model
     public function scopeCancelled($query)
     {
         return $query->where('status', 'cancelled');
+    }
+
+    public function scopeNoShow($query)
+    {
+        return $query->where('status', 'no_show');
     }
 
     public function scopeToday($query)
@@ -119,11 +135,6 @@ class Appointment extends Model
             ->where('status', '!=', 'cancelled');
     }
 
-    public function scopeScheduled($query)
-    {
-        return $query->where('status', 'scheduled');
-    }
-
     public function scopeWaiting($query)
     {
         return $query->where('status', 'waiting');
@@ -132,11 +143,6 @@ class Appointment extends Model
     public function scopeInProgress($query)
     {
         return $query->where('status', 'in_progress');
-    }
-
-    public function scopeNoShow($query)
-    {
-        return $query->where('status', 'no_show');
     }
 
     public function scopeThisWeek($query)

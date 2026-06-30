@@ -112,63 +112,6 @@ class AppointmentController extends Controller
 
     // Appointment Lifecycle Methods
 
-    public function checkIn(Appointment $appointment)
-    {
-        $this->authorize('checkIn', $appointment);
-        $this->appointmentService->updateStatus($appointment, 'checked_in');
-
-        $position = Appointment::whereDate('date', now()->today())
-            ->where('time', '<', $appointment->time)
-            ->whereIn('status', ['checked_in', 'waiting'])
-            ->count() + 1;
-
-        session()->flash('info', __('messages.queuePositionInfo', ['position' => $position]));
-
-        return back()->with('success', __('messages.patientCheckedIn'));
-    }
-
-    public function startVisit(Appointment $appointment)
-    {
-        $this->authorize('startVisit', $appointment);
-        if (auth()->user()->role === 'doctor') {
-            $doctor = \App\Models\Doctor::where('user_id', auth()->id())->first();
-            abort_if(!$doctor || $appointment->doctor_id !== $doctor->id, 403, 'Unauthorized physician ownership match.');
-        }
-        $this->appointmentService->updateStatus($appointment, 'in_progress');
-        return back()->with('success', __('messages.visitStarted'));
-    }
-
-    public function complete(Request $request, Appointment $appointment)
-    {
-        $this->authorize('complete', $appointment);
-        if (auth()->user()->role === 'doctor') {
-            $doctor = \App\Models\Doctor::where('user_id', auth()->id())->first();
-            abort_if(!$doctor || $appointment->doctor_id !== $doctor->id, 403, 'Unauthorized physician ownership match.');
-        }
-        $request->validate([
-            'diagnosis' => 'nullable|string',
-        ]);
-
-        $this->appointmentService->updateStatus($appointment, 'completed', ['diagnosis' => $request->diagnosis]);
-
-        $outstandingBalance = $appointment->patient->invoices()
-            ->whereIn('status', ['sent', 'partial', 'overdue'])
-            ->sum(\Illuminate\Support\Facades\DB::raw('total - amount_paid'));
-
-        if ($outstandingBalance > 0) {
-            session()->flash('warning', __('messages.patientOutstandingBalance', ['amount' => number_format($outstandingBalance, 2)]));
-        }
-
-        return back()->with('success', __('messages.visitCompleted'));
-    }
-
-    public function markNoShow(Appointment $appointment)
-    {
-        $this->authorize('markNoShow', $appointment);
-        $this->appointmentService->updateStatus($appointment, 'no_show');
-        return back()->with('success', __('messages.markedNoShow'));
-    }
-
     public function reopenVitals(Appointment $appointment)
     {
         Gate::authorize('reopenVitals', User::class);
@@ -239,7 +182,7 @@ class AppointmentController extends Controller
                 'extendedProps' => [
                     'doctor_name' => $appt->doctor->name,
                     'patient_name' => $appt->patient->name,
-                    'status' => ucfirst(str_replace('_', ' ', $appt->status)),
+                    'status' => __("messages.{$appt->status}"),
                     'type' => $appt->type,
                 ],
                 'url' => route('appointments.show', $appt->id) . '?from=calendar'

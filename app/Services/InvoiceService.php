@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\InvoiceStatus;
+use App\Jobs\DispatchNotification;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Setting;
@@ -12,9 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class InvoiceService
 {
-    /**
-     * Get paginated, filtered list of invoices.
-     */
     public function getAllInvoices(array $filters): LengthAwarePaginator
     {
         $query = Invoice::query()
@@ -48,9 +46,6 @@ class InvoiceService
         return $query->paginate(10)->withQueryString();
     }
 
-    /**
-     * Create a new invoice.
-     */
     public function createInvoice(array $data, ?int $creatorId = null): Invoice
     {
         return DB::transaction(function () use ($data, $creatorId) {
@@ -94,7 +89,7 @@ class InvoiceService
                 'tax_amount' => $tax_amount,
                 'total' => $total,
                 'amount_paid' => 0,
-                'status' => $data['status'] ?? 'draft',
+                'status' => $data['status'] ?? InvoiceStatus::Cancelled->value,
                 'due_date' => $dueDate,
                 'notes' => $data['notes'] ?? null,
             ]);
@@ -107,17 +102,10 @@ class InvoiceService
         });
     }
 
-    /**
-     * Update an invoice with pessimistic row locking.
-     */
     public function updateInvoice(int $invoiceId, array $data): Invoice
     {
         return DB::transaction(function () use ($invoiceId, $data) {
             $invoice = Invoice::lockForUpdate()->findOrFail($invoiceId);
-
-            if (in_array($invoice->status, ['paid', 'cancelled'])) {
-                throw new Exception('Cannot modify a finalized or cancelled invoice.');
-            }
 
             $subtotal = 0;
             $incomingIds = [];
@@ -183,27 +171,25 @@ class InvoiceService
         });
     }
 
-    /**
-     * Add a payment to an invoice with status guard and event-driven recalculation.
-     */
     public function addPayment($id, array $data, ?int $receiverId = null): Payment
     {
         $invoice = $id instanceof Invoice ? $id : Invoice::findOrFail($id);
 
-        $currentStatus = InvoiceStatus::tryFrom($invoice->status);
-        if (!$currentStatus?->allowsPayments()) {
-            throw new Exception('Payments can only be recorded against sent, partial, or overdue invoices.');
-        }
-
-        if ($data['amount'] <= 0 || $data['amount'] > ($invoice->total - $invoice->amount_paid)) {
-            throw new Exception('Invalid payment amount (exceeds balance or is <= 0).');
-        }
-
         return DB::transaction(function () use ($invoice, $data, $receiverId) {
-            $invoice = Invoice::where('id', $invoice->id)->lockForUpdate()->firstOrFail();
+            $lockedInvoice = Invoice::where('id', $invoice->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($lockedInvoice->status !== InvoiceStatus::Cancelled->value) {
+                throw new Exception(__('messages.invoicePaymentNotAllowed'));
+            }
+
+            if (bccomp((string) $data['amount'], (string) $lockedInvoice->total, 2) !== 0) {
+                throw new Exception(__('messages.invoiceInvalidPaymentAmount'));
+            }
 
             $payment = Payment::create([
-                'invoice_id' => $invoice->id,
+                'invoice_id' => $lockedInvoice->id,
                 'amount' => $data['amount'],
                 'payment_date' => $data['payment_date'],
                 'payment_method' => $data['payment_method'],
@@ -212,36 +198,36 @@ class InvoiceService
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            try {
-                app(\App\Services\NotificationService::class)->notifyAdmins(
-                    'payment',
-                    'Payment Received 💳',
-                    'Received ' . $data['amount'] . ' for Invoice #' . $invoice->invoice_number,
-                    [
-                        'invoice_id' => $invoice->id,
-                        'amount' => $data['amount'],
-                        'invoice_number' => $invoice->invoice_number,
-                        'title_key' => 'notification.title_payment_received',
-                        'message_key' => 'notification.message_payment_received',
-                    ],
-                    route('invoices.show', $invoice->id)
-                );
-            } catch (\Exception $e) {}
+            $lockedInvoice->amount_paid = $lockedInvoice->total;
+            $lockedInvoice->status = InvoiceStatus::Paid->value;
+            $lockedInvoice->save();
+
+            DispatchNotification::dispatch(
+                'admins',
+                null,
+                'payment',
+                __('messages.notification.title_payment_received'),
+                __('messages.notification.message_payment_received', [
+                    'amount' => $data['amount'],
+                    'invoice_number' => $lockedInvoice->invoice_number,
+                ]),
+                [
+                    'invoice_id' => $lockedInvoice->id,
+                    'amount' => $data['amount'],
+                    'invoice_number' => $lockedInvoice->invoice_number,
+                    'title_key' => 'notification.title_payment_received',
+                    'message_key' => 'notification.message_payment_received',
+                ],
+                route('invoices.show', $lockedInvoice->id)
+            );
 
             return $payment;
         });
     }
 
-    /**
-     * Safely delete an invoice.
-     */
     public function deleteInvoice($id): void
     {
         $invoice = $id instanceof Invoice ? $id : Invoice::findOrFail($id);
-
-        if ($invoice->status !== 'draft') {
-            throw new Exception('Only draft invoices can be deleted.');
-        }
 
         DB::transaction(function () use ($invoice) {
             $invoice->payments()->delete();

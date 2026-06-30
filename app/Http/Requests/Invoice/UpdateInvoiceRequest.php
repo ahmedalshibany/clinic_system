@@ -15,7 +15,7 @@ class UpdateInvoiceRequest extends FormRequest
     {
         return [
             'due_date' => 'required|date',
-            'status' => 'required|in:draft,sent,paid,partial,overdue,cancelled',
+            'status' => 'required|in:paid,cancelled',
             'notes' => 'nullable|string',
             'discount_percent' => 'nullable|numeric|min:0|max:100',
             'tax_percent' => 'nullable|numeric|min:0|max:100',

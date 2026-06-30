@@ -59,4 +59,9 @@ class UserPolicy
 
         return $user->role === 'admin';
     }
+
+    public function unlock(User $user, User $target): bool
+    {
+        return $user->role === 'admin';
+    }
 }

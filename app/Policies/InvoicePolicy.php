@@ -29,7 +29,7 @@ class InvoicePolicy
 
     public function delete(User $user, Invoice $invoice): bool
     {
-        return $user->role === 'admin' && $invoice->status === 'draft';
+        return $user->role === 'admin';
     }
 
     public function recordPayment(User $user, Invoice $invoice): bool

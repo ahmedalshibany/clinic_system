@@ -37,7 +37,7 @@ class InvoiceConcurrencyTest extends TestCase
             'discount_percent' => 10,
             'tax_percent' => 5,
             'due_date' => '2026-07-01',
-            'status' => 'draft',
+            'status' => 'cancelled',
         ], $this->admin->id);
 
         $bcSubtotal = round((float) bcadd(bcadd('14.97', '25.00', 4), '99.99', 4), 2);
@@ -68,7 +68,7 @@ class InvoiceConcurrencyTest extends TestCase
             'discount_percent' => 0,
             'tax_percent' => 0,
             'due_date' => '2026-07-01',
-            'status' => 'draft',
+            'status' => 'cancelled',
         ], $this->admin->id);
 
         $this->assertEquals(0.24, $invoice->subtotal);
@@ -77,7 +77,7 @@ class InvoiceConcurrencyTest extends TestCase
         $this->assertEqualsWithDelta(0.21, (float) $invoice->items[1]->total, 0.001);
     }
 
-    public function test_payment_partial_then_paid(): void
+    public function test_full_payment_marks_invoice_paid(): void
     {
         $invoice = $this->service->createInvoice([
             'patient_id' => $this->patient->id,
@@ -87,31 +87,44 @@ class InvoiceConcurrencyTest extends TestCase
             'discount_percent' => 0,
             'tax_percent' => 0,
             'due_date' => '2026-07-01',
-            'status' => 'sent',
+            'status' => 'cancelled',
         ], $this->admin->id);
 
         $this->assertEquals(150.00, $invoice->total);
         $this->assertEquals(0.0, $invoice->amount_paid);
+        $this->assertSame('cancelled', $invoice->status);
 
         $this->service->addPayment($invoice, [
-            'amount' => 100.00,
+            'amount' => 150.00,
             'payment_date' => '2026-06-06',
             'payment_method' => 'cash',
         ], $this->admin->id);
 
         $invoice->refresh();
-        $this->assertEquals(100.00, $invoice->amount_paid);
-        $this->assertSame('partial', $invoice->status);
+        $this->assertEquals(150.00, $invoice->amount_paid);
+        $this->assertSame('paid', $invoice->status);
+    }
 
+    public function test_partial_payment_rejected(): void
+    {
+        $invoice = $this->service->createInvoice([
+            'patient_id' => $this->patient->id,
+            'items' => [
+                ['description' => 'Test', 'quantity' => 1, 'unit_price' => 100.00],
+            ],
+            'discount_percent' => 0,
+            'tax_percent' => 0,
+            'due_date' => '2026-07-01',
+            'status' => 'cancelled',
+        ], $this->admin->id);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('full invoice total');
         $this->service->addPayment($invoice, [
             'amount' => 50.00,
             'payment_date' => '2026-06-06',
-            'payment_method' => 'card',
+            'payment_method' => 'cash',
         ], $this->admin->id);
-
-        $invoice->refresh();
-        $this->assertEquals(150.00, $invoice->amount_paid);
-        $this->assertSame('paid', $invoice->status);
     }
 
     public function test_overpayment_rejected(): void
@@ -124,11 +137,11 @@ class InvoiceConcurrencyTest extends TestCase
             'discount_percent' => 0,
             'tax_percent' => 0,
             'due_date' => '2026-07-01',
-            'status' => 'sent',
+            'status' => 'cancelled',
         ], $this->admin->id);
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid payment amount');
+        $this->expectExceptionMessage('full invoice total');
         $this->service->addPayment($invoice, [
             'amount' => 101.00,
             'payment_date' => '2026-06-06',
@@ -146,11 +159,11 @@ class InvoiceConcurrencyTest extends TestCase
             'discount_percent' => 0,
             'tax_percent' => 0,
             'due_date' => '2026-07-01',
-            'status' => 'sent',
+            'status' => 'cancelled',
         ], $this->admin->id);
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid payment amount');
+        $this->expectExceptionMessage('full invoice total');
         $this->service->addPayment($invoice, [
             'amount' => 0,
             'payment_date' => '2026-06-06',
@@ -168,11 +181,11 @@ class InvoiceConcurrencyTest extends TestCase
             'discount_percent' => 0,
             'tax_percent' => 0,
             'due_date' => '2026-07-01',
-            'status' => 'sent',
+            'status' => 'cancelled',
         ], $this->admin->id);
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid payment amount');
+        $this->expectExceptionMessage('full invoice total');
         $this->service->addPayment($invoice, [
             'amount' => -50.00,
             'payment_date' => '2026-06-06',
@@ -180,7 +193,7 @@ class InvoiceConcurrencyTest extends TestCase
         ], $this->admin->id);
     }
 
-    public function test_lock_for_update_query_in_add_payment(): void
+    public function test_payment_on_paid_invoice_rejected(): void
     {
         $invoice = $this->service->createInvoice([
             'patient_id' => $this->patient->id,
@@ -190,7 +203,7 @@ class InvoiceConcurrencyTest extends TestCase
             'discount_percent' => 0,
             'tax_percent' => 0,
             'due_date' => '2026-07-01',
-            'status' => 'sent',
+            'status' => 'cancelled',
         ], $this->admin->id);
 
         $this->assertEquals(500.00, $invoice->total);
@@ -207,9 +220,9 @@ class InvoiceConcurrencyTest extends TestCase
         $this->assertSame('paid', $invoice->status);
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid payment amount');
+        $this->expectExceptionMessage('cancelled invoices');
         $this->service->addPayment($invoice, [
-            'amount' => 1.00,
+            'amount' => 500.00,
             'payment_date' => '2026-06-06',
             'payment_method' => 'cash',
         ], $this->admin->id);
@@ -225,7 +238,7 @@ class InvoiceConcurrencyTest extends TestCase
             'discount_percent' => 0,
             'tax_percent' => 0,
             'due_date' => '2026-07-01',
-            'status' => 'draft',
+            'status' => 'cancelled',
         ], $this->admin->id);
 
         $updated = $this->service->updateInvoice($invoice->id, [
@@ -235,7 +248,7 @@ class InvoiceConcurrencyTest extends TestCase
             'discount_percent' => 5,
             'tax_percent' => 8,
             'due_date' => '2026-08-01',
-            'status' => 'draft',
+            'status' => 'cancelled',
             'notes' => 'Updated',
         ]);
 

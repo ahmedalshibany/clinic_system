@@ -17,7 +17,7 @@ class StoreInvoiceRequest extends FormRequest
             'patient_id' => 'required|exists:patients,id',
             'appointment_id' => 'nullable|exists:appointments,id',
             'due_date' => 'required|date',
-            'status' => 'required|in:draft,sent,paid,partial,overdue,cancelled',
+            'status' => 'required|in:paid,cancelled',
             'notes' => 'nullable|string',
             'discount_percent' => 'nullable|numeric|min:0|max:100',
             'tax_percent' => 'nullable|numeric|min:0|max:100',

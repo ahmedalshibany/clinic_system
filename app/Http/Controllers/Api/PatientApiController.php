@@ -16,7 +16,7 @@ class PatientApiController extends Controller
     {
         $user = auth()->user();
         if (!$user || !in_array($user->role, ['admin', 'doctor', 'receptionist', 'nurse'])) {
-            abort(403, 'Unauthorized API enumeration attempt.');
+            abort(403, __('messages.unauthorized'));
         }
 
         $term = $request->get('q');

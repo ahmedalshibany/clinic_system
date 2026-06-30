@@ -30,7 +30,7 @@ class InvoiceSeeder extends Seeder
                 'appointment_id' => $appt->id,
                 'created_by' => $users[array_rand($users)],
                 'due_date' => $appt->date->copy()->addDays(30),
-                'status' => 'sent',
+                'status' => 'cancelled',
                 'subtotal' => $subtotal,
                 'total' => $subtotal,
                 'amount_paid' => 0,
@@ -59,7 +59,7 @@ class InvoiceSeeder extends Seeder
                 $total += $svcTotal;
             }
 
-            if ($appt->date->isPast() && rand(0, 10) > 2) {
+            if (rand(0, 10) > 5) {
                 $payMethod = $methods[array_rand($methods)];
                 $invoice->update(['status' => 'paid', 'amount_paid' => $total, 'total' => $total]);
                 Payment::create([

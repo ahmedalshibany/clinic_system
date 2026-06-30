@@ -176,13 +176,7 @@
                                 {{ $currencySymbol }}{{ number_format($invoice->total - $invoice->amount_paid, 2) }}
                             </td>
                             <td class="py-3 text-center">
-                                @if($invoice->status == 'overdue')
-                                    <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger px-3 py-1 text-xs">{{ __('messages.status_overdue') }}</span>
-                                @elseif($invoice->status == 'partial')
-                                    <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning px-3 py-1 text-xs">{{ __('messages.status_partial') }}</span>
-                                @else
-                                    <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary px-3 py-1 text-xs">{{ __('messages.status_sent') }}</span>
-                                @endif
+                                <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary px-3 py-1 text-xs">{{ __('messages.status_cancelled') }}</span>
                             </td>
                         </tr>
                     @empty

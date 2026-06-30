@@ -17,21 +17,29 @@ class AppointmentInvoiceManager
             return $appointment->invoice;
         }
 
-        $consultationService = Service::where('code', 'CONSULT-GEN')->first();
-
-        if (!$consultationService) {
-            throw new Exception('Consultation service (CONSULT-GEN) not found. Run the ServiceSeeder first.');
-        }
+        $consultationService = Service::firstOrCreate(
+            ['code' => 'CONSULT-GEN'],
+            [
+                'name' => 'General Consultation',
+                'name_ar' => 'استشارة عامة',
+                'category' => 'consultation',
+                'price' => $appointment->fee ?? $appointment->doctor?->consultation_fee ?? 0,
+                'is_active' => true,
+            ]
+        );
 
         $fee = $appointment->fee ?? $appointment->doctor?->consultation_fee ?? 0;
 
         return DB::transaction(function () use ($appointment, $consultationService, $fee) {
             $dueDate = now()->addDays((int) Setting::get('default_due_days', 0))->toDateString();
 
+            $appointment->loadMissing('doctor.user');
+            $createdBy = $appointment->doctor?->user_id ?? auth()->id();
+
             $invoice = Invoice::create([
                 'patient_id' => $appointment->patient_id,
                 'appointment_id' => $appointment->id,
-                'created_by' => $appointment->doctor?->user_id,
+                'created_by' => $createdBy,
                 'subtotal' => $fee,
                 'discount_percent' => 0,
                 'discount_amount' => 0,
@@ -39,7 +47,7 @@ class AppointmentInvoiceManager
                 'tax_amount' => 0,
                 'total' => $fee,
                 'amount_paid' => 0,
-                'status' => 'draft',
+                'status' => 'cancelled',
                 'due_date' => $dueDate,
             ]);
 

@@ -58,7 +58,7 @@
                 </div>
 
                 <div>
-                    <label style="display: block; font-size: var(--text-xs); font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: var(--space-xs);">BMI</label>
+                    <label style="display: block; font-size: var(--text-xs); font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: var(--space-xs);">{{ __('messages.doctor_bmi') }}</label>
                     <div id="bmiDisplay" style="width: 100%; padding: var(--space-sm) var(--space-md); background: var(--panel-bg); border: 1px solid var(--border-hairline); border-radius: var(--radius-sm); color: var(--text-muted); font-size: var(--text-sm); line-height: 2.2;">--</div>
                 </div>
 

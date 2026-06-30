@@ -21,7 +21,7 @@
                 <i class="fas fa-clinic-medical"></i>
                 <div>
                     <div class="settings-nav-title" data-i18n="clinicInfo">{{ __('messages.clinicInfo') }}</div>
-                    <div class="settings-nav-subtitle" data-i18n="clinicInfoDesc">{{ __('messages.clinicInfoDesc') ?? 'Logo, Address, Contacts' }}</div>
+                    <div class="settings-nav-subtitle" data-i18n="clinicInfoDesc">{{ __('messages.clinicInfoDesc') }}</div>
                 </div>
             </a>
             <a class="settings-nav-item" 
@@ -29,7 +29,7 @@
                 <i class="fas fa-sliders-h"></i>
                 <div>
                     <div class="settings-nav-title" data-i18n="systemPref">{{ __('messages.systemPref') }}</div>
-                    <div class="settings-nav-subtitle" data-i18n="systemPrefDesc">{{ __('messages.systemPrefDesc') ?? 'Language, Time, Currency' }}</div>
+                    <div class="settings-nav-subtitle" data-i18n="systemPrefDesc">{{ __('messages.systemPrefDesc') }}</div>
                 </div>
             </a>
             <a class="settings-nav-item" 
@@ -37,7 +37,7 @@
                 <i class="fas fa-calendar-alt"></i>
                 <div>
                     <div class="settings-nav-title" data-i18n="apptSettings">{{ __('messages.apptSettings') }}</div>
-                    <div class="settings-nav-subtitle" data-i18n="apptSettingsDesc">{{ __('messages.apptSettingsDesc') ?? 'Slots, Buffers, Rules' }}</div>
+                    <div class="settings-nav-subtitle" data-i18n="apptSettingsDesc">{{ __('messages.apptSettingsDesc') }}</div>
                 </div>
             </a>
             <a class="settings-nav-item" 
@@ -45,7 +45,7 @@
                 <i class="fas fa-file-invoice-dollar"></i>
                 <div>
                     <div class="settings-nav-title" data-i18n="invSettings">{{ __('messages.invSettings') }}</div>
-                    <div class="settings-nav-subtitle" data-i18n="invSettingsDesc">{{ __('messages.invSettingsDesc') ?? 'Tax, Prefixes, Terms' }}</div>
+                    <div class="settings-nav-subtitle" data-i18n="invSettingsDesc">{{ __('messages.invSettingsDesc') }}</div>
                 </div>
             </a>
         </div>

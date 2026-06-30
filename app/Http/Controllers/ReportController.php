@@ -27,11 +27,8 @@ class ReportController extends Controller
             'total_patients' => Patient::count(),
             'new_patients_month' => Patient::whereMonth('created_at', now()->month)->count(),
             'appointments_today' => Appointment::today()->count(),
-            'outstanding_invoices' => Invoice::where('status', 'overdue')->orWhere('status', 'sent')->count(),
-            //'outstanding_amount' => Invoice::whereRaw('total - amount_paid > 0')->where('status', '!=', 'cancelled')->sum(DB::raw('total - amount_paid')),
-             // SQLite/MySQL compatibility safe raw query often tricky, but iterating over collection is safer for small datasets or use DB::raw carefully.
-             // MySQL:
-            'outstanding_amount' => Invoice::whereIn('status', ['sent', 'partial', 'overdue'])->sum(DB::raw('total - amount_paid')),
+            'outstanding_invoices' => 0,
+            'outstanding_amount' => 0,
         ];
 
         return view('reports.index', compact('stats'));
@@ -482,10 +479,8 @@ class ReportController extends Controller
             $dateTo = $dateTo ?? now()->endOfMonth()->toDateString();
         }
 
-        // 2. Formulate Base Query for Unpaid Balances (matches Dashboard KPI parity)
         $baseQuery = Invoice::query()->with('patient')
-            ->whereIn('status', ['sent', 'partial', 'overdue'])
-            ->whereRaw('(total - amount_paid) > 0');
+            ->where('status', 'cancelled');
 
         if ($dateFrom && $dateTo) {
             $baseQuery->whereBetween(DB::raw('DATE(due_date)'), [$dateFrom, $dateTo]);
@@ -498,7 +493,7 @@ class ReportController extends Controller
             return $inv->total - $inv->amount_paid;
         });
 
-        $overdue_invoices_count = $calcCollection->where('status', 'overdue')->count();
+        $overdue_invoices_count = 0;
         $total_pending_bills = $calcCollection->count();
 
         $topDebtorGroup = $calcCollection->groupBy('patient_id')->map(function ($group) {

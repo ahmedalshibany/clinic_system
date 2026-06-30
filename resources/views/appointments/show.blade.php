@@ -59,24 +59,24 @@
                     <div class="p-4">
                         <div class="row text-center g-0">
                             <div class="col-3">
-                                <div class="text-secondary text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em;">BP</div>
+                                <div class="text-secondary text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em;">{{ __('messages.bp') }}</div>
                                 <div class="fw-bold" style="font-size: var(--text-xl); color: var(--primary);">{{ $appointment->vital->blood_pressure }}</div>
-                                <div class="text-secondary" style="font-size: var(--text-xs);">mmHg</div>
+                                <div class="text-secondary" style="font-size: var(--text-xs);">{{ __('messages.unit_mmhg') }}</div>
                             </div>
                             <div class="col-3">
-                                <div class="text-secondary text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em;">Pulse</div>
+                                <div class="text-secondary text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em;">{{ __('messages.pulse') }}</div>
                                 <div class="fw-bold" style="font-size: var(--text-xl); color: var(--primary);">{{ $appointment->vital->pulse }}</div>
-                                <div class="text-secondary" style="font-size: var(--text-xs);">bpm</div>
+                                <div class="text-secondary" style="font-size: var(--text-xs);">{{ __('messages.unit_bpm') }}</div>
                             </div>
                             <div class="col-3">
-                                <div class="text-secondary text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em;">Temp</div>
+                                <div class="text-secondary text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em;">{{ __('messages.temp') }}</div>
                                 <div class="fw-bold" style="font-size: var(--text-xl); color: var(--primary);">{{ $appointment->vital->temperature }}</div>
-                                <div class="text-secondary" style="font-size: var(--text-xs);">°C</div>
+                                <div class="text-secondary" style="font-size: var(--text-xs);">{{ __('messages.unit_celsius') }}</div>
                             </div>
                             <div class="col-3">
-                                <div class="text-secondary text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em;">Weight</div>
+                                <div class="text-secondary text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em;">{{ __('messages.weight') }}</div>
                                 <div class="fw-bold" style="font-size: var(--text-xl); color: var(--primary);">{{ $appointment->vital->weight }}</div>
-                                <div class="text-secondary" style="font-size: var(--text-xs);">kg</div>
+                                <div class="text-secondary" style="font-size: var(--text-xs);">{{ __('messages.unit_kg') }}</div>
                             </div>
                         </div>
                         @if($appointment->vital->notes)
@@ -125,7 +125,7 @@
                     <div class="col-sm-4 text-secondary">{{ __('messages.status') }}</div>
                     <div class="col-sm-8">
                         @php
-                            $statusColors = ['confirmed' => 'success', 'pending' => 'warning', 'cancelled' => 'danger', 'completed' => 'info'];
+                            $statusColors = ['confirmed' => 'success', 'pending' => 'warning', 'cancelled' => 'danger', 'completed' => 'info', 'no_show' => 'dark', 'paid' => 'success', 'checked_in' => 'info', 'waiting' => 'warning', 'in_progress' => 'primary'];
                             $badgeColor = $statusColors[$appointment->status] ?? 'secondary';
                         @endphp
                         <span class="badge bg-{{ $badgeColor }} px-3 py-2">{{ __("messages.{$appointment->status}") }}</span>
@@ -143,7 +143,7 @@
                 
                 <div class="row mb-4">
                     <div class="col-sm-4 text-secondary">{{ __('messages.type') }}</div>
-                    <div class="col-sm-8 fw-medium">{{ ucfirst(str_replace('_', ' ', $appointment->type)) }}</div>
+                    <div class="col-sm-8 fw-medium">{{ __("messages.type{$appointment->type}") }}</div>
                 </div>
 
                 <div class="row">

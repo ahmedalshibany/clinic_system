@@ -16,6 +16,18 @@ if (typeof PatientsManager === 'undefined') {
             this.isLoading = false;
         }
 
+        getLang() {
+            return (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
+        }
+
+        t(key) {
+            const lang = this.getLang();
+            if (typeof translations !== 'undefined' && translations[lang] && translations[lang][key]) {
+                return translations[lang][key];
+            }
+            return key;
+        }
+
         async init() {
             await this.loadPatients();
             this.bindEvents();
@@ -68,7 +80,7 @@ if (typeof PatientsManager === 'undefined') {
                 this.render();
             } catch (error) {
                 console.error('Error loading patients:', error);
-                this.showError('Failed to load patients');
+                this.showError(this.t('failedLoadPatients'));
             } finally {
                 this.isLoading = false;
             }
@@ -106,13 +118,13 @@ if (typeof PatientsManager === 'undefined') {
                 const emptyMessage = this.searchTerm
                     ? `<div class="empty-state">
                         <i class="fas fa-search"></i>
-                        <h5>No results found</h5>
-                        <p>Try adjusting your search term</p>
+                        <h5>${this.t('noResultsFound')}</h5>
+                        <p>${this.t('tryAdjustSearch')}</p>
                        </div>`
                     : `<div class="empty-state">
                         <i class="fas fa-user-injured"></i>
-                        <h5 data-i18n="noPatients">No patients yet</h5>
-                        <p>Click "Add Patient" to get started!</p>
+                        <h5 data-i18n="noPatients">${this.t('noPatientsYet')}</h5>
+                        <p>${this.t('addPatientPrompt')}</p>
                        </div>`;
 
                 $tbody.closest('.table-responsive').html(emptyMessage);
@@ -247,7 +259,7 @@ if (typeof PatientsManager === 'undefined') {
                 modal.show();
             } catch (error) {
                 console.error('Error loading history:', error);
-                this.showError('Failed to load patient history');
+                this.showError(this.t('failedLoadHistory'));
             }
         }
 
@@ -264,7 +276,7 @@ if (typeof PatientsManager === 'undefined') {
                 }));
                 Utils.exportToCSV(data, 'patients.csv');
             } catch (error) {
-                this.showError('Failed to export data');
+                this.showError(this.t('failedExport'));
             }
         }
 
@@ -273,7 +285,7 @@ if (typeof PatientsManager === 'undefined') {
                 const response = await API.patients.getAll({ per_page: 1000 });
                 Utils.exportToJSON(response.data, 'patients.json');
             } catch (error) {
-                this.showError('Failed to export data');
+                this.showError(this.t('failedExport'));
             }
         }
 

@@ -38,6 +38,7 @@ class StoreMedicalRecordRequest extends FormRequest
             'prescription_items.*.dosage' => 'required_with:prescription_items|string',
             'prescription_items.*.frequency' => 'required_with:prescription_items|string',
             'prescription_items.*.duration' => 'required_with:prescription_items|string',
+            'prescription_items.*.quantity' => 'nullable|integer|min:1',
         ];
     }
 }

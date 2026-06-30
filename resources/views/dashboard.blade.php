@@ -14,9 +14,9 @@
         <div class="welcome-text">
             <span class="welcome-badge" id="greeting-badge">
                 <i class="fas fa-sun" id="greeting-icon"></i>
-                <span id="dashboard-greeting" data-i18n="goodMorning">{{ __('Good Morning') }}</span>
+                <span id="dashboard-greeting" data-i18n="goodMorning">{{ __('messages.goodMorning') }}</span>
             </span>
-            <h1 style="word-break: keep-all; text-wrap: balance; line-height: 1.4;"><span class="d-inline-block" style="white-space: nowrap;"><span data-i18n="welcomeBack">{{ __('Welcome Back,') }}</span> <span class="gradient-text">
+            <h1 style="word-break: keep-all; text-wrap: balance; line-height: 1.4;"><span class="d-inline-block" style="white-space: nowrap;"><span data-i18n="welcomeBack">{{ __('messages.welcomeBack') }}</span> <span class="gradient-text">
                 @if(auth()->user()->role === 'admin')
                     {{ __('messages.role_admin') }}
                 @elseif(auth()->user()->role === 'receptionist')
@@ -27,7 +27,7 @@
                     {{ __('messages.role_doctor') }} {{ auth()->user()->name }}
                 @endif
             </span></span></h1>
-            <p data-i18n="dashboardSubtitle">{{ __("Here's what's happening with your clinic today") }}</p>
+            <p data-i18n="dashboardSubtitle">{{ __('messages.dashboardSubtitle') }}</p>
         </div>
         <div class="welcome-illustration">
             <div class="floating-card card-1">
@@ -54,8 +54,8 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ $totalActivePatients }}</span>
-<span class="stat-label" data-i18n="totalPatients">{{ __('Total Patients') }}</span>
-                                <span class="stat-badge" data-i18n="newLabel">+{{ $newPatientsMonth }} {{ __('new') }}</span>
+<span class="stat-label" data-i18n="totalPatients">{{ __('messages.totalPatientsCard') }}</span>
+                                <span class="stat-badge" data-i18n="newLabel">+{{ $newPatientsMonth }} {{ __('messages.newLabel') }}</span>
             </div>
             <div class="stat-decoration"></div>
         </div>
@@ -68,7 +68,7 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ number_format($todayRevenue, 0) }}</span>
-                <span class="stat-label" data-i18n="revenueToday">{{ __("Today's Revenue") }}</span>
+                <span class="stat-label" data-i18n="revenueToday">{{ __('messages.todayRevenue') }}</span>
             </div>
             <div class="stat-decoration"></div>
         </div>
@@ -81,7 +81,7 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ $todayAppointments }}</span>
-                <span class="stat-label" data-i18n="todayAppts">{{ __("Today's Appts") }}</span>
+                <span class="stat-label" data-i18n="todayAppts">{{ __('messages.todayAppts') }}</span>
             </div>
             <div class="stat-decoration"></div>
         </div>
@@ -94,8 +94,8 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ $pendingInvoicesCount }}</span>
-<span class="stat-label" data-i18n="pendingInvoices">{{ __('Pending Invoices') }}</span>
-                                <small class="text-white-50"><span data-i18n="outstanding">{{ $pendingInvoicesAmount }}</span> <span data-i18n="pending">{{ __('pending') }}</span></small>
+<span class="stat-label" data-i18n="pendingInvoices">{{ __('messages.pendingInvoices') }}</span>
+                                <small class="text-white-50"><span data-i18n="outstanding">{{ $pendingInvoicesAmount }}</span> <span data-i18n="pending">{{ __('messages.pending') }}</span></small>
             </div>
             <div class="stat-decoration"></div>
         </div>
@@ -109,8 +109,8 @@
             <div class="panel-title">
                 <div class="title-icon"><i class="fas fa-chart-pie"></i></div>
                 <div>
-                    <h3 data-i18n="statusOverview">{{ __('Status Overview') }}</h3>
-                    <p data-i18n="appointmentDistribution">{{ __('Appointment distribution') }}</p>
+                    <h3 data-i18n="statusOverview">{{ __('messages.statusOverview') }}</h3>
+                    <p data-i18n="appointmentDistribution">{{ __('messages.appointmentDistribution') }}</p>
                 </div>
             </div>
         </div>
@@ -119,7 +119,7 @@
                 <canvas id="statusChart"></canvas>
                 <div class="donut-center">
                     <span class="donut-total">{{ $totalAppointments }}</span>
-                    <span class="donut-label" data-i18n="total">{{ __('Total') }}</span>
+                    <span class="donut-label" data-i18n="total">{{ __('messages.totalLabel') }}</span>
                 </div>
             </div>
             <div class="status-grid" id="statusGrid">
@@ -127,7 +127,7 @@
                 @php $count = $statusBreakdown[$s] ?? 0; @endphp
                 <div class="status-item {{ $s }}">
                     <div class="status-indicator"></div>
-                    <span class="status-name" data-i18n="{{ $s }}">{{ ucfirst($s) }}</span>
+                    <span class="status-name" data-i18n="{{ $s }}">{{ __("messages.{$s}") }}</span>
                     <span class="status-count">{{ $count }}</span>
                 </div>
                 @endforeach
@@ -141,13 +141,13 @@
             <div class="panel-title">
                 <div class="title-icon"><i class="fas fa-chart-line"></i></div>
                 <div>
-                    <h3 data-i18n="monthlyRevenue">{{ __('Monthly Revenue') }}</h3>
-                    <p data-i18n="revenueTrend">{{ __('Revenue trend over last 6 months') }}</p>
+                    <h3 data-i18n="monthlyRevenue">{{ __('messages.monthlyRevenue') }}</h3>
+                    <p data-i18n="revenueTrend">{{ __('messages.revenueTrendLabel') }}</p>
                 </div>
             </div>
             <div class="panel-badge">
                 <i class="fas fa-dollar-sign"></i>
-                <span data-i18n="thisMonth">{{ $monthlyRevenue['revenue'][array_key_last($monthlyRevenue['revenue']) ?? 0] ?? 0 }} {{ __('this month') }}</span>
+                <span data-i18n="thisMonth">{{ $monthlyRevenue['revenue'][array_key_last($monthlyRevenue['revenue']) ?? 0] ?? 0 }} {{ __('messages.thisMonth') }}</span>
             </div>
         </div>
         <div class="panel-body">
@@ -165,12 +165,12 @@
             <div class="panel-title">
                 <div class="title-icon pulse"><i class="fas fa-bolt"></i></div>
                 <div>
-                    <h3 data-i18n="recentActivity">{{ __('Recent Activity') }}</h3>
-                    <p data-i18n="latestAppointments">{{ __('Latest appointments in your clinic') }}</p>
+                    <h3 data-i18n="recentActivity">{{ __('messages.recentActivity') }}</h3>
+                    <p data-i18n="latestAppointments">{{ __('messages.latestAppointments') }}</p>
                 </div>
             </div>
             <a href="{{ route('appointments.index') }}" class="btn btn-davinci-primary d-inline-flex align-items-center gap-2">
-                <span data-i18n="viewAll">{{ __('View All') }}</span>
+                <span data-i18n="viewAll">{{ __('messages.viewAll') }}</span>
                 <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -201,14 +201,14 @@
                         </div>
                         <div class="activity-content">
                             <div class="activity-header">
-                                <span class="activity-title">{{ $appt->patient->name ?? __('Unknown') }}</span>
+                                <span class="activity-title">{{ $appt->patient->name ?? __('messages.unknown') }}</span>
                                 <span class="activity-time">{{ \Carbon\Carbon::parse($appt->date)->format('M d') }} &middot; {{ \Carbon\Carbon::parse($appt->time)->format('H:i') }}</span>
                             </div>
                             <div class="activity-details">
                                 <span class="activity-doctor">
-                                    <i class="fas fa-user-md me-1"></i>{{ $appt->doctor->name ?? __('Unknown') }}
+                                    <i class="fas fa-user-md me-1"></i>{{ $appt->doctor->name ?? __('messages.unknown') }}
                                 </span>
-                                @php $statusLabel = $appt->status === 'checked_in' ? __('messages.checked_in') : ucfirst($appt->status); @endphp
+                                @php $statusLabel = __("messages.{$appt->status}"); @endphp
                                 <span class="badge bg-{{ $color }}-subtle text-{{ $color }}" data-i18n="{{ strtolower($appt->status) }}">{{ $statusLabel }}</span>
                             </div>
                         </div>
@@ -216,7 +216,7 @@
                 @empty
                     <div class="empty-activity text-center py-4">
                         <i class="fas fa-calendar-day text-muted mb-3" style="font-size: 2.5rem;"></i>
-                        <p class="text-muted mb-0" data-i18n="noAppointments">{{ __('No recent appointments') }}</p>
+                        <p class="text-muted mb-0" data-i18n="noAppointments">{{ __('messages.noRecentAppointments') }}</p>
                     </div>
                 @endforelse
             </div>

@@ -7,6 +7,7 @@ use App\Models\Doctor;
 use App\Services\AppointmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 
@@ -19,38 +20,33 @@ class ReceptionistController extends Controller
         $this->appointmentService = $appointmentService;
     }
 
-    public function checkIn(Request $request, Appointment $appointment)
+    /**
+     * Record payment and activate appointment (pending → paid).
+     */
+    public function pay(Request $request, Appointment $appointment)
     {
-        $this->authorize('checkIn', $appointment);
+        $this->authorize('pay', $appointment);
 
-        $this->appointmentService->updateStatus($appointment, Appointment::STATUS_CHECKED_IN);
+        $request->validate([
+            'amount'       => 'nullable|numeric|min:0',
+            'method'       => 'nullable|string|in:cash,card,bank_transfer,insurance,other',
+            'reference'    => 'nullable|string|max:255',
+        ]);
 
-        $position = Appointment::whereDate('date', now()->today())
-            ->where('time', '<', $appointment->time)
-            ->whereIn('status', [Appointment::STATUS_CHECKED_IN, Appointment::STATUS_WAITING])
-            ->count() + 1;
+        $appointment->loadMissing(['doctor:id,name,consultation_fee']);
+        $fee = $request->amount ?? $appointment->fee ?? $appointment->doctor?->consultation_fee ?? 0;
 
-        if ($request->expectsJson()) {
-            $appointment->load(['patient:id,name,patient_code,phone', 'doctor:id,name']);
-            return response()->json([
-                'success' => true,
-                'message' => __('messages.patientCheckedIn'),
-                'position' => $position,
-                'appointment' => $appointment,
-            ]);
-        }
+        $this->appointmentService->updateStatus($appointment, 'paid');
 
-        session()->flash('info', __('messages.queuePositionInfo', ['position' => $position]));
-
-        return redirect()->route('dashboard')
-            ->with('success', __('messages.patientCheckedIn'));
+        return redirect()->route('invoices.create-from-appointment', $appointment)
+            ->with('success', __('messages.paymentRecorded'));
     }
 
     public function markNoShow(Appointment $appointment)
     {
         $this->authorize('markNoShow', $appointment);
 
-        $this->appointmentService->updateStatus($appointment, Appointment::STATUS_NO_SHOW);
+        $this->appointmentService->updateStatus($appointment, 'no_show');
 
         return redirect()->route('dashboard')
             ->with('success', __('messages.markedNoShow'));
@@ -59,37 +55,41 @@ class ReceptionistController extends Controller
     public function boardData()
     {
         $this->authorize('viewAny', Appointment::class);
-        $today = today();
-        $tomorrow = today()->addDay();
 
-        $flowMonitor = Appointment::where('date', '>=', $today)
-            ->where('date', '<', $tomorrow)
-            ->selectRaw("
-                SUM(status = 'checked_in') AS checked_in,
-                SUM(status = 'waiting') AS waiting,
-                SUM(status = 'in_progress') AS in_progress,
-                SUM(status = 'completed') AS completed,
-                SUM(status = 'cancelled') AS cancelled,
-                SUM(status = 'no_show') AS no_show
-            ")->first()->toArray();
+        return Cache::remember('board:reception', 30, function () {
+            $today = today();
+            $tomorrow = today()->addDay();
 
-        $livePatients = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name'])
-            ->where('date', '>=', $today)
-            ->where('date', '<', $tomorrow)
-            ->whereIn('status', [
-                Appointment::STATUS_CHECKED_IN,
-                Appointment::STATUS_WAITING,
-                Appointment::STATUS_IN_PROGRESS,
-            ])
-            ->orderBy('time')
-            ->get();
+            $flowMonitor = Appointment::where('date', '>=', $today)
+                ->where('date', '<', $tomorrow)
+                ->selectRaw("
+                    SUM(status = 'paid') AS paid,
+                    SUM(status = 'checked_in') AS checked_in,
+                    SUM(status = 'waiting') AS waiting,
+                    SUM(status = 'in_progress') AS in_progress,
+                    SUM(status = 'completed') AS completed,
+                    SUM(status = 'cancelled') AS cancelled,
+                    SUM(status = 'no_show') AS no_show
+                ")->first()->toArray();
 
-        $html = View::make('receptionist.partials.live-patients-rows', compact('livePatients'))->render();
+            $livePatients = Appointment::with(['patient:id,name,patient_code,phone', 'doctor:id,name'])
+                ->where('date', '>=', $today)
+                ->where('date', '<', $tomorrow)
+                ->whereIn('status', [
+                    Appointment::STATUS_CHECKED_IN,
+                    Appointment::STATUS_WAITING,
+                    Appointment::STATUS_IN_PROGRESS,
+                ])
+                ->orderBy('time')
+                ->get(['id', 'patient_id', 'doctor_id', 'time', 'status', 'checked_in_at', 'started_at']);
 
-        return response()->json([
-            'flowMonitor' => $flowMonitor,
-            'html'        => $html,
-            'count'       => $livePatients->count(),
-        ]);
+            $html = View::make('receptionist.partials.live-patients-rows', compact('livePatients'))->render();
+
+            return [
+                'flowMonitor' => $flowMonitor,
+                'html'        => $html,
+                'count'       => $livePatients->count(),
+            ];
+        });
     }
 }

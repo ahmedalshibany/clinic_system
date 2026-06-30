@@ -16,11 +16,7 @@
 
         <select name="status" class="form-select" style="width: auto;" onchange="this.form.submit()">
             <option value="" {{ request('status') == '' ? 'selected' : '' }} data-i18n="allStatus">{{ __('messages.allStatus') }}</option>
-            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }} data-i18n="draft">Draft</option>
-            <option value="sent" {{ request('status') == 'sent' ? 'selected' : '' }} data-i18n="sent">Sent</option>
             <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }} data-i18n="paid">Paid</option>
-            <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }} data-i18n="partial">Partial</option>
-            <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }} data-i18n="overdue">Overdue</option>
             <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }} data-i18n="cancelled">Cancelled</option>
         </select>
 
@@ -66,16 +62,10 @@
                         <td class="text-success">{{ $currencySymbol }} {{ number_format($invoice->amount_paid, 2) }}</td>
                         <td class="text-danger fw-bold">{{ $currencySymbol }} {{ number_format($invoice->balance, 2) }}</td>
                         <td>
-                                @if($invoice->status === 'paid')
+                            @if($invoice->status === 'paid')
                                 <span class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-1 text-xs fw-semibold">{{ __('messages.invoice_paid') }}</span>
-                            @elseif($invoice->status === 'partial')
-                                <span class="badge rounded-pill bg-info bg-opacity-10 text-info px-3 py-1 text-xs fw-semibold">{{ __('messages.invoice_partial') }}</span>
-                            @elseif($invoice->status === 'draft')
-                                <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary px-3 py-1 text-xs fw-semibold">{{ __('messages.invoice_draft') }}</span>
-                            @elseif($invoice->status === 'overdue')
-                                <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger px-3 py-1 text-xs fw-semibold">{{ __('messages.invoice_overdue') }}</span>
                             @else
-                                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning px-3 py-1 text-xs fw-semibold">{{ __('messages.invoice_cancelled') }}</span>
+                                <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary px-3 py-1 text-xs fw-semibold">{{ __('messages.invoice_cancelled') }}</span>
                             @endif
                         </td>
                         <td class="pe-4">
@@ -83,11 +73,9 @@
                                 <a href="{{ route('invoices.show', $invoice) }}" class="btn btn-soft-info btn-sm" title="View" data-i18n-title="view">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                @if($invoice->status == 'draft')
                                     <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-soft-primary btn-sm" title="Edit" data-i18n-title="edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                @endif
                                 <a href="{{ route('invoices.print', $invoice) }}" target="_blank" class="btn btn-soft-secondary btn-sm" title="Print" data-i18n-title="print">
                                     <i class="fas fa-print"></i>
                                 </a>

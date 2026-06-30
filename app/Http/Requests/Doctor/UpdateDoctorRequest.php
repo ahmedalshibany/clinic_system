@@ -31,7 +31,7 @@ class UpdateDoctorRequest extends FormRequest
             'email' => 'nullable|email|max:255', 
             'bio' => 'nullable|string',
             'working_days' => 'nullable|array',
-            'working_days.*' => 'string|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+            'working_days.*' => 'string|in:0,1,2,3,4,5,6,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             'work_start_time' => 'nullable|string',
             'work_end_time' => 'nullable|string',
             'consultation_fee' => 'nullable|numeric|min:0',

@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LoginAttempt;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
-    /**
-     * Show login form.
-     */
+    const MAX_LOGIN_ATTEMPTS = 5;
+    const LOCKOUT_DURATION_MINUTES = 15;
+
     public function showLogin()
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle user login with username.
-     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -27,41 +27,63 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Find user by username
-        $user = User::where('username', $credentials['username'])->first();
+        $username = $credentials['username'];
 
-        if (!$user) {
+        $lockoutUntil = $this->isLocked($username);
+        if ($lockoutUntil) {
+            $remaining = now()->diffInMinutes($lockoutUntil, true);
             return back()->withErrors([
-                'username' => 'Invalid username or password'
+                'username' => trans('auth.throttle', [
+                    'minutes' => max(1, (int) ceil($remaining)),
+                ]),
             ])->withInput($request->only('username'));
         }
 
-        // Check if user is active
-        if (!$user->is_active) {
+        $user = User::where('username', $username)->first();
+
+        $authFailed = !$user || !$user->is_active || !Hash::check($credentials['password'], $user->password);
+
+        if ($authFailed) {
+            LoginAttempt::create([
+                'username' => $username,
+                'ip_address' => $request->ip(),
+                'success' => false,
+            ]);
+
+            Log::warning('Failed login attempt', [
+                'username' => $username,
+                'ip' => $request->ip(),
+            ]);
+
+            $lockoutUntil = $this->isLocked($username);
+            if ($lockoutUntil) {
+                $remaining = now()->diffInMinutes($lockoutUntil, true);
+                return back()->withErrors([
+                    'username' => trans('auth.throttle', [
+                        'minutes' => max(1, (int) ceil($remaining)),
+                    ]),
+                ])->withInput($request->only('username'));
+            }
+
             return back()->withErrors([
-                'username' => 'Invalid username or password'
+                'username' => trans('auth.failed'),
             ])->withInput($request->only('username'));
         }
 
-        // Verify password
-        if (!Hash::check($credentials['password'], $user->password)) {
-            return back()->withErrors([
-                'username' => 'Invalid username or password'
-            ])->withInput($request->only('username'));
-        }
+        LoginAttempt::where('username', $username)->delete();
 
-        // Login the user
         Auth::login($user, $request->boolean('remember'));
-
-        // Regenerate session
         $request->session()->regenerate();
+
+        Log::info('Successful login', [
+            'username' => $username,
+            'user_id' => $user->id,
+            'ip' => $request->ip(),
+        ]);
 
         return redirect()->intended(route('dashboard'));
     }
 
-    /**
-     * Handle user logout.
-     */
     public function logout(Request $request)
     {
         Auth::logout();
@@ -70,5 +92,27 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    private function isLocked(string $username): ?Carbon
+    {
+        $cutoff = now()->subMinutes(self::LOCKOUT_DURATION_MINUTES);
+
+        $recentFailures = LoginAttempt::where('username', $username)
+            ->where('success', false)
+            ->where('created_at', '>=', $cutoff)
+            ->count();
+
+        if ($recentFailures >= self::MAX_LOGIN_ATTEMPTS) {
+            $oldest = LoginAttempt::where('username', $username)
+                ->where('success', false)
+                ->where('created_at', '>=', $cutoff)
+                ->orderBy('created_at', 'asc')
+                ->value('created_at');
+
+            return $oldest->copy()->addMinutes(self::LOCKOUT_DURATION_MINUTES);
+        }
+
+        return null;
     }
 }

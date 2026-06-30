@@ -136,7 +136,7 @@
                                                 <td>{{ $appt->patient->name }}</td>
                                                 <td>
                                                     <span class="badge bg-{{ $appt->status == 'completed' ? 'success' : ($appt->status == 'confirmed' ? 'primary' : 'secondary') }}">
-                                                        {{ ucfirst($appt->status) }}
+                                                        {{ __("messages.{$appt->status}") }}
                                                     </span>
                                                 </td>
                                             </tr>

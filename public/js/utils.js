@@ -1,7 +1,15 @@
 class Utils {
+    static t(key) {
+        const lang = (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
+        if (typeof translations !== 'undefined' && translations[lang] && translations[lang][key]) {
+            return translations[lang][key];
+        }
+        return key;
+    }
+
     static exportToCSV(data, filename = 'export.csv') {
         if (!data || data.length === 0) {
-            toast.warning('No data to export');
+            toast.warning(Utils.t('noDataExport'));
             return;
         }
 
@@ -22,7 +30,7 @@ class Utils {
 
     static exportToJSON(data, filename = 'export.json') {
         if (!data) {
-            toast.warning('No data to export');
+            toast.warning(Utils.t('noDataExport'));
             return;
         }
 
@@ -43,7 +51,7 @@ class Utils {
         link.remove();
         URL.revokeObjectURL(url);
 
-        toast.success(`File downloaded: ${filename}`);
+        toast.success(`${Utils.t('fileDownloaded')}: ${filename}`);
     }
 
     static validatePhone(phone) {
@@ -88,7 +96,7 @@ class Utils {
         const spinner = $(`
             <div class="loading-overlay">
                 <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden">${Utils.t('loading')}</span>
                 </div>
             </div>
         `);

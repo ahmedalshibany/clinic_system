@@ -124,7 +124,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label">{{ __('messages.time') }}</label>
-                            <input type="hidden" name="time" id="time" value="{{ old('time', $appointment->time) }}">
+                            <input type="hidden" name="time" id="time" value="{{ old('time', $appointment->time->format('H:i')) }}">
                             <div id="slot-container" class="slot-grid">
                                 <div class="slot-placeholder" id="slot-placeholder">{{ __('messages.selectSlot') }}</div>
                             </div>
@@ -137,11 +137,14 @@
                     <div class="row g-4 mt-2">
                         <div class="col-md-6">
                             <label for="status" class="form-label">{{ __('messages.status') }}</label>
+                            @php
+                                $legalStatuses = \App\Models\Appointment::ALLOWED_TRANSITIONS[$appointment->status] ?? [];
+                                $legalStatuses[] = $appointment->status;
+                            @endphp
                             <select name="status" id="status" class="form-select @error('status') is-invalid @enderror" required>
-                                <option value="pending" {{ old('status', $appointment->status) == 'pending' ? 'selected' : '' }}>{{ __('messages.pending') }}</option>
-                                <option value="confirmed" {{ old('status', $appointment->status) == 'confirmed' ? 'selected' : '' }}>{{ __('messages.confirmed') }}</option>
-                                <option value="completed" {{ old('status', $appointment->status) == 'completed' ? 'selected' : '' }}>{{ __('messages.completed') }}</option>
-                                <option value="cancelled" {{ old('status', $appointment->status) == 'cancelled' ? 'selected' : '' }}>{{ __('messages.cancelled') }}</option>
+                                @foreach($legalStatuses as $s)
+                                <option value="{{ $s }}" {{ old('status', $appointment->status) == $s ? 'selected' : '' }}>{{ __("messages.$s") }}</option>
+                                @endforeach
                             </select>
                             @error('status')
                                 <div class="invalid-feedback">{{ $message }}</div>

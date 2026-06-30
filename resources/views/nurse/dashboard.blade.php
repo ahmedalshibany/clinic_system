@@ -258,15 +258,33 @@
                                     <td>
                                         @if($appt->status === 'checked_in')
                                         <span class="badge bg-success">{{ __('messages.checked_in') }}</span>
-                                        @else
-                                        <span class="badge bg-info">{{ __('messages.confirmed') }}</span>
+                                        @elseif($appt->status === 'paid')
+                                        <span class="badge bg-info">{{ __('messages.paid') }}</span>
                                         @endif
                                     </td>
                                     <td class="pe-4 text-center">
+                                        @if($appt->status === 'paid')
+                                        <div class="d-flex gap-1 justify-content-center">
+                                        <form action="{{ route('nurse.check-in', $appt->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="mat-btn mat-btn-primary">
+                                                <i class="fas fa-check-circle"></i>
+                                                <span data-i18n="checkIn">{{ __('messages.checkIn') }}</span>
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('nurse.no-show', $appt->id) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('messages.confirmNoShow') }}')">
+                                            @csrf
+                                            <button type="submit" class="mat-btn mat-btn-ghost" title="{{ __('messages.no_show') }}">
+                                                <i class="fas fa-user-slash"></i>
+                                            </button>
+                                        </form>
+                                        </div>
+                                        @else
                                         <button type="button" class="mat-btn mat-btn-primary record-vitals-btn" data-appointment-id="{{ $appt->id }}" data-patient="{{ $appt->patient->name }}">
                                             <i class="fas fa-heartbeat"></i>
                                             <span data-i18n="recordVitals">{{ __('messages.recordVitals') }}</span>
                                         </button>
+                                        @endif
                                     </td>
                                 </tr>
                                 @empty
@@ -336,7 +354,7 @@
                                 <input type="number" id="oxygen_saturation" name="oxygen_saturation" min="50" max="100" placeholder="98" class="vital-input">
                             </div>
                             <div class="col-md-4">
-                                <label class="vital-label">BMI</label>
+                                <label class="vital-label">{{ __('messages.doctor_bmi') }}</label>
                                 <div id="bmiDisplay" class="vital-input" style="background: var(--panel-bg); color: var(--text-muted); line-height: 2.2; cursor: default; border-style: dashed;">--</div>
                             </div>
                         </div>
@@ -351,6 +369,46 @@
                             <button type="submit" class="mat-btn mat-btn-primary"><i class="fas fa-check-circle me-1"></i>{{ __('messages.approveAndSend') }}</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ─── CARD: Vitals Requests (vitals_unlocked) ─── --}}
+    <div class="row g-3 mb-4">
+        <div class="col-12">
+            <div class="card border-0 card-border-flat stat-card">
+                <div class="card-header d-flex justify-content-between align-items-center py-3 px-4" style="background: var(--white); border-bottom: 1px solid var(--border-hairline);">
+                    <h5 class="mb-0 fw-semibold d-flex align-items-center gap-2" style="font-size: var(--text-lg); color: var(--dark);">
+                        <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: rgba(220,53,69,0.10); border-radius: var(--radius-sm);">
+                            <i class="fas fa-heartbeat" style="font-size: 0.9rem; color: var(--danger);"></i>
+                        </span>
+                        <span>{{ __('messages.vitalsRequests') }}</span>
+                    </h5>
+                    <span class="badge" style="background: var(--danger); color: #fff; font-weight: 600;" id="vitalsBadge">0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0" id="vitalsTable" style="font-size: var(--text-sm);">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4" data-i18n="time">{{ __('messages.time') }}</th>
+                                    <th data-i18n="patientName">{{ __('messages.patientName') }}</th>
+                                    <th data-i18n="doctors">{{ __('messages.doctors') }}</th>
+                                    <th data-i18n="status">{{ __('messages.status') }}</th>
+                                    <th class="pe-4 text-center" style="width: 180px;" data-i18n="action">{{ __('messages.action') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vitalsQueueRows">
+                                <tr id="vitalsEmptyRow">
+                                    <td colspan="5" class="text-center py-5">
+                                        <i class="fas fa-inbox d-block mb-2 empty-icon" style="font-size: 2rem;"></i>
+                                        <span class="text-muted">{{ __('messages.noVitalsRequests') }}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -479,11 +537,13 @@
         .then(function(d) {
             render('triageQueueRows', d.triageQueue, true);
             render('waitingListRows', d.waitingList, false);
+            renderVitals(d.vitalsQueue || []);
             document.getElementById('triageBadge').textContent = d.triageCount;
             document.getElementById('waitingBadge').textContent = d.waitingCount;
+            document.getElementById('vitalsBadge').textContent = d.vitalsCount || 0;
             document.getElementById('statTriageCount').textContent = d.triageCount;
             document.getElementById('statWaitingCount').textContent = d.waitingCount;
-            document.getElementById('statTotalToday').textContent = d.triageCount + d.waitingCount;
+            document.getElementById('statTotalToday').textContent = d.triageCount + d.waitingCount + (d.vitalsCount || 0);
             document.getElementById('lastUpdated').textContent = new Date().toTimeString().slice(0,5);
         }).catch(function() {})
         .finally(function() { isFetching = false; });
@@ -500,11 +560,29 @@
         items.forEach(function(a) {
             var s = a.status === 'checked_in'
                 ? '<span class="badge bg-success">{{ __("messages.checked_in") }}</span>'
-                : '<span class="badge bg-info">{{ __("messages.confirmed") }}</span>';
+                : '<span class="badge bg-info">{{ __("messages.paid") }}</span>';
             var r = act
-                ? '<button type="button" class="mat-btn mat-btn-primary record-vitals-btn" data-appointment-id="' + a.id + '" data-patient="' + esc(a.patient_name) + '"><i class="fas fa-heartbeat"></i> {{ __("messages.recordVitals") }}</button>'
+                ? (a.status === 'paid'
+                    ? '<div class="d-flex gap-1 justify-content-center"><form action="{{ url("appointments") }}/' + a.id + '/nurse-check-in" method="POST" class="d-inline"><input type="hidden" name="_token" value="{{ csrf_token() }}"><button type="submit" class="mat-btn mat-btn-primary"><i class="fas fa-check-circle"></i> {{ __("messages.checkIn") }}</button></form><form action="{{ url("appointments") }}/' + a.id + '/nurse-no-show" method="POST" class="d-inline"><input type="hidden" name="_token" value="{{ csrf_token() }}"><button type="submit" class="mat-btn mat-btn-ghost" onclick="return confirm(\'{{ __("messages.confirmNoShow") }}\')"><i class="fas fa-user-slash"></i></button></form></div>'
+                    : '<button type="button" class="mat-btn mat-btn-primary record-vitals-btn" data-appointment-id="' + a.id + '" data-patient="' + esc(a.patient_name) + '"><i class="fas fa-heartbeat"></i> {{ __("messages.recordVitals") }}</button>')
                 : '<span class="badge bg-warning">{{ __("messages.waiting") }}</span>';
             h += '<tr><td class="ps-4 text-nowrap" style="color: var(--text-secondary);">' + a.time + '</td><td class="fw-semibold" style="color: var(--dark);">' + esc(a.patient_name) + '</td><td style="color: var(--text-secondary);">' + esc(a.doctor_name) + '</td><td>' + s + '</td>' + (act ? '<td class="pe-4 text-center">' + r + '</td>' : '<td class="pe-4">' + r + '</td>') + '</tr>';
+        });
+        tbody.innerHTML = h;
+    }
+    function renderVitals(items) {
+        var tbody = document.getElementById('vitalsQueueRows');
+        if (!items || !items.length) {
+            tbody.innerHTML = '<tr id="vitalsEmptyRow"><td colspan="5" class="text-center py-5"><i class="fas fa-inbox d-block mb-2 empty-icon" style="font-size: 2rem;"></i><span class="text-muted">{{ __("messages.noVitalsRequests") }}</span></td></tr>';
+            return;
+        }
+        var h = '';
+        items.forEach(function(a) {
+            var s = a.status === 'in_progress'
+                ? '<span class="badge bg-primary">{{ __("messages.in_progress") }}</span>'
+                : '<span class="badge bg-warning">{{ __("messages.waiting") }}</span>';
+            var r = '<button type="button" class="mat-btn mat-btn-primary record-vitals-btn" data-appointment-id="' + a.id + '" data-patient="' + esc(a.patient_name) + '"><i class="fas fa-heartbeat"></i> {{ __("messages.recordVitals") }}</button>';
+            h += '<tr><td class="ps-4 text-nowrap" style="color: var(--text-secondary);">' + a.time + '</td><td class="fw-semibold" style="color: var(--dark);">' + esc(a.patient_name) + '</td><td style="color: var(--text-secondary);">' + esc(a.doctor_name) + '</td><td>' + s + '</td><td class="pe-4 text-center">' + r + '</td></tr>';
         });
         tbody.innerHTML = h;
     }
@@ -512,6 +590,7 @@
 
     window.refreshTriageBoard = refreshQueue;
 
+    refreshQueue();
     poll = setInterval(refreshQueue, 15000);
     window.nursePollInterval = poll;
     window.addEventListener('beforeunload', function() { if (poll) clearInterval(poll); });

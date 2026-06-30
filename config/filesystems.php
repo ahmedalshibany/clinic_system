@@ -47,6 +47,13 @@ return [
             'report' => false,
         ],
 
+        'secure_uploads' => [
+            'driver' => 'local',
+            'root' => storage_path('app/secure_uploads'),
+            'throw' => true,
+            'report' => true,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

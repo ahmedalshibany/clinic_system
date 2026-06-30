@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LoginAttempt;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
@@ -12,17 +14,24 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class UserController extends Controller
 {
     use AuthorizesRequests;
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
         $this->authorize('viewAny', User::class);
 
         $users = User::paginate(10);
 
+        // Determine which users are currently locked out
+        $cutoff = Carbon::now()->subMinutes(15);
+        $lockedUsernames = LoginAttempt::where('success', false)
+            ->where('created_at', '>=', $cutoff)
+            ->select('username')
+            ->distinct()
+            ->pluck('username')
+            ->toArray();
+
         if (view()->exists('users.index')) {
-            return view('users.index', compact('users'));
+            return view('users.index', compact('users', 'lockedUsernames'));
         }
         return response()->json($users);
     }
@@ -134,5 +143,14 @@ class UserController extends Controller
         ]);
 
         return redirect()->back()->with('success', __('messages.user_password_reset_success'));
+    }
+
+    public function unlock(User $user)
+    {
+        $this->authorize('unlock', $user);
+
+        LoginAttempt::where('username', $user->username)->delete();
+
+        return redirect()->back()->with('success', __('messages.user_unlocked'));
     }
 }

@@ -92,8 +92,8 @@ class DashboardApiController extends Controller
 
         $data = $appointments->map(fn($appt) => [
             'id' => $appt->id,
-            'patientName' => $appt->patient?->name ?? __('Unknown'),
-            'doctorName' => $appt->doctor?->name ?? __('Unknown'),
+            'patientName' => $appt->patient?->name ?? __('messages.unknown'),
+            'doctorName' => $appt->doctor?->name ?? __('messages.unknown'),
             'date' => \Carbon\Carbon::parse($appt->date)->format('M d'),
             'time' => \Carbon\Carbon::parse($appt->time)->format('H:i'),
             'status' => $appt->status,
@@ -123,7 +123,7 @@ class DashboardApiController extends Controller
         $user = Auth::user();
 
         if (!$user || in_array($user->role, ['receptionist', 'nurse'])) {
-            abort(403, 'Unauthorized access to dashboard metrics.');
+            abort(403, __('messages.unauthorized'));
         }
     }
 }

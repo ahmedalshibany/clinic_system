@@ -391,8 +391,7 @@
                                     @php
                                         $badgeClass = 'badge-dv-pending';
                                         $statusKey = 'messages.pending';
-                                        if ($appt->status === 'confirmed') { $badgeClass = 'badge-dv-confirmed'; $statusKey = 'messages.confirmed'; }
-                                        elseif ($appt->status === 'scheduled') { $badgeClass = 'badge-dv-scheduled'; $statusKey = 'messages.scheduled'; }
+                                        if ($appt->status === 'paid') { $badgeClass = 'badge-dv-confirmed'; $statusKey = 'messages.paid'; }
                                     @endphp
                                     <span class="badge-dv {{ $badgeClass }}">
                                         <i class="fas fa-circle" style="font-size: 5px;"></i>
@@ -401,23 +400,26 @@
                                 </td>
                                 <td class="text-center" style="white-space: nowrap;">
                                     <div class="d-flex flex-row align-items-center justify-content-center flex-nowrap gap-2" style="min-width: 320px;">
-                                        <form action="{{ route('receptionist.check-in', $appt->id) }}" method="POST" class="d-inline js-check-in-form">
+                                        @if($appt->status === 'pending')
+                                        <form action="{{ route('receptionist.pay', $appt->id) }}" method="POST" class="d-inline">
                                             @csrf
-                                            <button type="submit" class="dv-btn-primary" title="{{ __('messages.checkIn') }}" style="white-space: nowrap;">
-                                                <i class="fas fa-check-circle"></i>
-                                                <span>{{ __('messages.checkIn') }}</span>
+                                            <input type="hidden" name="amount" value="{{ $appt->fee ?? $appt->doctor?->consultation_fee ?? 0 }}">
+                                            <input type="hidden" name="method" value="cash">
+                                            <button type="submit" class="dv-btn-primary" title="{{ __('messages.takePayment') }}" style="white-space: nowrap;">
+                                                <i class="fas fa-credit-card"></i>
+                                                <span>{{ __('messages.takePayment') }}</span>
                                             </button>
                                         </form>
+                                        @else
+                                        <span class="badge-dv badge-dv-checkedin px-3 py-2">
+                                            <i class="fas fa-check-circle"></i>
+                                            {{ __('messages.paidAndReady') }}
+                                        </span>
+                                        @endif
                                         <a href="{{ route('appointments.edit', $appt->id) }}" class="dv-btn-subtle" title="{{ __('messages.editAppt') }}" style="white-space: nowrap;">
                                             <i class="fas fa-edit"></i>
                                             <span>{{ __('messages.editAppt') }}</span>
                                         </a>
-                                        @if(in_array($appt->status, ['checked_in', 'completed']))
-                                        <a href="{{ route('invoices.create-from-appointment', $appt->id) }}" class="dv-btn-subtle" title="{{ __('messages.createInvoice') }}" style="white-space: nowrap;">
-                                            <i class="fas fa-file-invoice-dollar"></i>
-                                            <span>{{ __('messages.createInvoice') }}</span>
-                                        </a>
-                                        @endif
                                         <form action="{{ route('receptionist.no-show', $appt->id) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('messages.confirmNoShow') }}')">
                                             @csrf
                                             <button type="submit" class="dv-btn-icon" title="{{ __('messages.no_show') }}">
@@ -461,7 +463,16 @@
             </div>
             <div class="recep-card-body" style="padding: var(--space-xl);">
                 <div class="row g-3">
-                    <div class="col-6">
+                    <div class="col-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="flow-icon flow-icon-checkedin"><i class="fas fa-credit-card"></i></div>
+                            <div>
+                                <div class="flow-label">{{ __('messages.paid') }}</div>
+                                <div class="flow-value" id="flow-paid">{{ $flowMonitor['paid'] }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
                         <div class="d-flex align-items-center gap-3">
                             <div class="flow-icon flow-icon-checkedin"><i class="fas fa-user-check"></i></div>
                             <div>
@@ -470,7 +481,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-4">
                         <div class="d-flex align-items-center gap-3">
                             <div class="flow-icon flow-icon-waiting"><i class="fas fa-chair"></i></div>
                             <div>
@@ -479,7 +490,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-4">
                         <div class="d-flex align-items-center gap-3">
                             <div class="flow-icon flow-icon-progress"><i class="fas fa-stethoscope"></i></div>
                             <div>
@@ -488,7 +499,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-4">
                         <div class="d-flex align-items-center gap-3">
                             <div class="flow-icon flow-icon-completed"><i class="fas fa-check-double"></i></div>
                             <div>
@@ -512,7 +523,7 @@
             </div>
             <div class="flow-sub-item">
                 <div class="flow-sub-label">{{ __('messages.pending') }}</div>
-                <div class="flow-sub-value pending">{{ count($triageBoard) }}</div>
+                <div class="flow-sub-value pending">{{ $flowMonitor['paid'] + $flowMonitor['checked_in'] + $flowMonitor['waiting'] }}</div>
             </div>
         </div>
     </div>
@@ -611,6 +622,7 @@
 <script>
 window.refreshReceptionBoard = function() {
     $.getJSON("{{ route('receptionist.board-data') }}", function(resp) {
+        $('#flow-paid').text(resp.flowMonitor.paid);
         $('#flow-checked-in').text(resp.flowMonitor.checked_in);
         $('#flow-waiting').text(resp.flowMonitor.waiting);
         $('#flow-in-progress').text(resp.flowMonitor.in_progress);
@@ -646,11 +658,6 @@ $(function() {
                     row.classList.add('row-fadeout');
                     row.style.opacity = '0';
                     row.style.transform = 'translateX(-20px)';
-
-                    var checkedInEl = document.getElementById('flow-checked-in');
-                    if (checkedInEl) {
-                        checkedInEl.textContent = parseInt(checkedInEl.textContent) + 1;
-                    }
 
                     setTimeout(function() {
                         row.remove();

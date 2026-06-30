@@ -19,7 +19,7 @@ class UpdateAppointmentRequest extends FormRequest
             'date' => 'required|date',
             'time' => 'required|string',
             'type' => 'required|in:Consultation,Checkup,Follow-up,Emergency',
-            'status' => 'required|in:scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show,checked_in',
+            'status' => 'required|in:pending,paid,scheduled,confirmed,waiting,in_progress,completed,cancelled,no_show,checked_in',
             'notes' => 'nullable|string',
             'diagnosis' => 'nullable|string',
             'prescription' => 'nullable|string',

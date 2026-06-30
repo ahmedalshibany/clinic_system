@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Users')
-@section('page-title', 'Users')
+@section('title', __('messages.users'))
+@section('page-title', __('messages.users'))
 @section('page-i18n', 'users')
 
 @section('content')
@@ -55,14 +55,22 @@
                             </td>
                             <td class="pe-4">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ route('users.edit', $user) }}" class="btn btn-soft-primary btn-sm" title="Edit">
+                                    @if(in_array($user->username, $lockedUsernames ?? []))
+                                    <form action="{{ route('users.unlock', $user) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-soft-warning btn-sm" title="{{ __('messages.unlock') }}">
+                                            <i class="fas fa-lock-open"></i>
+                                        </button>
+                                    </form>
+                                    @endif
+                                    <a href="{{ route('users.edit', $user) }}" class="btn btn-soft-primary btn-sm" title="{{ __('messages.edit') }}">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     @if(auth()->id() !== $user->id)
                                     <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm(window.translations[document.documentElement.lang || 'en'].confirmDeleteUser)">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-soft-danger btn-sm" title="Delete">
+                                        <button type="submit" class="btn btn-soft-danger btn-sm" title="{{ __('messages.delete') }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>

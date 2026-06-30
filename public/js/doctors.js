@@ -16,6 +16,18 @@ if (typeof DoctorsManager === 'undefined') {
             this.isLoading = false;
         }
 
+        getLang() {
+            return (typeof app !== 'undefined' && app.lang) ? app.lang : 'en';
+        }
+
+        t(key) {
+            const lang = this.getLang();
+            if (typeof translations !== 'undefined' && translations[lang] && translations[lang][key]) {
+                return translations[lang][key];
+            }
+            return key;
+        }
+
         async init() {
             await this.loadDoctors();
             this.bindEvents();
@@ -58,7 +70,7 @@ if (typeof DoctorsManager === 'undefined') {
                 this.render();
             } catch (error) {
                 console.error('Error loading doctors:', error);
-                this.showError('Failed to load doctors');
+                this.showError(this.t('failedLoadDoctors'));
             } finally {
                 this.isLoading = false;
             }
@@ -86,13 +98,13 @@ if (typeof DoctorsManager === 'undefined') {
                 const emptyMessage = this.searchTerm
                     ? `<div class="empty-state col-12">
                         <i class="fas fa-search"></i>
-                        <h5>No results found</h5>
-                        <p>Try adjusting your search term</p>
+                        <h5>${this.t('noResultsFound')}</h5>
+                        <p>${this.t('tryAdjustSearch')}</p>
                        </div>`
                     : `<div class="empty-state col-12">
                         <i class="fas fa-user-md"></i>
-                        <h5 data-i18n="noDoctors">No doctors yet</h5>
-                        <p>Click "Add Doctor" to get started!</p>
+                        <h5 data-i18n="noDoctors">${this.t('noDoctorsYet')}</h5>
+                        <p>${this.t('addDoctorPrompt')}</p>
                        </div>`;
 
                 $grid.html(emptyMessage);
@@ -171,7 +183,7 @@ if (typeof DoctorsManager === 'undefined') {
                 }));
                 Utils.exportToCSV(data, 'doctors.csv');
             } catch (error) {
-                this.showError('Failed to export data');
+                this.showError(this.t('failedExport'));
             }
         }
 
@@ -180,7 +192,7 @@ if (typeof DoctorsManager === 'undefined') {
                 const response = await API.doctors.getAll({ per_page: 1000 });
                 Utils.exportToJSON(response.data, 'doctors.json');
             } catch (error) {
-                this.showError('Failed to export data');
+                this.showError(this.t('failedExport'));
             }
         }
 

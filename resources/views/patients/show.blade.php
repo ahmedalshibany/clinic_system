@@ -210,12 +210,12 @@
                 @elseif($patient->status === 'inactive')
                     <span class="badge bg-warning" data-i18n="inactive">{{ __('messages.inactive') }}</span>
                 @else
-                    <span class="badge bg-secondary" data-i18n="unknown">{{ ucfirst($patient->status ?? __('messages.unknown')) }}</span>
+                    <span class="badge bg-secondary" data-i18n="unknown">{{ $patient->status ? __('messages.' . $patient->status) : __('messages.unknown') }}</span>
                 @endif
             </div>
             <div class="patient-badges">
                 <span class="badge" style="color: rgba(255, 255, 255, 0.75) !important;"><i class="fas fa-birthday-cake me-1"></i>{{ $patient->age ?? $patient->calculated_age ?? '-' }} {{ __('messages.yearsShort') }}</span>
-                <span class="badge" style="color: rgba(255, 255, 255, 0.75) !important;"><i class="fas fa-venus-mars me-1"></i>{{ ucfirst($patient->gender) }}</span>
+                <span class="badge" style="color: rgba(255, 255, 255, 0.75) !important;"><i class="fas fa-venus-mars me-1"></i>{{ $patient->gender ? __('messages.' . $patient->gender) : '' }}</span>
                 @if($patient->blood_type)
                     <span class="badge bg-danger"><i class="fas fa-tint me-1"></i>{{ $patient->blood_type }}</span>
                 @endif
@@ -368,7 +368,7 @@
                             <div>
                                 <div class="info-card">
                                     <h6 data-i18n="maritalStatus">{{ __('messages.maritalStatus') }}</h6>
-                                    <p>{{ ucfirst($patient->marital_status ?? '-') }}</p>
+                                    <p>{{ $patient->marital_status ? __('messages.' . $patient->marital_status) : '-' }}</p>
                                 </div>
                             </div>
                             <div style="grid-column: 1 / -1;">
@@ -481,7 +481,7 @@
                                     <td>{{ \Carbon\Carbon::parse($appointment->date)->format('M d, Y') }}</td>
                                     <td>{{ \Carbon\Carbon::parse($appointment->time)->format('h:i A') }}</td>
                                     <td>{{ $appointment->doctor->name ?? '-' }}</td>
-                                    <td><span class="badge bg-secondary">{{ ucfirst($appointment->type) }}</span></td>
+                                    <td><span class="badge bg-secondary">{{ __("messages.type{$appointment->type}") }}</span></td>
                                     <td>
                                         @php
                                             $statusColors = [
@@ -492,7 +492,7 @@
                                             ];
                                         @endphp
                                         <span class="badge bg-{{ $statusColors[$appointment->status] ?? 'secondary' }}">
-                                            {{ ucfirst($appointment->status) }}
+                                            {{ __("messages.{$appointment->status}") }}
                                         </span>
                                     </td>
                                     <td>
@@ -653,17 +653,7 @@
                                         <td class="fw-bold">{{ $invoice->invoice_number }}</td>
                                         <td>{{ $invoice->created_at->format('M d, Y') }}</td>
                                         <td>
-                                            @php
-                                                $statusClass = match($invoice->status) {
-                                                    'paid' => 'success',
-                                                    'partial' => 'info',
-                                                    'draft' => 'secondary',
-                                                    'cancelled' => 'danger',
-                                                    'overdue' => 'warning',
-                                                    default => 'primary'
-                                                };
-                                            @endphp
-                                            <span class="badge bg-{{ $statusClass }}">{{ ucfirst($invoice->status) }}</span>
+                                            <span class="badge bg-{{ $invoice->status === 'paid' ? 'success' : 'secondary' }}">{{ __("messages.{$invoice->status}") }}</span>
                                         </td>
                                         <td>${{ number_format($invoice->total, 2) }}</td>
                                         <td class="text-success">${{ number_format($invoice->amount_paid, 2) }}</td>

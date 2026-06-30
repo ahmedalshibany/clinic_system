@@ -149,7 +149,7 @@ $invoiceRequest = Request::create(route('invoices.store'), 'POST', [
     'patient_id' => $patient->id,
     'appointment_id' => $appt->id,
     'due_date' => now()->addDays(30)->toDateString(),
-    'status' => 'sent',
+    'status' => 'cancelled',
     'notes' => null,
     'items' => [
         [

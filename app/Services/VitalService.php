@@ -15,6 +15,7 @@ class VitalService
     public function recordVitals(Appointment $appointment, array $data): Vital
     {
         return DB::transaction(function () use ($appointment, $data) {
+            $appointment->loadMissing(['patient:id,name', 'doctor:id,name']);
             $vital = Vital::create([
                 'appointment_id' => $appointment->id,
                 'created_by' => Auth::id(),
@@ -29,23 +30,19 @@ class VitalService
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            $appointment->assertLegalTransition(Appointment::STATUS_WAITING);
-
-            $appointmentUpdate = [];
-            $appointmentUpdate['status'] = Appointment::STATUS_WAITING;
-            if ($appointment->vitals_unlocked) {
-                $appointmentUpdate['vitals_unlocked'] = false;
-            }
-            if (!empty($appointmentUpdate)) {
-                $appointment->update($appointmentUpdate);
+            if ($appointment->vitals_unlocked && $appointment->status === 'in_progress') {
+                $appointment->update(['vitals_unlocked' => false]);
+            } else {
+                $appointment->assertLegalTransition('waiting');
+                $appointment->update(['status' => 'waiting', 'vitals_unlocked' => false]);
             }
 
             try {
                 app(NotificationService::class)->notifyDoctor(
                     $appointment->doctor,
                     'appointment',
-                    'Patient Ready 🩺',
-                    $appointment->patient->name . ' has completed triage and is ready for you.',
+                    __('messages.notification.title_patient_ready'),
+                    __('messages.notification.message_patient_ready', ['name' => $appointment->patient->name]),
                     [
                         'appointment_id' => $appointment->id,
                         'vital_id' => $vital->id,
@@ -60,8 +57,8 @@ class VitalService
             try {
                 app(NotificationService::class)->notifyReceptionists(
                     'appointment',
-                    'Patient Ready',
-                    $appointment->patient->name . ' has completed vitals and is waiting for the doctor.',
+                    __('messages.notification.title_patient_ready'),
+                    __('messages.notification.message_patient_ready', ['name' => $appointment->patient->name]),
                     [
                         'appointment_id' => $appointment->id,
                         'name' => $appointment->patient->name,

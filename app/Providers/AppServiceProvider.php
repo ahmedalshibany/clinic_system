@@ -4,7 +4,10 @@ namespace App\Providers;
 
 use App\Events\PaymentCreated;
 use App\Listeners\RecalculateInvoiceStatus;
+use App\Models\Appointment;
+use App\Models\MedicalRecord;
 use App\Models\Setting;
+use App\Observers\AppointmentObserver;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
@@ -19,7 +22,34 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Event::listen(PaymentCreated::class, RecalculateInvoiceStatus::class);
+        if (!extension_loaded('bcmath')) {
+            throw new \RuntimeException(
+                'The BCMath PHP extension is required for financial calculations. ' .
+                'Please install it: https://www.php.net/manual/en/book.bc.php'
+            );
+        }
+
+        Appointment::observe(AppointmentObserver::class);
+
+        Appointment::deleting(function (Appointment $appointment) {
+            if ($appointment->isForceDeleting()) {
+                return;
+            }
+            $appointment->vital()->delete();
+            if ($appointment->medicalRecord) {
+                $appointment->medicalRecord->delete();
+            }
+        });
+
+        MedicalRecord::deleting(function (MedicalRecord $record) {
+            if ($record->isForceDeleting()) {
+                return;
+            }
+            if ($record->prescription) {
+                $record->prescription->items()->delete();
+                $record->prescription->delete();
+            }
+        });
 
         Paginator::useBootstrapFive();
 

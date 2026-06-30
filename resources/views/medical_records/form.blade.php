@@ -29,7 +29,7 @@
 
                 <div class="mb-2">
                     <label class="small text-muted d-block">Age / Gender</label>
-                    <span class="fw-medium">{{ $patient->age }} Years / {{ ucfirst($patient->gender) }}</span>
+                    <span class="fw-medium">{{ $patient->age }} {{ __('messages.yearsShort') }} / {{ $patient->gender ? __('messages.' . $patient->gender) : '' }}</span>
                 </div>
                 <div class="mb-2">
                     <label class="small text-muted d-block">Blood Type</label>

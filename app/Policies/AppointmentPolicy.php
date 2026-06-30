@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Appointment;
+use App\Models\Doctor;
 
 class AppointmentPolicy
 {
@@ -14,7 +15,16 @@ class AppointmentPolicy
 
     public function view(User $user, Appointment $appointment): bool
     {
-        return in_array($user->role, ['admin', 'doctor', 'receptionist', 'nurse']);
+        if (in_array($user->role, ['admin', 'receptionist', 'nurse'])) {
+            return true;
+        }
+
+        if ($user->isDoctor()) {
+            $doctor = Doctor::where('user_id', $user->id)->first();
+            return $doctor && $appointment->doctor_id === $doctor->id;
+        }
+
+        return false;
     }
 
     public function create(User $user): bool
@@ -37,11 +47,16 @@ class AppointmentPolicy
         return in_array($user->role, ['admin', 'receptionist', 'nurse']);
     }
 
+    public function pay(User $user, Appointment $appointment): bool
+    {
+        return in_array($user->role, ['admin', 'receptionist']);
+    }
+
     public function startVisit(User $user, Appointment $appointment): bool
     {
         if ($user->role === 'admin') return true;
         if ($user->role === 'doctor') {
-            $doctor = \App\Models\Doctor::where('user_id', $user->id)->first();
+            $doctor = Doctor::where('user_id', $user->id)->first();
             return $doctor && $appointment->doctor_id === $doctor->id;
         }
         return false;
@@ -51,7 +66,7 @@ class AppointmentPolicy
     {
         if ($user->role === 'admin') return true;
         if ($user->role === 'doctor') {
-            $doctor = \App\Models\Doctor::where('user_id', $user->id)->first();
+            $doctor = Doctor::where('user_id', $user->id)->first();
             return $doctor && $appointment->doctor_id === $doctor->id;
         }
         return false;
@@ -59,7 +74,27 @@ class AppointmentPolicy
 
     public function markNoShow(User $user, Appointment $appointment): bool
     {
-        return in_array($user->role, ['admin', 'receptionist']);
+        return in_array($user->role, ['admin', 'receptionist', 'nurse']);
+    }
+
+    public function requestVitals(User $user, Appointment $appointment): bool
+    {
+        if ($user->role === 'admin') return true;
+        if ($user->role === 'doctor') {
+            $doctor = Doctor::where('user_id', $user->id)->first();
+            return $doctor && $appointment->doctor_id === $doctor->id;
+        }
+        return false;
+    }
+
+    public function directToRoom(User $user, Appointment $appointment): bool
+    {
+        if ($user->role === 'admin') return true;
+        if ($user->role === 'doctor') {
+            $doctor = Doctor::where('user_id', $user->id)->first();
+            return $doctor && $appointment->doctor_id === $doctor->id;
+        }
+        return false;
     }
 
     public function reopenVitals(User $user): bool

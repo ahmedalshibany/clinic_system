@@ -17,7 +17,7 @@ use App\Http\Controllers\UserController;
 // Guest routes (login page)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:30,1')->name('auth.attempt');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('auth.attempt');
 });
 
 // Root redirect to dashboard
@@ -56,7 +56,7 @@ Route::middleware('auth')->group(function () {
 
     // Receptionist-specific dashboard and actions
     Route::middleware('role:receptionist,admin')->prefix('receptionist')->name('receptionist.')->group(function () {
-        Route::post('/appointments/{appointment}/check-in', [App\Http\Controllers\ReceptionistController::class, 'checkIn'])->name('check-in');
+        Route::post('/appointments/{appointment}/pay', [App\Http\Controllers\ReceptionistController::class, 'pay'])->name('pay');
         Route::post('/appointments/{appointment}/no-show', [App\Http\Controllers\ReceptionistController::class, 'markNoShow'])->name('no-show');
         Route::get('/board-data', [App\Http\Controllers\ReceptionistController::class, 'boardData'])->name('board-data');
     });
@@ -66,6 +66,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/appointments/{appointment}', [\App\Http\Controllers\DoctorDashboardController::class, 'showAppointment'])->name('appointments.show');
         Route::post('/appointments/{appointment}/start', [\App\Http\Controllers\DoctorDashboardController::class, 'startVisit'])->name('appointments.start');
         Route::post('/appointments/{appointment}/complete', [\App\Http\Controllers\DoctorDashboardController::class, 'complete'])->name('appointments.complete');
+        Route::post('/appointments/{appointment}/request-vitals', [\App\Http\Controllers\DoctorDashboardController::class, 'requestVitals'])->name('appointments.request-vitals');
+        Route::post('/appointments/{appointment}/direct-to-room', [\App\Http\Controllers\DoctorDashboardController::class, 'directToRoom'])->name('appointments.direct-to-room');
+        Route::post('/appointments/{appointment}/session-vitals', [\App\Http\Controllers\DoctorDashboardController::class, 'requestVitalsDuringSession'])->name('appointments.session-vitals');
         Route::get('/board-partial', [\App\Http\Controllers\DoctorDashboardController::class, 'boardPartial'])->name('board-partial');
     });
 
@@ -106,7 +109,6 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin,receptionist')->group(function () {
         Route::get('invoices/{appointment}/create', [App\Http\Controllers\InvoiceController::class, 'createFromAppointment'])->name('invoices.create-from-appointment');
         Route::post('invoices/{invoice}/payment', [App\Http\Controllers\InvoiceController::class, 'recordPayment'])->name('invoices.payment');
-        Route::post('invoices/{invoice}/send', [App\Http\Controllers\InvoiceController::class, 'send'])->name('invoices.send');
         Route::get('invoices/{invoice}/print', [App\Http\Controllers\InvoiceController::class, 'print'])->name('invoices.print');
         Route::get('invoices/{invoice}/pdf', [App\Http\Controllers\InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
         Route::resource('invoices', App\Http\Controllers\InvoiceController::class);
@@ -146,10 +148,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class);
         Route::patch('users/{user}/toggle', [UserController::class, 'toggleActive'])->name('users.toggle');
         Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+        Route::post('users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
     });
 
     // Nurse / Vitals Routes (traditional + AJAX)
     Route::middleware(['role:nurse,doctor,admin'])->group(function () {
+        Route::post('appointments/{appointment}/nurse-check-in', [App\Http\Controllers\NurseController::class, 'checkIn'])->name('nurse.check-in');
         Route::get('appointments/{appointment}/vitals/create', [App\Http\Controllers\NurseController::class, 'createVitals'])->name('nurse.vitals.create');
         Route::post('appointments/{appointment}/vitals', [App\Http\Controllers\NurseController::class, 'storeVitals'])->name('nurse.vitals.store');
         Route::post('appointments/{appointment}/vitals/ajax', [App\Http\Controllers\NurseController::class, 'storeVitalsAjax'])->name('nurse.vitals.store-ajax');
@@ -158,6 +162,11 @@ Route::middleware('auth')->group(function () {
     // Nurse API Internal Routes (AJAX) — triage polling
     Route::middleware('role:nurse,admin')->group(function () {
         Route::get('/api/nurse/triage-queue', [App\Http\Controllers\NurseController::class, 'triageQueueApi'])->name('api.nurse.triage-queue');
+    });
+
+    // Nurse no-show route
+    Route::middleware('role:nurse,admin')->group(function () {
+        Route::post('/appointments/{appointment}/nurse-no-show', [App\Http\Controllers\NurseController::class, 'markNoShow'])->name('nurse.no-show');
     });
 
     // API Internal Routes (AJAX) — session-authenticated

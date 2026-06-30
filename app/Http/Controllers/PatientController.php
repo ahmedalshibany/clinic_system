@@ -40,7 +40,7 @@ class PatientController extends Controller
             $patient = $this->patientService->createPatient($request->validated());
             if ($request->wantsJson()) {
                  return response()->json([
-                     'message' => 'Patient added successfully',
+                     'message' => __('messages.patientAdded'),
                      'patient' => $patient,
                      'redirect' => route('patients.show', $patient)
                  ], 201);
@@ -53,9 +53,9 @@ class PatientController extends Controller
             \Illuminate\Support\Facades\Log::error('Patient Creation Failed: ' . $e->getMessage());
             \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
             if ($request->wantsJson()) {
-                 return response()->json(['error' => $e->getMessage()], 500);
+                 return response()->json(['error' => __('messages.systemError')], 500);
             }
-            return back()->withInput()->with('error', 'Error creating patient: ' . $e->getMessage());
+            return back()->withInput()->with('error', __('messages.systemError'));
         }
     }
 
@@ -84,8 +84,8 @@ class PatientController extends Controller
             $warnings[] = __('messages.patientAllergyWarning', ['allergies' => $patient->allergies]);
         }
 
-        if ($patient->insurance_expiry_date && \Carbon\Carbon::parse($patient->insurance_expiry_date)->diffInDays(now()) <= 30) {
-            $warnings[] = __('messages.insuranceExpiryWarning', ['date' => $patient->insurance_expiry_date]);
+        if ($patient->insurance_expiry && \Carbon\Carbon::parse($patient->insurance_expiry)->diffInDays(now()) <= 30) {
+            $warnings[] = __('messages.insuranceExpiryWarning', ['date' => $patient->insurance_expiry]);
         }
 
         if (!empty($warnings)) {
@@ -127,7 +127,7 @@ class PatientController extends Controller
 
         $file = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('patient-files/' . $patient->id, $filename, 'public');
+        $path = $file->storeAs('patient-files/' . $patient->id, $filename, 'secure_uploads');
 
         $patient->files()->create([
             'uploaded_by' => auth()->id(),
@@ -149,7 +149,7 @@ class PatientController extends Controller
         if ($file->patient_id !== $patient->id) {
             abort(404);
         }
-        return Storage::disk('public')->download($file->file_path, $file->original_name);
+        return Storage::disk('secure_uploads')->download($file->file_path, $file->original_name);
     }
 
     public function deleteFile(Patient $patient, PatientFile $file)
@@ -159,8 +159,8 @@ class PatientController extends Controller
             abort(404);
         }
 
-        if (Storage::disk('public')->exists($file->file_path)) {
-            Storage::disk('public')->delete($file->file_path);
+        if (Storage::disk('secure_uploads')->exists($file->file_path)) {
+            Storage::disk('secure_uploads')->delete($file->file_path);
         }
 
         $file->delete();

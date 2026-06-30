@@ -246,7 +246,7 @@ function applyQuickFilter(filterValue) {
                                         {{ $payment->invoice->patient->name }}
                                     </div>
                                 </td>
-                                <td><span class="badge text-dark border">{{ ucfirst($payment->payment_method) }}</span></td>
+                                <td><span class="badge text-dark border">{{ __("messages.{$payment->payment_method}") }}</span></td>
                                 <td>{{ $payment->receiver->name ?? __('messages.systemLabel') }}</td>
                                 <td class="text-end pe-4 fw-bold text-nowrap">{{ $currencySymbol }}{{ number_format($payment->amount, 2) }}</td>
                             </tr>

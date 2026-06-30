@@ -23,7 +23,7 @@ class RoleMiddleware
 
         // Check if user has one of the allowed roles
         if (!in_array($request->user()->role, $roles)) {
-            abort(403, 'You do not have permission to access this page.');
+            abort(403, __('messages.forbidden'));
         }
 
         return $next($request);

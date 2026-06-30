@@ -98,11 +98,7 @@
             margin-top: 4px;
         }
         .status-paid { background: #e3f5eb; color: #0d7c3f; border: 1px solid #b2dfc9; }
-        .status-partial { background: #e5f2fd; color: #036; border: 1px solid #b8d4f0; }
-        .status-draft { background: #eee; color: #555; border: 1px solid #ccc; }
-        .status-overdue { background: #fde8e8; color: #b00; border: 1px solid #f5c6c6; }
         .status-cancelled { background: #f5f5f5; color: #888; border: 1px solid #ddd; }
-        .status-sent { background: #e8f4fd; color: #1a6b8a; border: 1px solid #b8ddf0; }
 
         /* Bill To */
         .bill-section {
@@ -283,25 +279,11 @@
                     <div class="meta-row">{{ __('messages.appointment') }}: <strong>#{{ $invoice->appointment_id }}</strong></div>
                 @endif
                 <div class="meta-row">{{ __('messages.status') }}:
-                    @switch($invoice->status)
-                        @case('paid')
-                            <span class="status-badge status-paid">{{ __('messages.invoice_paid') }}</span>
-                            @break
-                        @case('partial')
-                            <span class="status-badge status-partial">{{ __('messages.invoice_partial') }}</span>
-                            @break
-                        @case('draft')
-                            <span class="status-badge status-draft">{{ __('messages.invoice_draft') }}</span>
-                            @break
-                        @case('overdue')
-                            <span class="status-badge status-overdue">{{ __('messages.invoice_overdue') }}</span>
-                            @break
-                        @case('cancelled')
-                            <span class="status-badge status-cancelled">{{ __('messages.invoice_cancelled') }}</span>
-                            @break
-                        @default
-                            <span class="status-badge status-sent">{{ __('messages.sent') }}</span>
-                    @endswitch
+                    @if($invoice->status === 'paid')
+                        <span class="status-badge status-paid">{{ __('messages.invoice_paid') }}</span>
+                    @else
+                        <span class="status-badge status-cancelled">{{ __('messages.invoice_cancelled') }}</span>
+                    @endif
                 </div>
             </div>
         </div>

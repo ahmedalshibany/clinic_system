@@ -22,9 +22,6 @@ class InvoiceController extends Controller
         $this->invoiceService = $invoiceService;
     }
 
-    /**
-     * Display a listing of invoices.
-     */
     public function index(Request $request)
     {
         $this->authorize('viewAny', Invoice::class);
@@ -54,7 +51,7 @@ class InvoiceController extends Controller
         $prefilled_items = [
             [
                 'service_id' => null,
-                'description' => 'Consultation - ' . $appointment->type,
+                'description' => __('messages.consultation') . ' - ' . $appointment->type,
                 'quantity' => 1,
                 'unit_price' => $appointment->fee > 0 ? $appointment->fee : 0,
             ]
@@ -70,7 +67,7 @@ class InvoiceController extends Controller
             $this->invoiceService->createInvoice($validated, Auth::id());
             return redirect()->route('invoices.index')->with('success', __('messages.invoiceCreated'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Error creating invoice: ' . $e->getMessage())->withInput();
+            return back()->with('error', __('messages.invoiceCreateError'))->withInput();
         }
     }
 
@@ -79,19 +76,12 @@ class InvoiceController extends Controller
         $this->authorize('view', $invoice);
         $invoice->load(['items', 'patient', 'payments', 'creator']);
 
-        if ($invoice->status === 'draft') {
-            session()->flash('info', __('messages.invoiceDraftInfo'));
-        }
-
         return view('invoices.show', compact('invoice'));
     }
 
     public function edit(Invoice $invoice)
     {
         $this->authorize('update', $invoice);
-        if ($invoice->status == 'paid' || $invoice->status == 'cancelled') {
-             return redirect()->route('invoices.show', $invoice)->with('error', __('messages.invoiceEditLocked'));
-        }
         $patients = Patient::select('id', 'name', 'patient_code')->get();
         $services = Service::active()->get();
         return view('invoices.edit', compact('invoice', 'patients', 'services'));
@@ -105,7 +95,7 @@ class InvoiceController extends Controller
             $this->invoiceService->updateInvoice($invoice->id, $validated);
             return redirect()->route('invoices.show', $invoice)->with('success', __('messages.invoiceUpdated'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Error updating invoice: ' . $e->getMessage())->withInput();
+            return back()->with('error', __('messages.invoiceUpdateError'))->withInput();
         }
     }
 
@@ -116,7 +106,7 @@ class InvoiceController extends Controller
             $this->invoiceService->deleteInvoice($invoice);
             return redirect()->route('invoices.index')->with('success', __('messages.invoiceDeleted'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Error deleting invoice: ' . $e->getMessage());
+            return back()->with('error', __('messages.invoiceDeleteError'));
         }
     }
 
@@ -130,18 +120,6 @@ class InvoiceController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['amount' => $e->getMessage()])->withInput();
         }
-    }
-
-    public function send(Invoice $invoice)
-    {
-        $this->authorize('update', $invoice);
-        if ($invoice->status == 'draft') {
-            if ($invoice->items->count() === 0) {
-                session()->flash('warning', __('messages.invoiceZeroItems'));
-            }
-            $invoice->update(['status' => 'sent']);
-        }
-        return back()->with('success', __('messages.invoiceMarkedSent'));
     }
 
     public function print(Invoice $invoice)

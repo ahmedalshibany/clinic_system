@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('date');
             $table->time('time');
             $table->enum('type', ['Consultation', 'Checkup', 'Follow-up', 'Emergency'])->default('Consultation');
-            $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled', 'waiting', 'in_progress', 'no_show', 'checked_in'])->default('pending');
+            $table->enum('status', ['pending', 'paid', 'confirmed', 'completed', 'cancelled', 'waiting', 'in_progress', 'no_show', 'checked_in', 'scheduled'])->default('pending');
             $table->text('notes')->nullable();
             $table->text('diagnosis')->nullable();
             $table->text('prescription')->nullable();
